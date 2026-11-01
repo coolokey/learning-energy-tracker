@@ -1,0 +1,2399 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>學習能量軌跡 AI 助教｜大溪國中</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #173e35;
+    --forest: #24654d;
+    --muted: #5d7068;
+    --paper: #f7f5ed;
+    --card: #fffefb;
+    --line: #d4ded5;
+    --lime: #e4edb7;
+    --amber: #d97706;
+    --amber-deep: #b45309;
+    --rose: #b91c1c;
+    --serif: "Noto Serif TC", "PMingLiU", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+    --tech: "Orbitron", ui-monospace, monospace;
+    --radius: 14px;
+    --shadow: 6px 6px 0 #e9ece2, 0 12px 30px rgba(23, 62, 53, .05);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; font-family: var(--sans); color: var(--ink); background: var(--paper);
+    line-height: 1.6; min-height: 100vh; -webkit-tap-highlight-color: transparent;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid #c7d88a; outline-offset: 2px; }
+  .hidden { display: none !important; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .tech { font-family: var(--tech); letter-spacing: .02em; }
+  .serif { font-family: var(--serif); }
+
+  /* ---------- 頁首 ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 30; background: rgba(247, 245, 237, .94);
+    backdrop-filter: blur(6px); border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner { max-width: 1120px; margin: 0 auto; padding: 10px 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+  .brand-mark { background: var(--ink); color: #fff; font-family: var(--serif); font-weight: 900; padding: 3px 9px; border-radius: 6px; font-size: 14px; }
+  .brand-name { font-family: var(--serif); font-weight: 900; font-size: 17px; letter-spacing: .06em; }
+  .brand-sub { font-size: 12px; color: var(--muted); }
+  .nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  .nav button {
+    border: 1px solid transparent; background: none; padding: 6px 12px; border-radius: 999px;
+    font-size: 13px; font-weight: 700; color: var(--muted);
+  }
+  .nav button[aria-current="page"] { background: var(--ink); color: #fff; }
+  .nav button:hover:not([aria-current="page"]) { border-color: var(--line); color: var(--ink); }
+  .nav .nav-admin { border-color: var(--line); background: var(--card); }
+  .engine-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--forest); background: #eff3e7; border: 1px solid #b7cfac; padding: 3px 10px; border-radius: 999px; }
+  .engine-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+  .engine-pill.live .engine-dot { background: #16a34a; }
+  .demo-banner { background: #fff3c4; color: #472f00; font-size: 13px; font-weight: 700; text-align: center; padding: 8px 16px; border-bottom: 1px solid #f0d78a; }
+
+  main { max-width: 1120px; margin: 0 auto; padding: 22px 18px 60px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  h1, h2, h3 { font-family: var(--serif); margin: 0; line-height: 1.3; }
+  h1 em, h2 em { font-style: normal; background: linear-gradient(transparent 68%, var(--lime) 68%); }
+  .eyebrow { font-family: var(--tech); font-size: 11px; letter-spacing: .18em; color: var(--forest); font-weight: 800; }
+  .muted { color: var(--muted); }
+  .small { font-size: 12px; }
+
+  /* ---------- 按鈕 ---------- */
+  .btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 9px 16px; border-radius: 10px; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+  .btn:hover { border-color: var(--forest); }
+  .btn-primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn-primary:hover { background: var(--forest); }
+  .btn-gold { background: var(--amber); color: #fff; border-color: var(--amber); }
+  .btn-gold:hover { background: var(--amber-deep); }
+  .btn-danger { color: var(--rose); border-color: #f1c4c4; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 8px; }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; }
+  .btn-block { width: 100%; }
+
+  /* ---------- 繳交頁 ---------- */
+  .submit-layout { display: grid; grid-template-columns: 1fr 1.05fr; gap: 28px; align-items: start; }
+  .hero { padding: 8px 4px; }
+  .hero h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 900; margin: 10px 0 14px; letter-spacing: .02em; }
+  .hero p.lead { font-size: 15px; color: #33524a; margin: 0 0 18px; max-width: 30em; }
+  .traj-card { padding: 16px 16px 10px; }
+  .traj-card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .traj-card-head strong { font-family: var(--serif); font-size: 15px; }
+  .traj-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .traj-legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .lg-note, .lg-art, .lg-badge { display: inline-block; width: 10px; height: 10px; }
+  .lg-note { border-radius: 50%; background: var(--forest); }
+  .lg-art { background: var(--amber); transform: rotate(45deg); }
+  .lg-badge { border-radius: 50%; border: 2px solid var(--amber); background: #fff7e6; }
+  .traj-svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .traj-path { fill: none; stroke: var(--forest); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .traj-path.draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: drawPath 1.6s ease-out forwards; }
+  .traj-node { opacity: 0; animation: nodeIn .35s ease-out forwards; }
+  @keyframes drawPath { to { stroke-dashoffset: 0; } }
+  @keyframes nodeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .how { display: grid; gap: 10px; margin-top: 18px; }
+  .how div { display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: 13px; color: #33524a; }
+  .how b { font-family: var(--tech); color: var(--amber); font-size: 13px; padding-top: 1px; }
+
+  .form-panel { padding: 22px; }
+  .form-panel h2 { font-size: 22px; margin-bottom: 4px; }
+  .status { font-size: 13px; padding: 9px 12px; border-radius: 10px; background: #eff3e7; color: var(--forest); margin: 12px 0 16px; font-weight: 600; }
+  .status.error { background: #fdecec; color: var(--rose); }
+  fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .row2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+  .field { display: grid; gap: 5px; margin-bottom: 14px; }
+  .field label, .field .label { font-size: 13px; font-weight: 700; }
+  input[type=text], input[type=number], input[type=password], select, textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font-size: 15px;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  .drop {
+    position: relative; border: 2px dashed #b7cfac; border-radius: 12px; background: #fafbf5; padding: 22px 14px;
+    text-align: center; overflow: hidden; transition: border-color .2s, background .2s;
+  }
+  .drop:hover, .drop.drag { border-color: var(--forest); background: #f2f6ea; }
+  .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .drop strong { display: block; font-size: 15px; }
+  .preview { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: #fff; }
+  .preview img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+  .preview .pdf-icon { width: 64px; height: 64px; border-radius: 8px; background: #fdecec; color: var(--rose); display: grid; place-items: center; font-weight: 900; font-family: var(--tech); font-size: 13px; }
+  .preview-meta { flex: 1; min-width: 0; font-size: 13px; }
+  .preview-meta div:first-child { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  details.art-opt { border: 1px solid var(--line); border-radius: 12px; background: #fcfcf7; margin-bottom: 14px; }
+  details.art-opt summary { cursor: pointer; padding: 11px 14px; font-weight: 700; font-size: 13px; list-style: none; display: flex; justify-content: space-between; gap: 8px; }
+  details.art-opt summary::-webkit-details-marker { display: none; }
+  details.art-opt summary::after { content: "＋"; color: var(--muted); }
+  details.art-opt[open] summary::after { content: "－"; }
+  .art-body { padding: 0 14px 14px; }
+  .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; margin: 4px 0 12px; }
+  .theme-chip { text-align: left; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 7px 9px; font-size: 12px; line-height: 1.35; }
+  .theme-chip b { display: block; font-size: 12.5px; }
+  .theme-chip span { color: var(--muted); font-size: 11px; }
+  .theme-chip[aria-pressed="true"] { border-color: var(--amber); background: #fff7e6; box-shadow: inset 0 0 0 1px var(--amber); }
+  .consent { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; margin: 4px 0 6px; }
+  .consent input { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; accent-color: var(--forest); }
+  .privacy { font-size: 11.5px; color: var(--muted); margin: 0 0 16px; }
+  .demo-row { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
+
+  /* ---------- 掃描中 ---------- */
+  .scan-wrap { max-width: 520px; margin: 30px auto; text-align: center; padding: 28px; }
+  .scan-frame { position: relative; width: 240px; height: 240px; margin: 0 auto 20px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: #fff; }
+  .scan-frame img { width: 100%; height: 100%; object-fit: cover; }
+  .scan-frame .pdf-big { width: 100%; height: 100%; display: grid; place-items: center; font-family: var(--tech); font-weight: 900; color: var(--rose); font-size: 28px; background: #fdf3f3; }
+  .laser { position: absolute; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #34d399 20%, #fff 50%, #34d399 80%, transparent); box-shadow: 0 0 16px #34d399; animation: laser 2.2s infinite ease-in-out; }
+  @keyframes laser { 0% { top: 0; opacity: .3; } 50% { top: 97%; opacity: 1; } 100% { top: 0; opacity: .3; } }
+  .scan-stage { font-family: var(--serif); font-weight: 700; font-size: 17px; }
+
+  /* ---------- 結果頁 ---------- */
+  .result-top { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .receipt { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; font-size: 13px; }
+  .receipt code { font-family: var(--tech); font-size: 12px; color: var(--forest); background: #eff3e7; padding: 3px 8px; border-radius: 6px; word-break: break-all; }
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .result-card { padding: 20px; }
+  .overlay-canvas { width: 100%; height: auto; display: block; border-radius: 12px; background: #f3f5ee; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+  .seg button { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 4px; font-size: 12px; font-weight: 700; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .score-head { display: flex; gap: 18px; align-items: center; }
+  .ring { position: relative; width: 112px; height: 112px; flex-shrink: 0; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring-num { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .ring-num b { font-family: var(--tech); font-size: 34px; font-weight: 900; line-height: 1; display: block; }
+  .ring-num span { font-size: 10px; color: var(--muted); letter-spacing: .1em; }
+  .chip { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); }
+  .chip-note { background: #eaf3ee; color: var(--forest); border-color: #b7d4c4; }
+  .chip-art { background: #fff4e0; color: var(--amber-deep); border-color: #f5cf95; }
+  .chip-invalid { background: #fdecec; color: var(--rose); border-color: #f1c4c4; }
+  .chip-gold { background: var(--amber); color: #fff; border-color: var(--amber); }
+  .res-title { font-size: 22px; font-weight: 900; margin: 6px 0 4px; }
+  .radar-box { display: grid; place-items: center; margin: 10px 0 6px; }
+  .bars { display: grid; gap: 7px; }
+  .bar-row { display: grid; grid-template-columns: 7.5em 1fr 2.4em; align-items: center; gap: 8px; font-size: 12.5px; }
+  .bar-track { height: 7px; background: #edf0e6; border-radius: 99px; overflow: hidden; }
+  .bar-fill { height: 100%; width: 0; background: var(--forest); border-radius: 99px; transition: width .9s ease-out; }
+  .bar-row b { font-family: var(--tech); font-size: 12px; text-align: right; }
+  .text-block { padding: 12px 14px; border-radius: 10px; font-size: 14px; margin-top: 12px; }
+  .tb-summary { background: #f6f8f3; }
+  .tb-feedback { background: #f0f8f2; border-left: 3px solid var(--forest); border-radius: 0 10px 10px 0; }
+  .tb-advice { background: #fff8eb; border-left: 3px solid var(--amber); border-radius: 0 10px 10px 0; }
+  .text-block h4 { margin: 0 0 3px; font-size: 12px; color: var(--muted); font-weight: 700; }
+  .keywords { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .keywords span { font-size: 12px; background: var(--lime); padding: 2px 9px; border-radius: 999px; font-weight: 600; }
+
+  .badge-panel { margin-top: 20px; padding: 22px; }
+  .badge-layout { display: grid; grid-template-columns: 300px 1fr; gap: 22px; align-items: start; }
+  .crop-view { position: relative; width: 280px; height: 280px; overflow: hidden; border-radius: 14px; background: #1b2c27; touch-action: none; user-select: none; margin: 0 auto; }
+  .crop-view img { position: absolute; left: 0; top: 0; max-width: none; transform-origin: center center; pointer-events: none; }
+  .crop-mask { position: absolute; inset: 20px; border-radius: 50%; box-shadow: 0 0 0 200px rgba(10, 20, 17, .62); border: 2px dashed #e4edb7; pointer-events: none; }
+  .emblem-img { width: 240px; height: 240px; border-radius: 50%; display: block; margin: 20px auto; box-shadow: 0 8px 22px rgba(23, 62, 53, .25); }
+  .zoom-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 12px; }
+  .zoom-row input { flex: 1; accent-color: var(--forest); }
+  .badge-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .notice { padding: 10px 14px; border-radius: 10px; font-size: 13px; background: #eff3e7; color: var(--forest); margin-top: 12px; }
+  .notice.warn { background: #fff4e0; color: var(--amber-deep); }
+
+  /* ---------- 軌跡頁 ---------- */
+  .lookup { padding: 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin-bottom: 18px; }
+  .lookup .field { flex: 1 1 280px; margin: 0; }
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 16px 0; }
+  .stat { padding: 12px 14px; }
+  .stat b { font-family: var(--tech); font-size: 24px; font-weight: 900; display: block; line-height: 1.1; }
+  .stat span { font-size: 12px; color: var(--muted); }
+  .traj-main { display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px; }
+  .timeline { display: grid; gap: 12px; margin-top: 18px; }
+  .tl-item { padding: 16px; display: grid; grid-template-columns: 54px 1fr auto; gap: 14px; align-items: start; }
+  .tl-score { font-family: var(--tech); font-size: 22px; font-weight: 900; text-align: center; }
+  .tl-score small { display: block; font-family: var(--sans); font-size: 10px; color: var(--muted); font-weight: 600; }
+  .tl-body h3 { font-size: 16px; margin: 4px 0; }
+  .teacher-comment { margin-top: 8px; padding: 8px 12px; border-radius: 8px; background: #eaf3ee; font-size: 13px; }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+
+  /* ---------- 星空藝廊 ---------- */
+  .gallery-hero { padding: 26px 22px; background: radial-gradient(circle at 20% 20%, #24654d, #173e35 55%, #0c211b); color: #fff; border-radius: var(--radius); margin-bottom: 18px; }
+  .gallery-hero h2 { font-size: 24px; }
+  .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .g-card { padding: 14px 10px; text-align: center; }
+  .g-card img { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 3px solid var(--amber); display: block; margin: 0 auto 8px; }
+  .g-card b { display: block; font-family: var(--serif); font-size: 13.5px; }
+
+  /* ---------- 教師後台 ---------- */
+  .modal { position: fixed; inset: 0; z-index: 60; background: rgba(12, 28, 23, .55); display: flex; align-items: flex-start; justify-content: center; padding: 30px 14px; overflow-y: auto; }
+  .modal-card { width: 100%; max-width: 980px; padding: 22px; position: relative; }
+  .modal-close { position: absolute; right: 14px; top: 12px; border: 0; background: none; font-size: 22px; color: var(--muted); }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin: 14px 0 16px; flex-wrap: wrap; }
+  .tabs button { border: 0; background: none; padding: 8px 14px; font-weight: 700; font-size: 13px; color: var(--muted); border-bottom: 3px solid transparent; }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--amber); }
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 14px; }
+  .kpi { border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: #fff; }
+  .kpi b { font-family: var(--tech); font-size: 20px; display: block; }
+  .kpi span { font-size: 11.5px; color: var(--muted); }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .filters select, .filters input { width: auto; flex: 1 1 140px; padding: 7px 10px; font-size: 13px; }
+  .adm-list { display: grid; gap: 10px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+  .adm-item { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: #fff; font-size: 13px; }
+  .adm-item.pending { border-color: var(--amber); box-shadow: inset 4px 0 0 var(--amber); }
+  .adm-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .adm-head .who { font-weight: 800; font-size: 14px; }
+  .adm-controls { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 8px; align-items: start; }
+  .adm-controls textarea { min-height: 54px; font-size: 13px; }
+  .adm-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .assign-list { display: grid; gap: 6px; margin-bottom: 10px; }
+  .assign-item { display: flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; background: #fff; font-size: 14px; }
+  .assign-item span { flex: 1; }
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .set-box { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: #fff; }
+  .set-box h3 { font-size: 15px; margin-bottom: 8px; }
+  .radio-line { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; margin: 6px 0; }
+  .radio-line input { accent-color: var(--forest); margin-top: 4px; }
+  .msg { font-size: 13px; margin-top: 8px; min-height: 1.2em; }
+  .msg.err { color: var(--rose); }
+  .msg.ok { color: var(--forest); }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 14px; z-index: 90; box-shadow: 0 10px 24px rgba(0, 0, 0, .2); }
+  .confetti { position: fixed; top: -10px; width: 9px; height: 9px; z-index: 80; pointer-events: none; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(105vh) rotate(720deg); opacity: 0; } }
+
+  @media (max-width: 880px) {
+    .submit-layout, .result-grid, .traj-main, .badge-layout, .settings-grid { grid-template-columns: 1fr; }
+    .hero { order: 2; }
+    .form-panel { order: 1; }
+    .stats, .kpis { grid-template-columns: repeat(3, 1fr); }
+    .brand-sub { display: none; }
+  }
+  @media (max-width: 520px) {
+    main { padding: 16px 12px 50px; }
+    .stats, .kpis { grid-template-columns: repeat(2, 1fr); }
+    .tl-item { grid-template-columns: 46px 1fr; }
+    .tl-item > :last-child { grid-column: 1 / -1; }
+    .adm-controls { grid-template-columns: 1fr; }
+    .row2 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    .traj-path.draw { stroke-dashoffset: 0; }
+    .traj-node { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div id="demo-banner" class="demo-banner hidden" role="status">示範模式：目前在瀏覽器本機執行，資料只存在這台裝置。部署到 Google Apps Script 後才會真正收件與分析。</div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">AI</span>
+      <div>
+        <div class="brand-name">學習能量軌跡</div>
+        <div class="brand-sub">大溪國中・自主學習 ╳ 藝術能量</div>
+      </div>
+    </div>
+    <span id="engine-pill" class="engine-pill"><span class="engine-dot"></span><span id="engine-text">連線中…</span></span>
+    <nav class="nav" aria-label="主要功能">
+      <button type="button" data-view="submit" aria-current="page">繳交作品</button>
+      <button type="button" data-view="trajectory">我的能量軌跡</button>
+      <button type="button" data-view="gallery">成果星空</button>
+      <button type="button" class="nav-admin" id="btn-open-admin">教師後台</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ================= 繳交作品 ================= -->
+  <section id="view-submit" class="view">
+    <div class="submit-layout">
+      <div class="hero">
+        <div class="eyebrow">LEARNING ENERGY TRACKER</div>
+        <h1>每一次繳交，<br>都是軌跡上的<em>一個能量點</em>。</h1>
+        <p class="lead">筆記、學習單、畫作都可以交。AI 會先判斷作品類型，再用對應的五維規準給你回饋；能量達 85 分，就能做一枚 58mm 胸章。</p>
+        <div class="panel traj-card">
+          <div class="traj-card-head"><strong>一位同學的學期軌跡（範例）</strong><span class="small muted">701 王○明</span></div>
+          <svg id="hero-traj" class="traj-svg" viewBox="0 0 520 220" role="img" aria-label="範例能量軌跡：74 分、82 分、92 分並獲得胸章"></svg>
+          <div class="traj-legend"><span><i class="lg-note"></i>探究筆記</span><span><i class="lg-art"></i>藝術創作</span><span><i class="lg-badge"></i>已獲胸章</span></div>
+        </div>
+        <div class="how">
+          <div><b>01</b><span>填班級座號姓名，免登入。拍照或上傳 JPG、PNG、PDF。</span></div>
+          <div><b>02</b><span>AI 判斷是筆記還是畫作，給五維雷達、評語與下一步建議。</span></div>
+          <div><b>03</b><span>保留收據編號，隨時查看自己的能量軌跡與老師評語。</span></div>
+        </div>
+      </div>
+
+      <div class="panel form-panel">
+        <h2>繳交作品</h2>
+        <div class="small muted">老師會在後台確認 AI 評語後，才成為正式評語。</div>
+        <div id="status" class="status" role="status">正在連線收件空間…</div>
+        <form id="form" novalidate>
+          <fieldset id="fields" disabled>
+            <div class="row2">
+              <div class="field"><label for="f-class">班級</label><input id="f-class" type="text" maxlength="20" placeholder="例如 701" autocomplete="off" required></div>
+              <div class="field"><label for="f-seat">座號</label><input id="f-seat" type="number" inputmode="numeric" min="1" max="99" placeholder="3" required></div>
+            </div>
+            <div class="field"><label for="f-name">姓名</label><input id="f-name" type="text" maxlength="30" placeholder="請填完整姓名" autocomplete="name" required></div>
+            <div class="field"><label for="f-assignment">作業項目</label><select id="f-assignment" required><option value="">請選擇本次作業</option></select></div>
+            <div class="field">
+              <span class="label" id="file-label">作品檔案</span>
+              <div id="drop" class="drop">
+                <strong>點這裡拍照或選擇檔案</strong>
+                <span class="small muted">JPG、PNG 或 PDF，最大 10 MB</span>
+                <input id="f-file" type="file" accept="image/jpeg,image/png,application/pdf,.jpg,.jpeg,.png,.pdf" aria-labelledby="file-label">
+              </div>
+              <div id="preview" class="preview hidden">
+                <img id="preview-img" alt="作品預覽">
+                <div id="preview-pdf" class="pdf-icon hidden">PDF</div>
+                <div class="preview-meta"><div id="preview-name">-</div><div id="preview-size" class="muted small">-</div></div>
+                <button type="button" class="btn btn-sm" id="btn-reselect">更換</button>
+              </div>
+            </div>
+            <details class="art-opt" id="art-opt">
+              <summary>交的是畫作嗎？選一個挑戰主題（選填）</summary>
+              <div class="art-body">
+                <p class="small muted" style="margin:0 0 6px">選了主題，AI 會檢查畫面是否切題；文不對題會得到 10–30 分。</p>
+                <div id="themes" class="themes" role="group" aria-label="藝術挑戰主題"></div>
+                <div id="custom-theme-box" class="field hidden"><label for="f-custom-theme">自訂主題名稱</label><input id="f-custom-theme" type="text" maxlength="20" placeholder="例如：我家的貓"></div>
+                <div class="field" style="margin-bottom:0"><label for="f-note">我在畫什麼（選填，150 字內）</label><textarea id="f-note" maxlength="150" placeholder="用一兩句話說明你的創作想法"></textarea></div>
+              </div>
+            </details>
+            <label class="consent"><input id="f-consent" type="checkbox" checked><span>我已移除作品中的姓名、班級、座號、人像等可識別資訊，並同意將作品傳送 Google Gemini 進行 AI 分析。</span></label>
+            <p class="privacy">勾選為自願；不勾選仍可繳交，只是不會有 AI 回饋。系統不會自動遮蔽影像中的個資。班級座號姓名只用於校內收件，不會放進 AI 提示詞。</p>
+            <button class="btn btn-primary btn-block" id="btn-submit" type="submit" style="padding:12px">送出作品</button>
+          </fieldset>
+        </form>
+        <div class="demo-row">
+          <span>沒有作品也能試：</span>
+          <button type="button" class="btn btn-sm" data-demo="note">探究筆記範例</button>
+          <button type="button" class="btn btn-sm" data-demo="art">藝術作品範例</button>
+          <button type="button" class="btn btn-sm" data-demo="invalid">空白紙範例</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 分析中 ================= -->
+  <section id="view-scan" class="view hidden" aria-live="polite">
+    <div class="panel scan-wrap">
+      <div class="scan-frame"><img id="scan-img" alt=""><div id="scan-pdf" class="pdf-big hidden">PDF</div><div class="laser"></div></div>
+      <div id="scan-stage" class="scan-stage">正在上傳並封存作品…</div>
+      <div id="scan-sub" class="small muted" style="margin-top:6px">請勿關閉頁面</div>
+    </div>
+  </section>
+
+  <!-- ================= 分析結果 ================= -->
+  <section id="view-result" class="view hidden">
+    <div class="result-top">
+      <button type="button" class="btn" id="btn-again">← 再交一份</button>
+      <div class="panel receipt">
+        <span>收據編號</span><code id="r-receipt">-</code>
+        <button type="button" class="btn btn-sm" id="btn-copy-receipt">複製</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btn-to-traj">看我的能量軌跡</button>
+      </div>
+    </div>
+    <p class="small muted" style="margin:-6px 0 14px">收據編號是查詢能量軌跡的鑰匙，已自動存在這台裝置；換裝置時請自行記下。</p>
+
+    <div id="r-unavailable" class="panel result-card hidden">
+      <h2>作品已收件</h2>
+      <p id="r-unavailable-text" class="muted"></p>
+      <p class="small muted">老師會直接檢視原始作品。之後可以用收據編號查看老師的評語。</p>
+    </div>
+
+    <div id="r-main" class="result-grid">
+      <div class="panel result-card">
+        <canvas id="r-overlay" class="overlay-canvas" width="600" height="420" aria-label="作品預覽與構圖診斷"></canvas>
+        <div id="r-overlay-modes" class="seg hidden" role="group" aria-label="構圖診斷">
+          <button type="button" data-overlay="thirds" aria-pressed="true">三分構圖線</button>
+          <button type="button" data-overlay="focus" aria-pressed="false">視覺重心熱區</button>
+          <button type="button" data-overlay="palette" aria-pressed="false">主調色票</button>
+        </div>
+        <div id="r-summary-wrap" class="text-block tb-summary"><h4 id="r-summary-label">歷程摘要</h4><div id="r-summary"></div></div>
+        <div id="r-keywords" class="keywords"></div>
+        <div id="r-note-wrap" class="text-block tb-summary hidden"><h4>我的創作自述</h4><div id="r-note"></div></div>
+      </div>
+      <div class="panel result-card">
+        <div class="score-head">
+          <div class="ring">
+            <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="none" stroke="#edf0e6" stroke-width="9"/><circle id="r-ring" cx="50" cy="50" r="40" fill="none" stroke="#24654d" stroke-width="9" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3" style="transition: stroke-dashoffset 1.2s ease-out"/></svg>
+            <div class="ring-num"><div><b id="r-score">0</b><span>ENERGY</span></div></div>
+          </div>
+          <div>
+            <div><span id="r-kind" class="chip">-</span> <span id="r-tag" class="chip hidden"></span></div>
+            <div id="r-title" class="res-title serif">-</div>
+            <div id="r-status" class="small" style="font-weight:700"></div>
+          </div>
+        </div>
+        <div class="radar-box"><canvas id="r-radar" width="280" height="250" aria-label="五維雷達圖"></canvas></div>
+        <div id="r-bars" class="bars"></div>
+        <div class="text-block tb-feedback"><h4>AI 評語草稿（老師確認後才算正式評語）</h4><div id="r-feedback"></div></div>
+        <div class="text-block tb-advice"><h4>下一步</h4><div id="r-advice"></div></div>
+        <div style="margin-top:12px"><button type="button" class="btn btn-sm" id="btn-card">保存學習歷程卡</button></div>
+      </div>
+    </div>
+
+    <!-- 胸章 -->
+    <div id="badge-panel" class="panel badge-panel hidden">
+      <div class="eyebrow">MAKER BADGE</div>
+      <h2 style="font-size:22px;margin:4px 0 2px">你解鎖了 58mm 能量胸章</h2>
+      <p class="small muted" style="margin:0 0 14px" id="badge-lead">調整胸章畫面後按「儲存胸章」，就能下載印刷檔與證書。</p>
+      <div class="badge-layout">
+        <div>
+          <div id="badge-crop" class="crop-view"><img id="crop-img" alt="胸章裁切"><div class="crop-mask"></div></div>
+          <img id="badge-emblem" class="emblem-img hidden" alt="能量徽記預覽">
+          <div id="zoom-row" class="zoom-row"><span>縮放</span><input id="crop-zoom" type="range" min="0.4" max="3" step="0.01" value="1"><span id="crop-zoom-val" class="tech">100%</span></div>
+          <div id="badge-src-switch" class="seg" style="grid-template-columns:1fr 1fr">
+            <button type="button" data-badge-src="crop" aria-pressed="true">裁切作品照片</button>
+            <button type="button" data-badge-src="emblem" aria-pressed="false">能量徽記</button>
+          </div>
+        </div>
+        <div>
+          <div class="badge-actions">
+            <button type="button" class="btn btn-primary" id="btn-save-badge">儲存胸章</button>
+          </div>
+          <div id="badge-msg" class="notice hidden"></div>
+          <div id="badge-downloads" class="badge-actions hidden">
+            <button type="button" class="btn btn-gold" id="btn-print">下載 58mm 印刷檔</button>
+            <button type="button" class="btn btn-gold" id="btn-cert">下載 A4 證書</button>
+          </div>
+          <p class="small muted" style="margin-top:14px">印刷檔含 70mm 出血線、58mm 包邊線、50mm 安全線與對位十字規標，300 DPI。</p>
+        </div>
+      </div>
+    </div>
+    <div id="badge-locked" class="panel badge-panel hidden">
+      <h2 style="font-size:18px">距離胸章還差 <span id="badge-gap" class="tech" style="color:var(--amber)">0</span> 分</h2>
+      <p class="small muted" style="margin:6px 0 12px">照著「下一步」修改後再交一次，新的分數會接在你的能量軌跡上。</p>
+      <button type="button" class="btn btn-primary" id="btn-retry">修改後重新挑戰</button>
+    </div>
+  </section>
+
+  <!-- ================= 我的能量軌跡 ================= -->
+  <section id="view-trajectory" class="view hidden">
+    <div class="panel lookup">
+      <div class="field">
+        <label for="t-receipt">收據編號（任一張都可以）</label>
+        <input id="t-receipt" type="text" placeholder="xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field" id="t-saved-box" style="flex:0 1 220px">
+        <label for="t-saved">這台裝置記住的收據</label>
+        <select id="t-saved"><option value="">—</option></select>
+      </div>
+      <button type="button" class="btn btn-primary" id="btn-lookup">查看軌跡</button>
+      <button type="button" class="btn btn-sm btn-danger" id="btn-forget">清除這台裝置的收據</button>
+    </div>
+    <div id="t-msg" class="empty">輸入收據編號，就能看到你每一次繳交串成的能量軌跡。</div>
+    <div id="t-content" class="hidden">
+      <h2 id="t-student" style="font-size:24px"></h2>
+      <div class="stats">
+        <div class="panel stat"><b id="s-total">0</b><span>繳交件數</span></div>
+        <div class="panel stat"><b id="s-avg">—</b><span>平均能量</span></div>
+        <div class="panel stat"><b id="s-best">—</b><span>最高能量</span></div>
+        <div class="panel stat"><b id="s-growth">—</b><span>從第一次到最近</span></div>
+        <div class="panel stat"><b id="s-badges">0</b><span>已獲胸章</span></div>
+      </div>
+      <div class="traj-main">
+        <div class="panel traj-card">
+          <div class="traj-card-head"><strong>能量軌跡</strong><span class="small muted">虛線為胸章門檻 85 分</span></div>
+          <svg id="t-svg" class="traj-svg" viewBox="0 0 520 220" role="img" aria-label="個人能量軌跡"></svg>
+          <div class="traj-legend"><span><i class="lg-note"></i>探究筆記</span><span><i class="lg-art"></i>藝術創作</span><span><i class="lg-badge"></i>已獲胸章</span></div>
+        </div>
+        <div class="panel traj-card">
+          <div class="traj-card-head"><strong>最近三次雷達疊圖</strong></div>
+          <div class="radar-box"><canvas id="t-radar" width="280" height="250" aria-label="最近三次五維雷達疊圖"></canvas></div>
+          <div id="t-radar-legend" class="traj-legend"></div>
+        </div>
+      </div>
+      <div id="t-timeline" class="timeline"></div>
+    </div>
+  </section>
+
+  <!-- ================= 成果星空 ================= -->
+  <section id="view-gallery" class="view hidden">
+    <div class="gallery-hero">
+      <div class="eyebrow" style="color:#e4edb7">CLASS CONSTELLATION</div>
+      <h2>班級成果星空</h2>
+      <p style="margin:6px 0 0;opacity:.85;font-size:14px">每一枚胸章都是一位同學達到 85 分的作品。為保護隱私，姓名只顯示首尾字。</p>
+    </div>
+    <div id="gallery-grid" class="gallery-grid"></div>
+  </section>
+</main>
+
+<!-- ================= 教師後台 ================= -->
+<div id="admin-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+  <div class="panel modal-card">
+    <button type="button" class="modal-close" id="btn-close-admin" aria-label="關閉">×</button>
+    <h2 id="admin-title" style="font-size:22px">教師後台</h2>
+    <div id="admin-login" style="max-width:360px;margin-top:14px">
+      <div class="field"><label for="a-pwd">管理密碼</label><input id="a-pwd" type="password" autocomplete="current-password"></div>
+      <button type="button" class="btn btn-primary" id="btn-admin-login">登入</button>
+      <div id="a-login-msg" class="msg"></div>
+    </div>
+    <div id="admin-body" class="hidden">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="review" aria-selected="true">繳交與審核 <span id="a-pending-chip" class="chip chip-gold hidden"></span></button>
+        <button type="button" role="tab" data-tab="assign" aria-selected="false">作業項目</button>
+        <button type="button" role="tab" data-tab="settings" aria-selected="false">系統設定</button>
+        <button type="button" role="tab" data-tab="export" aria-selected="false">總表與成果冊</button>
+      </div>
+
+      <div data-panel="review">
+        <div class="kpis">
+          <div class="kpi"><b id="k-total">0</b><span>繳交件數</span></div>
+          <div class="kpi"><b id="k-scored">0</b><span>AI 已分析</span></div>
+          <div class="kpi"><b id="k-avg">—</b><span>平均能量</span></div>
+          <div class="kpi"><b id="k-badges">0</b><span>胸章已發放</span></div>
+          <div class="kpi"><b id="k-pending">0</b><span>胸章待審核</span></div>
+        </div>
+        <div class="filters">
+          <select id="af-class" aria-label="班級"><option value="">全部班級</option></select>
+          <select id="af-kind" aria-label="作品類型"><option value="">全部類型</option><option>探究筆記</option><option>藝術創作</option><option>無法辨識</option><option>未分析</option></select>
+          <select id="af-badge" aria-label="胸章狀態"><option value="">全部胸章狀態</option><option>待審核</option><option>已發放</option><option>可製作</option><option>已駁回</option><option>未達標</option></select>
+          <input id="af-search" type="text" placeholder="搜尋姓名或主題" aria-label="搜尋">
+          <button type="button" class="btn btn-sm" id="btn-admin-refresh">重新整理</button>
+        </div>
+        <div id="adm-list" class="adm-list"></div>
+      </div>
+
+      <div data-panel="assign" class="hidden">
+        <p class="small muted" style="margin-top:0">學生端的作業下拉選單會依這裡的順序顯示。</p>
+        <div id="assign-list" class="assign-list"></div>
+        <div style="display:flex;gap:8px"><input id="assign-new" type="text" maxlength="60" placeholder="新增作業名稱"><button type="button" class="btn" id="btn-assign-add">新增</button></div>
+        <div style="margin-top:12px"><button type="button" class="btn btn-primary" id="btn-assign-save">儲存作業項目</button></div>
+        <div id="assign-msg" class="msg"></div>
+      </div>
+
+      <div data-panel="settings" class="hidden">
+        <div class="settings-grid">
+          <div class="set-box">
+            <h3>Gemini API Key</h3>
+            <p class="small muted" style="margin-top:0">只存在 Apps Script 伺服器端，學生端看不到。可到 Google AI Studio 免費申請。</p>
+            <div class="field"><label for="s-key">新的 API Key（留空並儲存＝停用 AI）</label><input id="s-key" type="password" autocomplete="off" placeholder="AIzaSy…"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary btn-sm" id="btn-key-save">儲存並測試</button><button type="button" class="btn btn-sm" id="btn-key-test">測試目前設定</button></div>
+            <div id="key-msg" class="msg"></div>
+          </div>
+          <div class="set-box">
+            <h3>胸章發放方式</h3>
+            <label class="radio-line"><input type="radio" name="s-approval" value="auto"><span><b>AI 達 85 分自動發放</b><br><span class="muted small">學生當下就能下載印刷檔與證書。</span></span></label>
+            <label class="radio-line"><input type="radio" name="s-approval" value="teacher"><span><b>老師確認後才發放</b><br><span class="muted small">學生儲存胸章後進入待審核，核准後才開放下載與上星空。</span></span></label>
+            <label class="radio-line" style="margin-top:12px"><input type="checkbox" id="s-gallery"><span><b>公開班級成果星空</b><br><span class="muted small">只顯示已發放的胸章，姓名遮蔽。</span></span></label>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-settings-save">儲存設定</button>
+            <div id="settings-msg" class="msg"></div>
+          </div>
+          <div class="set-box">
+            <h3>變更管理密碼</h3>
+            <div class="field"><label for="s-newpwd">新密碼（至少 4 碼）</label><input id="s-newpwd" type="password" autocomplete="new-password"></div>
+            <button type="button" class="btn btn-sm" id="btn-pwd-save">變更密碼</button>
+            <div id="pwd-msg" class="msg"></div>
+          </div>
+        </div>
+      </div>
+
+      <div data-panel="export" class="hidden">
+        <div class="settings-grid">
+          <div class="set-box">
+            <h3>Google 試算表總表</h3>
+            <p class="small muted" style="margin-top:0">每一筆繳交都會即時寫入「學習能量軌跡AI彙整總表」。</p>
+            <a id="a-sheet-link" class="btn btn-sm" href="#" target="_blank" rel="noopener">開啟試算表</a>
+          </div>
+          <div class="set-box">
+            <h3>匯出成果冊（Google Docs）</h3>
+            <p class="small muted" style="margin-top:0">每位學生一頁：能量軌跡摘要、每次作品的評語與已發放的胸章。</p>
+            <div class="row2"><select id="ex-assign" aria-label="作業"><option value="">全部作業</option></select><select id="ex-class" aria-label="班級"><option value="">全部班級</option></select></div>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-export" style="margin-top:10px">匯出成果冊</button>
+            <div id="export-msg" class="msg"></div>
+          </div>
+          <div class="set-box">
+            <h3>評審展示資料</h3>
+            <p class="small muted" style="margin-top:0">寫入 6 筆示範紀錄，其中「701 王小明」有三次成長軌跡。</p>
+            <button type="button" class="btn btn-sm" id="btn-seed">寫入示範資料</button>
+            <div id="seed-msg" class="msg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+<canvas id="export-canvas" class="hidden"></canvas>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const isDemo = !(window.google && window.google.script && window.google.script.run);
+
+const THEMES = [
+  ['熱血動漫角色', '眼神張力・肢體動態'],
+  ['奇幻生物與幻獸', '羽翼鱗甲・神話氣場'],
+  ['絕美自然風景', '空間景深・光影透視'],
+  ['未來科幻世界', '霓虹光暈・機械結構'],
+  ['Q版吉祥物設計', '圓潤造型・高辨識度'],
+  ['精緻靜物與美食', '油潤光感・色彩層次'],
+  ['超酷機械與載具', '剛硬塊面・工業結構'],
+  ['傳統國風與水墨', '濃淡乾濕・詩意留白'],
+  ['復古像素遊戲風', '限定色票・幾何秩序'],
+  ['街頭潮流塗鴉 Pop', '對比撞色・流行符號'],
+  ['童話繪本與療癒風', '柔和色調・溫馨敘事'],
+  ['視覺錯視與幾何抽象', '歐普錯視・線條韻律'],
+  ['學生自訂主題', '自己命名創作主題']
+];
+
+const NOTE_META = [
+  ['focus', '主題聚焦'],
+  ['depth', '探究深度'],
+  ['structure', '資料條理'],
+  ['insight', '反思洞見'],
+  ['presentation', '視覺呈現']
+];
+const ART_META = [
+  ['themeScore', '主題語意 (35%)'],
+  ['compScore', '結構重心 (20%)'],
+  ['colorScore', '色彩豐富 (15%)'],
+  ['lightScore', '光影明暗 (15%)'],
+  ['detailScore', '筆觸質感 (15%)']
+];
+
+const state = {
+  cfg: { ready: true, assignments: ['自主學習探究', '藝術創作挑戰'], maxBytes: 10485760, aiEnabled: false, badgeApproval: 'auto', badgeThreshold: 85, galleryPublic: true },
+  selectedTheme: '',
+  file: null,          // { name, size, mimeType, base64, dataUrl }
+  demoPreset: null,    // 'note' | 'art' | 'invalid'
+  current: null,       // { receipt, student, assignment, studentNote, ai, badge, badgeUrl, previewUrl, badgePng }
+  overlayMode: 'thirds',
+  badgeSrc: 'crop',
+  crop: { baseW: 280, baseH: 280, x: 0, y: 0, scale: 1, drag: false, sx: 0, sy: 0, ix: 0, iy: 0, pinch: null, pScale: 1 },
+  adminPwd: '',
+  adminOverview: null,
+  adminAssign: []
+};
+
+function uuid() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+let toastTimer = null;
+function toast(msg) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), 2600);
+}
+
+function setStatus(msg, isErr = false) {
+  const el = $('status');
+  el.textContent = msg;
+  el.className = 'status' + (isErr ? ' error' : '');
+}
+
+function setMsg(id, msg, isErr = false) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = msg || '';
+  el.className = 'msg ' + (msg ? (isErr ? 'err' : 'ok') : '');
+}
+
+function switchView(name) {
+  ['submit', 'scan', 'result', 'trajectory', 'gallery'].forEach(v => {
+    $('view-' + v).classList.toggle('hidden', v !== name);
+  });
+  document.querySelectorAll('.nav button[data-view]').forEach(b => {
+    if (b.dataset.view === name) b.setAttribute('aria-current', 'page');
+    else b.removeAttribute('aria-current');
+  });
+  if (name === 'trajectory') refreshSavedReceiptsUI();
+  if (name === 'gallery') loadGallery();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ==============================================
+// 本機收據記憶（方便同一台裝置的學生查軌跡）
+// ==============================================
+const RECEIPT_KEY = 'LET_SAVED_RECEIPTS_V1';
+function getSavedReceipts() {
+  try { return JSON.parse(localStorage.getItem(RECEIPT_KEY) || '[]'); } catch (_) { return []; }
+}
+function rememberReceipt(receipt, label) {
+  if (!receipt) return;
+  const list = getSavedReceipts().filter(x => x.receipt !== receipt);
+  list.unshift({ receipt, label: label || receipt.slice(0, 8), time: new Date().toLocaleDateString('zh-TW') });
+  try { localStorage.setItem(RECEIPT_KEY, JSON.stringify(list.slice(0, 20))); } catch (_) {}
+}
+function refreshSavedReceiptsUI() {
+  const list = getSavedReceipts();
+  const sel = $('t-saved');
+  sel.innerHTML = '<option value="">選擇已記住的收據…</option>';
+  list.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.receipt;
+    opt.textContent = `${item.label}（${item.receipt.slice(0, 8)}…）`;
+    sel.appendChild(opt);
+  });
+  if (!$('t-receipt').value && list[0]) $('t-receipt').value = list[0].receipt;
+}
+
+// ==============================================
+// 示範模式本機資料庫（當不在 Apps Script 內執行時使用）
+// ==============================================
+const DEMO_STORE_KEY = 'LET_DEMO_STORE_V1';
+function defaultDemoStore() {
+  const emblem = makeEmblemDataUrl('保衛細胞與氣孔開閉', 92, '探究筆記', '701 王○明');
+  const artEmblem = makeEmblemDataUrl('星界守護者', 91, '藝術創作', '802 黃○涵');
+  return {
+    pwd: 'admin888',
+    hasAi: true,
+    assignments: ['自主學習探究', '藝術創作挑戰'],
+    badgeApproval: 'auto',
+    galleryPublic: true,
+    records: [
+      {
+        time: '2026/09/18 10:15', className: '701', seat: '03', name: '王小明', assignment: '自主學習探究',
+        kind: '探究筆記', fileName: '顯微鏡初探.jpg', fileUrl: '#demo',
+        topic: '顯微鏡初探', keywords: '細胞, 倍率, 對焦',
+        summary: '第一次使用光學顯微鏡，記錄洋蔥表皮細胞並學習調整粗細調節輪。',
+        feedback: '觀察步驟記錄清楚；若能加上不同倍率的比較圖會更完整。',
+        advice: '試試看換一種植物葉片，比較細胞形狀有什麼不同？',
+        tag: 'SDG 4 優質教育', score: 74,
+        dims: { focus: 78, depth: 70, structure: 75, insight: 68, presentation: 79 },
+        receipt: 'd01e4a12-88aa-4e99-b123-112233445501', review: '已審查核准', badge: '未達標', badgeUrl: '',
+        teacherComment: '第一次操作就能對焦成功，很棒的起點！'
+      },
+      {
+        time: '2026/10/02 11:05', className: '701', seat: '03', name: '王小明', assignment: '藝術創作挑戰',
+        kind: '藝術創作', fileName: '綠葉觀察者.png', fileUrl: '#demo',
+        topic: '綠葉觀察者', keywords: '',
+        summary: '以水彩與代針筆描繪顯微鏡下的葉片氣孔與葉脈光影。',
+        feedback: '把自然課觀察到的結構轉化成畫作，綠色層次豐富，構圖穩定。',
+        advice: '加深氣孔內側暗部，立體感會更突出。',
+        tag: '絕美自然風景', score: 82,
+        dims: { themeScore: 86, compScore: 80, colorScore: 84, lightScore: 76, detailScore: 80 },
+        focusX: 0.5, focusY: 0.46, palette: ['#173e35', '#24654d', '#84cc16', '#e4edb7', '#f7f5ed'],
+        receipt: 'd01e4a12-88aa-4e99-b123-112233445502', review: '已審查核准', badge: '未達標', badgeUrl: '',
+        teacherComment: '跨領域的嘗試非常精彩！'
+      },
+      {
+        time: '2026/10/20 09:40', className: '701', seat: '03', name: '王小明', assignment: '自主學習探究',
+        kind: '探究筆記', fileName: '保衛細胞與氣孔開閉.jpg', fileUrl: '#demo',
+        topic: '保衛細胞與氣孔開閉', keywords: '保衛細胞, 氣孔, 蒸散作用, 光照對照',
+        summary: '設計光照與遮光對照實驗，觀察紫背萬年青下表皮保衛細胞膨壓變化，繪製開閉連動圖。',
+        feedback: '從單純觀察進步到自己設計對照實驗，推論有數據與繪圖支持！',
+        advice: '如果改變環境濕度，氣孔的反應時間會不會不同？',
+        tag: 'SDG 15 陸地生態', score: 92,
+        dims: { focus: 94, depth: 92, structure: 90, insight: 88, presentation: 95 },
+        receipt: 'd01e4a12-88aa-4e99-b123-112233445503', review: '已審查核准', badge: '已發放', badgeUrl: '#demo-badge',
+        teacherComment: '完整呈現三次探究的成長，核准發放能量胸章！', badgeThumb: emblem
+      },
+      {
+        time: '2026/10/08 14:05', className: '802', seat: '15', name: '黃語涵', assignment: '藝術創作挑戰',
+        kind: '藝術創作', fileName: '星界守護者.png', fileUrl: '#demo',
+        topic: '星界守護者', keywords: '',
+        summary: '翡翠與琥珀色調的奇幻守護者半身像，結合星芒背景。',
+        feedback: '冷暖色對比強烈，角色神態堅定，圓形構圖重心穩固。',
+        advice: '外輪廓可加一道細高光，胸章壓製後更醒目。',
+        tag: '奇幻生物與幻獸', score: 91,
+        dims: { themeScore: 94, compScore: 90, colorScore: 92, lightScore: 88, detailScore: 89 },
+        focusX: 0.5, focusY: 0.45, palette: ['#091512', '#173e35', '#24654d', '#d97706', '#e4edb7'],
+        receipt: 'b45c8e56-22ee-4c33-f567-556677889900', review: '待教師審查', badge: '已發放', badgeUrl: '#demo-badge',
+        teacherComment: '', badgeThumb: artEmblem
+      }
+    ]
+  };
+}
+function loadDemoStore() {
+  try {
+    const raw = localStorage.getItem(DEMO_STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (_) {}
+  const init = defaultDemoStore();
+  saveDemoStore(init);
+  return init;
+}
+function saveDemoStore(st) {
+  try { localStorage.setItem(DEMO_STORE_KEY, JSON.stringify(st)); } catch (_) {}
+}
+function maskNameClient(name) {
+  const s = String(name || '');
+  if (s.length <= 1) return s;
+  if (s.length === 2) return s[0] + '○';
+  return s[0] + '○'.repeat(s.length - 2) + s[s.length - 1];
+}
+
+// ==============================================
+// RPC：自動切換 Apps Script 與本機示範
+// ==============================================
+async function rpc(method, data) {
+  if (!isDemo) {
+    return new Promise((resolve, reject) => {
+      const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+      if (data === undefined) runner[method]();
+      else runner[method](data);
+    });
+  }
+  await new Promise(r => setTimeout(r, 180));
+  const st = loadDemoStore();
+  const checkPwd = p => {
+    const pwd = typeof p === 'object' && p !== null ? p.password : p;
+    if (pwd !== st.pwd) throw new Error('管理密碼不正確。');
+  };
+
+  if (method === 'getPublicConfig') {
+    return { ready: true, assignments: st.assignments, maxBytes: 10485760, aiEnabled: st.hasAi, badgeApproval: st.badgeApproval, badgeThreshold: 85, galleryPublic: st.galleryPublic };
+  }
+  if (method === 'uploadSubmission') {
+    const ai = await demoAnalyze(data);
+    const badge = (ai.kind === 'note' || ai.kind === 'art') && ai.score >= 85 ? '可製作' : '未達標';
+    const rec = {
+      time: new Date().toLocaleString('zh-TW', { hour12: false }).slice(0, 16),
+      className: data.className, seat: ('0' + Number(data.seat)).slice(-2), name: data.name,
+      assignment: data.assignment, kind: { note: '探究筆記', art: '藝術創作', invalid: '無法辨識', unavailable: '未分析' }[ai.kind] || '未分析',
+      fileName: `${data.className}_${('0' + Number(data.seat)).slice(-2)}_${data.name}.${data.mimeType === 'application/pdf' ? 'pdf' : 'jpg'}`,
+      fileUrl: '#demo', topic: ai.topic, keywords: ai.keywords || '', summary: ai.summary, feedback: ai.feedback,
+      advice: ai.advice, tag: ai.tag, score: ai.score, dims: ai.dims, focusX: ai.focusX, focusY: ai.focusY, palette: ai.palette,
+      receipt: data.requestId, review: '待教師審查', badge, badgeUrl: '', teacherComment: ''
+    };
+    st.records.push(rec);
+    saveDemoStore(st);
+    return { success: true, receipt: data.requestId, fileName: rec.fileName, url: '#demo', ai, badge, badgeApproval: st.badgeApproval };
+  }
+  if (method === 'saveBadge') {
+    const rec = st.records.find(r => r.receipt.toLowerCase() === String(data.receipt || '').toLowerCase());
+    if (!rec) throw new Error('找不到這張收據對應的作品。');
+    if (rec.score < 85 || (rec.kind !== '探究筆記' && rec.kind !== '藝術創作')) throw new Error('尚未達到 85 分。');
+    rec.badge = st.badgeApproval === 'teacher' ? '待審核' : '已發放';
+    rec.badgeUrl = '#demo-badge';
+    rec.badgeThumb = data.thumbBase64 ? ('data:image/jpeg;base64,' + data.thumbBase64.replace(/^data:[^,]+,/, '')) : data.imageBase64;
+    saveDemoStore(st);
+    return { success: true, status: rec.badge, badgeUrl: '#demo-badge', fileName: 'badge.png' };
+  }
+  if (method === 'getBadgeImage') {
+    const rec = st.records.find(r => r.receipt.toLowerCase() === String(data.receipt || '').toLowerCase());
+    if (!rec || rec.badge !== '已發放') throw new Error('這枚胸章尚未發放。');
+    const b64 = (rec.badgeThumb || makeEmblemDataUrl(rec.topic, rec.score, rec.kind, rec.name)).split(',')[1];
+    return { success: true, imageBase64: b64, record: rec };
+  }
+  if (method === 'getStudentTrajectory') {
+    const r = String(data.receipt || '').trim().toLowerCase();
+    if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(r)) throw new Error('請輸入完整的收據編號；遺失收據請聯絡老師。');
+    const anchor = st.records.find(x => x.receipt.toLowerCase() === r);
+    if (!anchor) return { success: true, found: false, list: [] };
+    const list = st.records.filter(x => x.className === anchor.className && x.seat === anchor.seat && x.name === anchor.name);
+    const scored = list.filter(x => typeof x.score === 'number');
+    return {
+      success: true, found: true,
+      student: { className: anchor.className, seat: anchor.seat, name: anchor.name },
+      list,
+      stats: {
+        total: list.length, scored: scored.length,
+        notes: list.filter(x => x.kind === '探究筆記').length,
+        arts: list.filter(x => x.kind === '藝術創作').length,
+        badges: list.filter(x => x.badge === '已發放').length,
+        average: scored.length ? Math.round(scored.reduce((s, x) => s + x.score, 0) / scored.length) : null,
+        best: scored.length ? Math.max(...scored.map(x => x.score)) : null,
+        growth: scored.length >= 2 ? scored[scored.length - 1].score - scored[0].score : null
+      }
+    };
+  }
+  if (method === 'getGallery') {
+    if (!st.galleryPublic) return { success: true, enabled: false, list: [] };
+    const list = st.records.filter(r => r.badge === '已發放').slice().reverse().map(r => ({
+      date: r.time.slice(0, 10), className: r.className, name: maskNameClient(r.name),
+      kind: r.kind, title: r.topic, score: r.score,
+      thumb: (r.badgeThumb || makeEmblemDataUrl(r.topic, r.score, r.kind, r.name)).replace(/^data:[^,]+,/, '')
+    }));
+    return { success: true, enabled: true, list };
+  }
+  if (method === 'verifyAdmin') { checkPwd(data); return { success: true }; }
+  if (method === 'getAdminOverview') {
+    checkPwd(data);
+    const submissions = st.records.slice().reverse();
+    return {
+      success: true, hasAi: st.hasAi, assignments: st.assignments, badgeApproval: st.badgeApproval,
+      galleryPublic: st.galleryPublic, sheetUrl: 'https://docs.google.com/spreadsheets/',
+      submissions, pendingBadges: submissions.filter(r => r.badge === '待審核').length
+    };
+  }
+  if (method === 'reviewSubmission') {
+    checkPwd(data);
+    const rec = st.records.find(r => r.receipt === data.receipt);
+    if (!rec) throw new Error('找不到這筆繳交紀錄。');
+    if (data.teacherComment !== undefined) rec.teacherComment = data.teacherComment;
+    if (data.review) rec.review = data.review;
+    if (data.badgeDecision === 'approve') rec.badge = '已發放';
+    if (data.badgeDecision === 'reject') rec.badge = '已駁回';
+    saveDemoStore(st);
+    return { success: true, receipt: rec.receipt, badge: rec.badge };
+  }
+  if (method === 'updateAssignments') {
+    checkPwd(data);
+    const cleaned = (data.assignments || []).map(s => String(s || '').trim()).filter(Boolean);
+    if (!cleaned.length) throw new Error('至少需要保留一個作業項目。');
+    st.assignments = cleaned; saveDemoStore(st);
+    return { success: true, assignments: cleaned };
+  }
+  if (method === 'updateSettings') {
+    checkPwd(data);
+    if (data.badgeApproval) st.badgeApproval = data.badgeApproval;
+    if (data.galleryPublic !== undefined) st.galleryPublic = !!data.galleryPublic;
+    saveDemoStore(st);
+    return { success: true, badgeApproval: st.badgeApproval, galleryPublic: st.galleryPublic };
+  }
+  if (method === 'changeAdminPassword') {
+    checkPwd(data.oldPassword);
+    if (!data.newPassword || data.newPassword.trim().length < 4) throw new Error('新密碼長度至少需 4 碼。');
+    st.pwd = data.newPassword.trim(); saveDemoStore(st);
+    return { success: true };
+  }
+  if (method === 'setGeminiApiKey') {
+    checkPwd(data);
+    st.hasAi = !!String(data.apiKey || '').trim(); saveDemoStore(st);
+    return { success: true, hasAi: st.hasAi, ping: st.hasAi ? { success: true, message: '示範模式：已模擬啟用 AI。' } : null };
+  }
+  if (method === 'testGeminiApiKey') { checkPwd(data); return { success: true, message: '示範模式：連線模擬正常。' }; }
+  if (method === 'seedDemoSubmissions') {
+    checkPwd(data);
+    const fresh = defaultDemoStore();
+    st.records = fresh.records; saveDemoStore(st);
+    return { success: true, count: st.records.length, demoReceipt: st.records[0].receipt };
+  }
+  if (method === 'exportSummaryDoc') {
+    checkPwd(data);
+    return { success: true, title: '學習能量軌跡成果冊（示範）', docUrl: 'https://docs.google.com/document/' };
+  }
+  throw new Error('未知指令：' + method);
+}
+
+// 示範模式的模擬 AI（含像素標準差空白檢測）
+async function analyzeImageEntropy(dataUrl) {
+  return new Promise(resolve => {
+    if (!dataUrl || !dataUrl.startsWith('data:image/')) return resolve({ mean: 128, stdDev: 50 });
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas'); c.width = 64; c.height = 64;
+      const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, 64, 64);
+      const d = ctx.getImageData(0, 0, 64, 64).data;
+      let sum = 0, sq = 0; const n = 64 * 64;
+      for (let i = 0; i < d.length; i += 4) {
+        const g = d[i] * .299 + d[i + 1] * .587 + d[i + 2] * .114;
+        sum += g; sq += g * g;
+      }
+      const mean = sum / n;
+      resolve({ mean, stdDev: Math.sqrt(Math.max(0, sq / n - mean * mean)) });
+    };
+    img.onerror = () => resolve({ mean: 128, stdDev: 50 });
+    img.src = dataUrl;
+  });
+}
+
+async function demoAnalyze(data) {
+  if (!data.anonymousDocumentConsent) {
+    return { status: 'unavailable', kind: 'unavailable', topic: '未啟用或未完成 AI 分析', keywords: '', summary: '已完成一般收件；未取得文件外部分析同意，因此未執行 AI 分析。', feedback: '請由教師檢視原始作業。', advice: '', tag: '', dims: null, score: null };
+  }
+  const dataUrl = data.mimeType === 'application/pdf' ? '' : `data:${data.mimeType};base64,${data.fileData}`;
+  const entropy = await analyzeImageEntropy(dataUrl);
+  if (state.demoPreset === 'invalid' || (dataUrl && (entropy.stdDev < 14 || (entropy.mean > 238 && entropy.stdDev < 24)))) {
+    const dims = { focus: 18, depth: 15, structure: 22, insight: 16, presentation: 20 };
+    return {
+      status: 'draft', kind: 'invalid', topic: '畫面過於空白・需重傳', keywords: '',
+      summary: '畫面色彩與線條變化極少，接近空白頁或未對焦影像。',
+      feedback: '系統檢測到畫面幾乎沒有手寫文字或繪畫筆觸，無法列入評鑑，請確認作品入鏡且對焦清晰後再試一次。',
+      advice: '在光線充足處平拍整頁作品，避免反光與模糊。', tag: '', dims, score: 18
+    };
+  }
+  const wantArt = state.demoPreset === 'art' || (!state.demoPreset && (data.artTheme || /藝術|創作|美術|繪/.test(data.assignment)));
+  if (wantArt) {
+    const theme = data.artTheme || '自由創作';
+    const dims = { themeScore: 95, compScore: 91, colorScore: 90, lightScore: 92, detailScore: 93 };
+    const score = Math.round(dims.themeScore * .35 + dims.compScore * .2 + dims.colorScore * .15 + dims.lightScore * .15 + dims.detailScore * .15);
+    return {
+      status: 'draft', kind: 'art', topic: theme + '・特級繪師', keywords: '',
+      summary: '主體居中偏上，冷暖色對比鮮明，外輪廓線條俐落。',
+      feedback: `【示範評析】畫面呼應「${theme}」主題${data.studentNote ? '與你的自述構想' : ''}，光影層次清楚，放在圓形胸章內視覺重心穩定。`,
+      advice: '外輪廓加上細緻高光，壓製成實體胸章時主體會更立體。',
+      tag: theme, dims, score, focusX: 0.5, focusY: 0.45,
+      palette: ['#173e35', '#24654d', '#e4edb7', '#d97706', '#f7f5ed']
+    };
+  }
+  const dims = { focus: 94, depth: 91, structure: 89, insight: 90, presentation: 95 };
+  return {
+    status: 'draft', kind: 'note', topic: '保衛細胞與氣孔開閉探究',
+    keywords: '保衛細胞, 氣孔, 蒸散作用, 對照實驗',
+    summary: '設計光照與遮光對照組，觀察紫背萬年青下表皮保衛細胞膨壓變化，並繪製氣孔開閉機制圖。',
+    feedback: '【示範評析】筆記結構清楚，從觀察紀錄推進到變因對照，圖文對照相當完整！',
+    advice: '若把溫度也列為變因，氣孔開閉速度會有什麼變化？',
+    tag: 'SDG 15 陸地生態', dims, score: 92
+  };
+}
+
+// ==============================================
+// SVG 能量軌跡圖（首頁範例＋個人軌跡共用）
+// ==============================================
+function renderTrajectorySvg(svg, items) {
+  const W = 520, H = 220, padL = 38, padR = 26, padT = 24, padB = 42;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const yOf = s => padT + plotH * (1 - Math.max(0, Math.min(100, s)) / 100);
+  const scored = items.filter(x => typeof x.score === 'number');
+  if (!scored.length) {
+    svg.innerHTML = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" fill="#5d7068" font-size="13">尚無已評分的作品</text>`;
+    return;
+  }
+  const xOf = (i, n) => n === 1 ? padL + plotW / 2 : padL + (plotW * i) / (n - 1);
+  let html = '';
+  [40, 60, 85, 100].forEach(v => {
+    const y = yOf(v).toFixed(1);
+    const is85 = v === 85;
+    html += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${is85 ? '#d97706' : '#e2e8dc'}" stroke-width="${is85 ? 1.5 : 1}" ${is85 ? 'stroke-dasharray="5 4"' : ''}/>`;
+    html += `<text x="${padL - 8}" y="${Number(y) + 4}" text-anchor="end" font-size="10" font-family="Orbitron,monospace" fill="${is85 ? '#d97706' : '#5d7068'}">${v}</text>`;
+  });
+
+  const pts = scored.map((r, i) => [xOf(i, scored.length), yOf(r.score), r]);
+  if (pts.length > 1) {
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+    const area = `${d} L${pts.at(-1)[0].toFixed(1)},${(padT + plotH).toFixed(1)} L${pts[0][0].toFixed(1)},${(padT + plotH).toFixed(1)} Z`;
+    html += `<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#24654d" stop-opacity=".22"/><stop offset="100%" stop-color="#24654d" stop-opacity="0"/></linearGradient></defs>`;
+    html += `<path d="${area}" fill="url(#tg)"/>`;
+    html += `<path class="traj-path draw" style="--len:900" d="${d}"/>`;
+  }
+
+  pts.forEach(([x, y, r], i) => {
+    const delay = (i * 0.18 + 0.25).toFixed(2);
+    const isArt = r.kind === '藝術創作';
+    const hasBadge = r.badge === '已發放';
+    const shortTopic = (r.topic || '').slice(0, 8);
+    const dateStr = (r.time || '').slice(5, 10);
+    html += `<g class="traj-node" style="animation-delay:${delay}s">`;
+    if (hasBadge) {
+      html += `<circle cx="${x}" cy="${y}" r="12" fill="#fff7e6" stroke="#d97706" stroke-width="2"/>`;
+    }
+    if (isArt) {
+      html += `<rect x="${x - 6}" y="${y - 6}" width="12" height="12" fill="#d97706" stroke="#fff" stroke-width="1.5" transform="rotate(45 ${x} ${y})"/>`;
+    } else {
+      html += `<circle cx="${x}" cy="${y}" r="6.5" fill="#24654d" stroke="#fff" stroke-width="1.8"/>`;
+    }
+    html += `<text x="${x}" y="${y - 15}" text-anchor="middle" font-family="Orbitron,monospace" font-weight="800" font-size="11" fill="${r.score >= 85 ? '#b45309' : '#173e35'}">${r.score}</text>`;
+    html += `<text x="${x}" y="${padT + plotH + 16}" text-anchor="middle" font-size="11" font-weight="700" fill="#173e35">${esc(shortTopic)}</text>`;
+    html += `<text x="${x}" y="${padT + plotH + 30}" text-anchor="middle" font-size="10" fill="#5d7068">${esc(dateStr)}</text>`;
+    html += `</g>`;
+  });
+  svg.innerHTML = html;
+}
+
+// ==============================================
+// 五維雷達圖（單筆／多筆疊圖共用）
+// ==============================================
+function normalizeFiveAxes(kind, dims) {
+  if (!dims) return null;
+  const keys = kind === 'art' || kind === '藝術創作' ? ART_META.map(x => x[0]) : NOTE_META.map(x => x[0]);
+  const vals = keys.map(k => typeof dims[k] === 'number' ? dims[k] / 100 : 0);
+  return vals.some(v => v > 0) ? vals : null;
+}
+
+function drawRadar(canvas, series, labels) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2 + 4, R = 78, N = 5;
+  const ang = i => (i * Math.PI * 2) / N - Math.PI / 2;
+  ctx.clearRect(0, 0, W, H);
+
+  for (let lv = 1; lv <= 5; lv++) {
+    const r = (R / 5) * lv;
+    ctx.beginPath();
+    for (let i = 0; i < N; i++) {
+      const x = cx + Math.cos(ang(i)) * r, y = cy + Math.sin(ang(i)) * r;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = lv === 5 ? '#b7c8bc' : '#e2e8dc';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  for (let i = 0; i < N; i++) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(ang(i)) * R, cy + Math.sin(ang(i)) * R);
+    ctx.strokeStyle = '#d4ded5';
+    ctx.stroke();
+  }
+
+  series.forEach(s => {
+    if (!s.values) return;
+    ctx.beginPath();
+    s.values.forEach((v, i) => {
+      const r = R * Math.max(0.1, Math.min(1, v));
+      const x = cx + Math.cos(ang(i)) * r, y = cy + Math.sin(ang(i)) * r;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = s.fill;
+    ctx.fill();
+    ctx.strokeStyle = s.stroke;
+    ctx.lineWidth = s.width || 2;
+    ctx.stroke();
+    s.values.forEach((v, i) => {
+      const r = R * Math.max(0.1, Math.min(1, v));
+      ctx.beginPath();
+      ctx.arc(cx + Math.cos(ang(i)) * r, cy + Math.sin(ang(i)) * r, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = s.dot || s.stroke;
+      ctx.fill();
+    });
+  });
+
+  labels.forEach((lb, i) => {
+    const lr = R + 22;
+    const x = cx + Math.cos(ang(i)) * lr, y = cy + Math.sin(ang(i)) * lr;
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#173e35';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(lb, x, y);
+  });
+}
+
+// ==============================================
+// 畫作三種疊圖診斷＋筆記預覽
+// ==============================================
+function renderOverlayCanvas() {
+  const cur = state.current;
+  if (!cur) return;
+  const canvas = $('r-overlay');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#f3f5ee';
+  ctx.fillRect(0, 0, W, H);
+
+  if (!cur.previewUrl) {
+    ctx.fillStyle = '#173e35';
+    ctx.font = 'bold 20px "Noto Serif TC", serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('PDF 學習文件已封存', W / 2, H / 2 - 8);
+    ctx.font = '13px sans-serif';
+    ctx.fillStyle = '#5d7068';
+    ctx.fillText(cur.ai.topic || '', W / 2, H / 2 + 20);
+    return;
+  }
+
+  const img = new Image();
+  img.onload = () => {
+    const pad = 18;
+    const scale = Math.min((W - pad * 2) / img.width, (H - pad * 2) / img.height);
+    const dw = img.width * scale, dh = img.height * scale;
+    const ox = (W - dw) / 2, oy = (H - dh) / 2;
+    ctx.drawImage(img, ox, oy, dw, dh);
+
+    if (cur.ai.kind !== 'art') return;
+    const mode = state.overlayMode;
+    if (mode === 'thirds') {
+      ctx.strokeStyle = '#34d399';
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([6, 6]);
+      for (let i = 1; i <= 2; i++) {
+        ctx.beginPath(); ctx.moveTo(ox + (dw * i) / 3, oy); ctx.lineTo(ox + (dw * i) / 3, oy + dh); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ox, oy + (dh * i) / 3); ctx.lineTo(ox + dw, oy + (dh * i) / 3); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#d97706';
+      for (let i = 1; i <= 2; i++) for (let j = 1; j <= 2; j++) {
+        ctx.beginPath(); ctx.arc(ox + (dw * i) / 3, oy + (dh * j) / 3, 5, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (mode === 'focus') {
+      const fx = ox + dw * (cur.ai.focusX || 0.5);
+      const fy = oy + dh * (cur.ai.focusY || 0.45);
+      const g = ctx.createRadialGradient(fx, fy, 4, fx, fy, 95);
+      g.addColorStop(0, 'rgba(217,119,6,.75)');
+      g.addColorStop(.55, 'rgba(36,101,77,.35)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(fx, fy, 95, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(fx, fy, 16, 0, Math.PI * 2); ctx.stroke();
+    } else if (mode === 'palette') {
+      const pal = cur.ai.palette && cur.ai.palette.length ? cur.ai.palette : ['#173e35', '#24654d', '#e4edb7', '#d97706', '#f7f5ed'];
+      const bw = 46, bh = 22, gap = 8;
+      const sx = (W - (pal.length * bw + (pal.length - 1) * gap)) / 2;
+      const py = H - bh - 14;
+      ctx.fillStyle = 'rgba(23,62,53,.72)';
+      ctx.fillRect(sx - 10, py - 6, pal.length * (bw + gap) - gap + 20, bh + 12);
+      pal.forEach((c, i) => {
+        ctx.fillStyle = c;
+        ctx.fillRect(sx + i * (bw + gap), py, bw, bh);
+        ctx.strokeStyle = '#fff'; ctx.strokeRect(sx + i * (bw + gap), py, bw, bh);
+      });
+    }
+  };
+  img.src = cur.previewUrl;
+}
+
+// ==============================================
+// 檔案挑選、壓縮與三個範例產生器
+// ==============================================
+async function compressFile(file) {
+  if (file.type === 'application/pdf') {
+    if (file.size > state.cfg.maxBytes) throw new Error('PDF 檔案超過 10 MB 上限。');
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve({ name: file.name, size: file.size, mimeType: 'application/pdf', base64: String(r.result).split(',')[1], dataUrl: '' });
+      r.onerror = () => reject(new Error('無法讀取 PDF 檔案。'));
+      r.readAsDataURL(file);
+    });
+  }
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 1800;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round((h * MAX) / w); w = MAX; }
+        else { w = Math.round((w * MAX) / h); h = MAX; }
+      }
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = c.toDataURL('image/jpeg', 0.84);
+      const base64 = dataUrl.split(',')[1];
+      resolve({ name: file.name, size: Math.round(base64.length * 0.75), mimeType: 'image/jpeg', base64, dataUrl });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('圖片解析失敗，請換一張試試。')); };
+    img.src = url;
+  });
+}
+
+function showSelectedFile(f) {
+  state.file = f;
+  $('drop').classList.add('hidden');
+  $('preview').classList.remove('hidden');
+  $('preview-name').textContent = f.name;
+  $('preview-size').textContent = `${Math.max(1, Math.round(f.size / 1024))} KB`;
+  if (f.mimeType === 'application/pdf') {
+    $('preview-img').classList.add('hidden');
+    $('preview-pdf').classList.remove('hidden');
+  } else {
+    $('preview-pdf').classList.add('hidden');
+    $('preview-img').classList.remove('hidden');
+    $('preview-img').src = f.dataUrl;
+  }
+}
+
+function clearSelectedFile() {
+  state.file = null;
+  state.demoPreset = null;
+  $('f-file').value = '';
+  $('preview').classList.add('hidden');
+  $('drop').classList.remove('hidden');
+}
+
+function generateDemoSample(kind) {
+  state.demoPreset = kind;
+  $('f-class').value = '701';
+  $('f-seat').value = '3';
+  $('f-name').value = '王小明';
+  $('f-consent').checked = true;
+  const assigns = state.cfg.assignments;
+  const c = document.createElement('canvas'); c.width = 900; c.height = 900;
+  const ctx = c.getContext('2d');
+
+  if (kind === 'note') {
+    $('f-assignment').value = assigns[0] || '';
+    ctx.fillStyle = '#fffdf7'; ctx.fillRect(0, 0, 900, 900);
+    ctx.strokeStyle = '#e5ebe4'; ctx.lineWidth = 1.5;
+    for (let y = 70; y < 860; y += 42) { ctx.beginPath(); ctx.moveTo(55, y); ctx.lineTo(845, y); ctx.stroke(); }
+    ctx.fillStyle = '#173e35'; ctx.font = 'bold 34px "Noto Serif TC", serif';
+    ctx.fillText('自主學習探究筆記：紫背萬年青保衛細胞與氣孔開閉', 65, 105);
+    ctx.font = '22px sans-serif'; ctx.fillStyle = '#24654d';
+    ctx.fillText('一、研究問題：光照與遮光對葉下表皮氣孔開度的影響', 65, 165);
+    ctx.fillStyle = '#334155'; ctx.font = '20px sans-serif';
+    ctx.fillText('・實驗組（光照 30 分鐘）：保衛細胞吸水膨脹，氣孔明顯張開。', 65, 220);
+    ctx.fillText('・對照組（鋁箔遮光 30 分鐘）：保衛細胞失水，氣孔閉合。', 65, 265);
+    // 顯微鏡視野圖
+    ctx.save();
+    ctx.strokeStyle = '#173e35'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(280, 520, 160, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = '#eef7f0'; ctx.fill();
+    for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) {
+      const gx = 280 + i * 78, gy = 520 + j * 72;
+      ctx.fillStyle = '#84cc16';
+      ctx.beginPath(); ctx.ellipse(gx - 12, gy, 14, 28, 0.2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(gx + 12, gy, 14, 28, -0.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#173e35';
+      ctx.beginPath(); ctx.ellipse(gx, gy, 5, 14, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+    ctx.fillStyle = '#173e35'; ctx.font = 'bold 20px sans-serif';
+    ctx.fillText('二、反思與延伸：若環境溫度升高，蒸散作用與氣孔調節如何平衡？', 65, 760);
+  } else if (kind === 'art') {
+    $('f-assignment').value = assigns[1] || assigns[0] || '';
+    $('art-opt').open = true;
+    selectTheme('奇幻生物與幻獸');
+    $('f-note').value = '我在畫一位穿梭星界的森林守護者，用翡翠與琥珀光暈表現神祕冒險感。';
+    const g = ctx.createRadialGradient(450, 420, 40, 450, 450, 520);
+    g.addColorStop(0, '#e4edb7'); g.addColorStop(.4, '#24654d'); g.addColorStop(.8, '#173e35'); g.addColorStop(1, '#091512');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 900, 900);
+    ctx.fillStyle = '#fff';
+    for (let i = 0; i < 55; i++) {
+      ctx.beginPath(); ctx.arc((i * 73) % 900, (i * 131) % 900, (i % 3) + 1.5, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.strokeStyle = '#d97706'; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.arc(450, 390, 185, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = '#173e35';
+    ctx.beginPath(); ctx.moveTo(290, 820); ctx.lineTo(385, 480); ctx.lineTo(450, 430); ctx.lineTo(515, 480); ctx.lineTo(610, 820); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#e4edb7';
+    ctx.beginPath(); ctx.arc(425, 470, 9, 0, Math.PI * 2); ctx.arc(475, 470, 9, 0, Math.PI * 2); ctx.fill();
+  } else {
+    $('f-assignment').value = assigns[0] || '';
+    ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, 900, 900);
+    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(450, 450, 60, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  const dataUrl = c.toDataURL('image/jpeg', 0.88);
+  const base64 = dataUrl.split(',')[1];
+  showSelectedFile({ name: `示範_${kind}.jpg`, size: Math.round(base64.length * 0.75), mimeType: 'image/jpeg', base64, dataUrl });
+  toast('已帶入範例作品，按「送出作品」即可體驗。');
+}
+
+// ==============================================
+// 送出作品與結果頁呈現
+// ==============================================
+async function submitForm(e) {
+  e.preventDefault();
+  const className = $('f-class').value.trim();
+  const seat = $('f-seat').value.trim();
+  const name = $('f-name').value.trim();
+  const assignment = $('f-assignment').value;
+  if (!className || !seat || !name) return setStatus('請填寫班級、座號與姓名。', true);
+  if (!/^\d{1,2}$/.test(seat) || Number(seat) < 1 || Number(seat) > 99) return setStatus('座號請填 1 到 99。', true);
+  if (!assignment) return setStatus('請選擇作業項目。', true);
+  if (!state.file) return setStatus('請先拍照或選擇作品檔案。', true);
+
+  let artTheme = state.selectedTheme;
+  if (artTheme === '學生自訂主題') artTheme = $('f-custom-theme').value.trim() || '自由創作';
+  const studentNote = $('f-note').value.trim();
+
+  // 切換到掃描動畫
+  if (state.file.mimeType === 'application/pdf') {
+    $('scan-img').classList.add('hidden');
+    $('scan-pdf').classList.remove('hidden');
+  } else {
+    $('scan-pdf').classList.add('hidden');
+    $('scan-img').classList.remove('hidden');
+    $('scan-img').src = state.file.dataUrl;
+  }
+  switchView('scan');
+
+  const stages = [
+    ['正在上傳並封存作品…', '二進位檔頭防偽驗證與雲端歸檔'],
+    ['正在判斷作品類型…', '辨識為探究筆記或藝術創作'],
+    ['正在計算五維素養指標…', '萃取重點摘要與視覺構圖重心'],
+    ['正在整理 AI 評語草稿…', '產生下一步延伸建議供老師審查']
+  ];
+  let idx = 0;
+  const timer = setInterval(() => {
+    idx = (idx + 1) % stages.length;
+    $('scan-stage').textContent = stages[idx][0];
+    $('scan-sub').textContent = stages[idx][1];
+  }, 1500);
+
+  try {
+    const reqId = uuid();
+    const res = await rpc('uploadSubmission', {
+      requestId: reqId,
+      className, seat, name, assignment,
+      artTheme, studentNote,
+      mimeType: state.file.mimeType,
+      fileData: state.file.base64,
+      anonymousDocumentConsent: $('f-consent').checked
+    });
+    clearInterval(timer);
+    rememberReceipt(res.receipt, `${className} ${name}・${ res.ai?.topic || assignment }`);
+    state.current = {
+      receipt: res.receipt,
+      student: { className, seat: ('0' + Number(seat)).slice(-2), name },
+      assignment, studentNote,
+      ai: res.ai, badge: res.badge, badgeApproval: res.badgeApproval || state.cfg.badgeApproval,
+      previewUrl: state.file.dataUrl
+    };
+    showResult();
+  } catch (err) {
+    clearInterval(timer);
+    switchView('submit');
+    setStatus(err.message || '送出失敗，請稍後再試。', true);
+  }
+}
+
+function showResult() {
+  const cur = state.current;
+  const ai = cur.ai || {};
+  switchView('result');
+  $('r-receipt').textContent = cur.receipt;
+
+  if (ai.status === 'unavailable' || ai.kind === 'unavailable' || typeof ai.score !== 'number') {
+    $('r-unavailable').classList.remove('hidden');
+    $('r-unavailable-text').textContent = ai.summary || '已完成收件。';
+    $('r-main').classList.add('hidden');
+    $('badge-panel').classList.add('hidden');
+    $('badge-locked').classList.add('hidden');
+    return;
+  }
+  $('r-unavailable').classList.add('hidden');
+  $('r-main').classList.remove('hidden');
+
+  // 類型標籤
+  const kindEl = $('r-kind');
+  const map = {
+    note: ['探究筆記', 'chip chip-note'],
+    art: ['藝術創作', 'chip chip-art'],
+    invalid: ['無法辨識', 'chip chip-invalid']
+  }[ai.kind] || ['作品', 'chip'];
+  kindEl.textContent = map[0];
+  kindEl.className = map[1];
+
+  const tagEl = $('r-tag');
+  if (ai.tag) { tagEl.textContent = ai.tag; tagEl.classList.remove('hidden'); }
+  else tagEl.classList.add('hidden');
+
+  $('r-title').textContent = ai.topic || cur.assignment;
+  $('r-summary-label').textContent = ai.kind === 'art' ? '畫面描述' : '歷程摘要';
+  $('r-summary').textContent = ai.summary || '—';
+  $('r-feedback').textContent = ai.feedback || '—';
+  $('r-advice').textContent = ai.advice || '—';
+
+  const kwEl = $('r-keywords');
+  kwEl.innerHTML = '';
+  if (ai.keywords) {
+    ai.keywords.split(/[,，、]/).map(s => s.trim()).filter(Boolean).forEach(k => {
+      const sp = document.createElement('span'); sp.textContent = '#' + k; kwEl.appendChild(sp);
+    });
+  }
+
+  if (cur.studentNote) {
+    $('r-note-wrap').classList.remove('hidden');
+    $('r-note').textContent = cur.studentNote;
+  } else {
+    $('r-note-wrap').classList.add('hidden');
+  }
+
+  // 疊圖切換（僅藝術創作且有圖片）
+  const showModes = ai.kind === 'art' && !!cur.previewUrl;
+  $('r-overlay-modes').classList.toggle('hidden', !showModes);
+  state.overlayMode = 'thirds';
+  document.querySelectorAll('#r-overlay-modes button').forEach(b => b.setAttribute('aria-pressed', b.dataset.overlay === 'thirds'));
+  renderOverlayCanvas();
+
+  // 分數動畫與指標條
+  const score = ai.score || 0;
+  const ring = $('r-ring');
+  const circ = 251.3;
+  ring.style.strokeDashoffset = circ;
+  ring.style.stroke = score >= 85 ? '#d97706' : (score < 60 ? '#b91c1c' : '#24654d');
+  setTimeout(() => { ring.style.strokeDashoffset = circ - (score / 100) * circ; }, 60);
+  $('r-score').textContent = score;
+  $('r-score').style.color = score >= 85 ? '#d97706' : (score < 60 ? '#b91c1c' : '#173e35');
+
+  const eligible = (ai.kind === 'note' || ai.kind === 'art') && score >= 85;
+  $('r-status').textContent = eligible ? '已達 85 分，可製作 58mm 能量胸章！' : (ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : `距離 85 分胸章門檻還差 ${Math.max(1, 85 - score)} 分`);
+  $('r-status').style.color = eligible ? '#b45309' : '#5d7068';
+
+  const meta = ai.kind === 'art' ? ART_META : NOTE_META;
+  const bars = $('r-bars');
+  bars.innerHTML = '';
+  meta.forEach(([k, label]) => {
+    const v = ai.dims && typeof ai.dims[k] === 'number' ? ai.dims[k] : 0;
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `<span>${esc(label)}</span><div class="bar-track"><div class="bar-fill" style="width:${v}%"></div></div><b>${v}</b>`;
+    bars.appendChild(row);
+  });
+
+  drawRadar($('r-radar'), [{
+    values: normalizeFiveAxes(ai.kind, ai.dims),
+    fill: 'rgba(36,101,77,.32)', stroke: '#24654d', dot: '#d97706', width: 2.5
+  }], meta.map(x => x[1].replace(/\s*\(.+\)/, '')));
+
+  // 胸章區塊
+  if (eligible) {
+    $('badge-panel').classList.remove('hidden');
+    $('badge-locked').classList.add('hidden');
+    $('badge-msg').classList.add('hidden');
+    $('badge-downloads').classList.add('hidden');
+    $('btn-save-badge').disabled = false;
+    setupBadgeStudio();
+    fireConfetti();
+  } else {
+    $('badge-panel').classList.add('hidden');
+    $('badge-locked').classList.remove('hidden');
+    $('badge-gap').textContent = Math.max(1, 85 - score);
+  }
+}
+
+// ==============================================
+// 胸章工作坊：圓形裁切＋自動能量徽記＋儲存雲端
+// ==============================================
+function makeEmblemDataUrl(topic, score, kindLabel, who) {
+  const c = document.createElement('canvas'); c.width = 600; c.height = 600;
+  const ctx = c.getContext('2d');
+  const isArt = /藝術|art/i.test(kindLabel);
+  const g = ctx.createRadialGradient(300, 260, 30, 300, 300, 320);
+  if (isArt) { g.addColorStop(0, '#fef3c7'); g.addColorStop(.45, '#d97706'); g.addColorStop(1, '#173e35'); }
+  else { g.addColorStop(0, '#e4edb7'); g.addColorStop(.5, '#24654d'); g.addColorStop(1, '#173e35'); }
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(300, 300, 300, 0, Math.PI * 2); ctx.fill();
+
+  ctx.strokeStyle = '#fffefb'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.arc(300, 300, 255, 0, Math.PI * 2); ctx.stroke();
+  ctx.setLineDash([6, 6]); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(300, 300, 238, 0, Math.PI * 2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#fffefb'; ctx.textAlign = 'center';
+  ctx.font = 'bold 20px "Orbitron", sans-serif';
+  ctx.fillText('DAXI ENERGY BADGE', 300, 155);
+  ctx.font = '900 84px "Orbitron", sans-serif';
+  ctx.fillText(String(score || 90), 300, 255);
+  ctx.font = 'bold 22px "Noto Serif TC", serif';
+  ctx.fillStyle = '#e4edb7';
+  ctx.fillText(isArt ? '藝術創作認證' : '自主探究認證', 300, 305);
+
+  const t = String(topic || '學習能量').slice(0, 10);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 30px "Noto Serif TC", serif';
+  ctx.fillText(t, 300, 365);
+  if (who) {
+    ctx.font = '18px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,.85)';
+    ctx.fillText(who, 300, 425);
+  }
+  return c.toDataURL('image/png');
+}
+
+function setupBadgeStudio() {
+  const cur = state.current;
+  const who = `${cur.student.className} ${maskNameClient(cur.student.name)}`;
+  $('badge-emblem').src = makeEmblemDataUrl(cur.ai.topic, cur.ai.score, cur.ai.kind, who);
+
+  if (cur.previewUrl) {
+    $('badge-src-switch').classList.remove('hidden');
+    initCrop(cur.previewUrl);
+    setBadgeSource('crop');
+  } else {
+    $('badge-src-switch').classList.add('hidden');
+    setBadgeSource('emblem');
+  }
+}
+
+function setBadgeSource(src) {
+  state.badgeSrc = src;
+  document.querySelectorAll('#badge-src-switch button').forEach(b => b.setAttribute('aria-pressed', b.dataset.badgeSrc === src));
+  $('badge-crop').classList.toggle('hidden', src !== 'crop');
+  $('zoom-row').classList.toggle('hidden', src !== 'crop');
+  $('badge-emblem').classList.toggle('hidden', src !== 'emblem');
+}
+
+function initCrop(src) {
+  const img = $('crop-img');
+  img.onload = () => {
+    const box = 280;
+    const ratio = img.naturalWidth / img.naturalHeight;
+    if (ratio > 1) { state.crop.baseH = box; state.crop.baseW = box * ratio; }
+    else { state.crop.baseW = box; state.crop.baseH = box / ratio; }
+    state.crop.scale = 1;
+    state.crop.x = (box - state.crop.baseW) / 2;
+    state.crop.y = (box - state.crop.baseH) / 2;
+    $('crop-zoom').value = 1;
+    $('crop-zoom-val').textContent = '100%';
+    applyCropTransform();
+  };
+  img.src = src;
+}
+
+function applyCropTransform() {
+  const img = $('crop-img');
+  const c = state.crop;
+  img.style.width = c.baseW + 'px';
+  img.style.height = c.baseH + 'px';
+  img.style.transform = `translate(${c.x}px, ${c.y}px) scale(${c.scale})`;
+}
+
+function renderCroppedBadgePng() {
+  if (state.badgeSrc === 'emblem' || !state.current.previewUrl) {
+    return $('badge-emblem').src;
+  }
+  const c = document.createElement('canvas'); c.width = 600; c.height = 600;
+  const ctx = c.getContext('2d');
+  const mask = document.querySelector('#badge-crop .crop-mask').getBoundingClientRect();
+  const imgRect = $('crop-img').getBoundingClientRect();
+  const ratio = 600 / mask.width;
+  ctx.beginPath(); ctx.arc(300, 300, 300, 0, Math.PI * 2); ctx.closePath(); ctx.clip();
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 600, 600);
+  ctx.drawImage($('crop-img'), (imgRect.left - mask.left) * ratio, (imgRect.top - mask.top) * ratio, imgRect.width * ratio, imgRect.height * ratio);
+  return c.toDataURL('image/png');
+}
+
+function makeThumbJpeg(pngDataUrl) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas'); c.width = 160; c.height = 160;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 160, 160);
+      ctx.drawImage(img, 0, 0, 160, 160);
+      resolve(c.toDataURL('image/jpeg', 0.78).split(',')[1]);
+    };
+    img.src = pngDataUrl;
+  });
+}
+
+async function saveBadgeToServer() {
+  const cur = state.current;
+  const btn = $('btn-save-badge');
+  btn.disabled = true;
+  btn.textContent = '正在儲存胸章…';
+  try {
+    const png = renderCroppedBadgePng();
+    cur.badgePng = png;
+    const thumb = await makeThumbJpeg(png);
+    const res = await rpc('saveBadge', { receipt: cur.receipt, imageBase64: png, thumbBase64: thumb });
+    cur.badge = res.status;
+    const msg = $('badge-msg');
+    msg.classList.remove('hidden');
+    if (res.status === '已發放') {
+      msg.className = 'notice';
+      msg.textContent = '胸章已發放並同步到班級成果星空！現在可以下載 58mm 印刷檔與 A4 證書。';
+      $('badge-downloads').classList.remove('hidden');
+    } else {
+      msg.className = 'notice warn';
+      msg.textContent = '胸章已送交老師審核。老師核准後，到「我的能量軌跡」輸入收據即可下載印刷檔與證書。';
+    }
+    btn.textContent = '已儲存胸章';
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = '儲存胸章';
+    toast(err.message || '胸章儲存失敗');
+  }
+}
+
+// ==============================================
+// 創客輸出：58mm 三規同心圓胸章印刷檔＋A4 證書＋學習歷程卡
+// ==============================================
+async function downloadBadgePrint(pngSrc, meta) {
+  try { await document.fonts.load('bold 24px "Noto Serif TC"'); } catch (_) {}
+  const canvas = $('export-canvas');
+  const size = 1200; canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size);
+  const cx = 600, cy = 570, safeR = 295, liveR = 345, bleedR = 410;
+
+  const img = new Image();
+  img.onload = () => {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, bleedR, 0, Math.PI * 2); ctx.clip();
+    ctx.drawImage(img, cx - bleedR, cy - bleedR, bleedR * 2, bleedR * 2);
+    ctx.restore();
+
+    ctx.strokeStyle = '#485952'; ctx.lineWidth = 1.8; ctx.setLineDash([8, 6]);
+    ctx.beginPath(); ctx.arc(cx, cy, bleedR, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = '#24654d'; ctx.lineWidth = 2.5; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.arc(cx, cy, liveR, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = 'rgba(217,119,6,.85)'; ctx.lineWidth = 1.5; ctx.setLineDash([2, 4]);
+    ctx.beginPath(); ctx.arc(cx, cy, safeR, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.strokeStyle = '#173e35'; ctx.lineWidth = 1.5;
+    const off = bleedR + 30, len = 30;
+    [[cx, cy - off], [cx, cy + off], [cx - off, cy], [cx + off, cy]].forEach(([x, y]) => {
+      ctx.beginPath(); ctx.moveTo(x - len, y); ctx.lineTo(x + len, y); ctx.moveTo(x, y - len); ctx.lineTo(x, y + len); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke();
+    });
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#173e35'; ctx.font = 'bold 26px "Noto Serif TC", serif';
+    ctx.fillText('大溪國中・學習能量軌跡 58mm 胸章印刷版型', cx, size - 110);
+    ctx.fillStyle = '#5d7068'; ctx.font = '18px sans-serif';
+    ctx.fillText(`${meta.className} ${meta.seat}號 ${meta.name} ｜ ${meta.topic} ｜ ${meta.score} 分`, cx, size - 75);
+    ctx.fillStyle = '#8a9b93'; ctx.font = '13px "Orbitron", monospace';
+    ctx.fillText('PRINT SPEC: 58MM BADGE / 70MM BLEED / 50MM SAFE / 300 DPI', cx, size - 42);
+    saveCanvasPng(canvas, `58mm胸章_${meta.className}_${meta.name}.png`);
+  };
+  img.src = pngSrc;
+}
+
+async function downloadCertificate(pngSrc, meta) {
+  try { await document.fonts.load('900 46px "Noto Serif TC"'); } catch (_) {}
+  const canvas = $('export-canvas');
+  canvas.width = 1754; canvas.height = 1240;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#f9f7f1'; ctx.fillRect(0, 0, 1754, 1240);
+
+  // 防偽底紋與雙邊框
+  ctx.strokeStyle = 'rgba(36,101,77,.04)'; ctx.lineWidth = 1;
+  for (let r = 120; r < 880; r += 26) {
+    ctx.beginPath();
+    for (let th = 0; th <= Math.PI * 2; th += 0.05) {
+      const rad = r + Math.sin(th * 12) * 10;
+      const x = 877 + Math.cos(th) * rad, y = 620 + Math.sin(th) * rad;
+      th === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath(); ctx.stroke();
+  }
+  ctx.strokeStyle = '#173e35'; ctx.lineWidth = 16; ctx.strokeRect(48, 48, 1658, 1144);
+  ctx.strokeStyle = '#d97706'; ctx.lineWidth = 2.5; ctx.strokeRect(68, 68, 1618, 1104);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#5d7068'; ctx.font = 'bold 18px Georgia, serif';
+  ctx.fillText('TAOYUAN MUNICIPAL DAXI JUNIOR HIGH SCHOOL ・ LEARNING ENERGY TRACKER', 877, 145);
+  ctx.fillStyle = '#173e35'; ctx.font = '900 48px "Noto Serif TC", serif';
+  ctx.fillText('學 習 能 量 軌 跡 ・ 特 級 認 證 證 書', 877, 232);
+  ctx.fillStyle = '#24654d'; ctx.font = 'bold 19px sans-serif';
+  ctx.fillText('CERTIFICATE OF LEARNING & ARTISTIC ENERGY EXCELLENCE', 877, 272);
+
+  ctx.fillStyle = '#5d7068'; ctx.font = '22px "Noto Serif TC", serif';
+  ctx.fillText('茲 證 明 學 員', 877, 338);
+  ctx.fillStyle = '#173e35'; ctx.font = '900 44px "Noto Serif TC", serif';
+  ctx.fillText(`${meta.className} 班 ${meta.seat} 號　${meta.name}`, 877, 402);
+
+  ctx.fillStyle = '#2b443c'; ctx.font = '21px "Noto Serif TC", serif';
+  ctx.fillText(`於「${meta.assignment}」完成【${meta.kindLabel}】作品，經五維素養規準評析表現優異，綜合能量達`, 877, 480);
+  ctx.fillStyle = '#d97706'; ctx.font = '900 58px "Orbitron", sans-serif';
+  ctx.fillText(`${meta.score} PTS`, 877, 565);
+  ctx.fillStyle = '#24654d'; ctx.font = 'bold 28px "Noto Serif TC", serif';
+  ctx.fillText(`主題／稱號：『 ${meta.topic} 』`, 877, 625);
+
+  const img = new Image();
+  img.onload = () => {
+    const cx = 877, cy = 825, r = 130;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r + 12, 0, Math.PI * 2); ctx.fillStyle = '#d97706'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, r + 5, 0, Math.PI * 2); ctx.fillStyle = '#fffefb'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+    ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2);
+    ctx.restore();
+
+    // 印信
+    ctx.strokeStyle = '#b91c1c'; ctx.fillStyle = '#b91c1c'; ctx.lineWidth = 4;
+    ctx.strokeRect(165, 985, 110, 110);
+    ctx.font = '900 22px "Noto Serif TC", serif';
+    ctx.fillText('桃園市立', 220, 1025); ctx.fillText('大溪國中', 220, 1055);
+    ctx.font = 'bold 14px "Noto Serif TC", serif'; ctx.fillText('能量認證章', 220, 1080);
+
+    ctx.textAlign = 'left'; ctx.fillStyle = '#173e35'; ctx.font = 'bold 20px "Noto Serif TC", serif';
+    ctx.fillText('發證單位：桃園市立大溪國民中學', 310, 1030);
+    ctx.font = '16px sans-serif'; ctx.fillStyle = '#5d7068';
+    ctx.fillText(`收據編號：${meta.receipt}`, 310, 1060);
+    ctx.fillText(`發證日期：${new Date().toLocaleDateString('zh-TW')}`, 310, 1088);
+    saveCanvasPng(canvas, `學習能量證書_${meta.className}_${meta.name}.png`);
+  };
+  img.src = pngSrc;
+}
+
+function downloadSummaryCard() {
+  const cur = state.current;
+  if (!cur) return;
+  const c = $('export-canvas'); c.width = 1000; c.height = 640;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#f7f5ed'; ctx.fillRect(0, 0, 1000, 640);
+  ctx.fillStyle = '#fffefb'; ctx.strokeStyle = '#d4ded5'; ctx.lineWidth = 2;
+  ctx.fillRect(28, 28, 944, 584); ctx.strokeRect(28, 28, 944, 584);
+  ctx.fillStyle = '#173e35'; ctx.fillRect(28, 28, 944, 72);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 24px "Noto Serif TC", serif';
+  ctx.fillText('大溪國中・學習能量軌跡歷程卡', 56, 74);
+  ctx.font = 'bold 28px "Orbitron", sans-serif'; ctx.fillStyle = '#e4edb7'; ctx.textAlign = 'right';
+  ctx.fillText(`${cur.ai.score || '—'} PTS`, 944, 74);
+
+  ctx.textAlign = 'left'; ctx.fillStyle = '#173e35'; ctx.font = 'bold 26px "Noto Serif TC", serif';
+  ctx.fillText(`${cur.student.className} 班 ${cur.student.seat} 號 ${cur.student.name} ｜ ${cur.ai.topic || ''}`, 56, 148);
+  ctx.fillStyle = '#24654d'; ctx.font = 'bold 16px sans-serif';
+  ctx.fillText(`作業：${cur.assignment} ｜ 類型：${cur.ai.kind === 'art' ? '藝術創作' : '探究筆記'} ｜ 標籤：${cur.ai.tag || '—'}`, 56, 182);
+
+  const wrap = (label, text, y) => {
+    ctx.fillStyle = '#173e35'; ctx.font = 'bold 16px sans-serif'; ctx.fillText(label, 56, y);
+    ctx.fillStyle = '#334155'; ctx.font = '16px sans-serif';
+    const s = String(text || '');
+    for (let i = 0; i < s.length && i < 120; i += 40) ctx.fillText(s.slice(i, i + 40), 56, y + 26 + (i / 40) * 24);
+  };
+  wrap('【重點摘要】', cur.ai.summary, 230);
+  wrap('【AI 評語草稿】', cur.ai.feedback, 345);
+  wrap('【下一步建議】', cur.ai.advice, 460);
+
+  ctx.drawImage($('r-radar'), 680, 190, 260, 232);
+  ctx.fillStyle = '#5d7068'; ctx.font = '13px "Orbitron", monospace';
+  ctx.fillText(`RECEIPT: ${cur.receipt}`, 56, 582);
+  saveCanvasPng(c, `學習歷程卡_${cur.student.className}_${cur.student.name}.png`);
+}
+
+function saveCanvasPng(canvas, filename) {
+  canvas.toBlob(blob => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2500);
+  }, 'image/png');
+}
+
+// ==============================================
+// 我的能量軌跡頁
+// ==============================================
+async function lookupTrajectory() {
+  const receipt = $('t-receipt').value.trim();
+  if (!receipt) return toast('請先輸入收據編號');
+  $('t-msg').textContent = '正在讀取你的能量軌跡…';
+  $('t-msg').classList.remove('hidden');
+  $('t-content').classList.add('hidden');
+  try {
+    const res = await rpc('getStudentTrajectory', { receipt });
+    if (!res.found || !res.list.length) {
+      $('t-msg').textContent = '找不到這張收據對應的紀錄，請確認收據編號是否完整。';
+      return;
+    }
+    rememberReceipt(receipt, `${res.student.className} ${res.student.name}`);
+    refreshSavedReceiptsUI();
+    $('t-msg').classList.add('hidden');
+    $('t-content').classList.remove('hidden');
+    $('t-student').textContent = `${res.student.className} 班 ${res.student.seat} 號　${res.student.name} 的能量軌跡`;
+    const s = res.stats;
+    $('s-total').textContent = s.total;
+    $('s-avg').textContent = s.average ?? '—';
+    $('s-best').textContent = s.best ?? '—';
+    $('s-growth').textContent = s.growth === null ? '—' : (s.growth >= 0 ? '+' + s.growth : s.growth);
+    $('s-badges').textContent = s.badges;
+
+    renderTrajectorySvg($('t-svg'), res.list);
+
+    // 最近三次雷達疊圖
+    const recent = res.list.filter(r => r.dims).slice(-3);
+    const palette = [
+      { fill: 'rgba(93,112,104,.12)', stroke: '#8a9b93', width: 1.5 },
+      { fill: 'rgba(217,119,6,.16)', stroke: '#d97706', width: 2 },
+      { fill: 'rgba(36,101,77,.30)', stroke: '#24654d', dot: '#d97706', width: 2.6 }
+    ];
+    const series = recent.map((r, i) => ({
+      values: normalizeFiveAxes(r.kind, r.dims),
+      ...palette[i + (3 - recent.length)]
+    }));
+    drawRadar($('t-radar'), series, ['向度一', '向度二', '向度三', '向度四', '向度五']);
+    $('t-radar-legend').innerHTML = recent.map((r, i) => {
+      const col = palette[i + (3 - recent.length)].stroke;
+      return `<span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${col}"></i>${esc(r.time.slice(5, 10))} ${esc(r.topic.slice(0, 6))} (${r.score}分)</span>`;
+    }).join('');
+
+    // 時間軸
+    const tl = $('t-timeline');
+    tl.innerHTML = '';
+    res.list.slice().reverse().forEach(r => {
+      const item = document.createElement('div');
+      item.className = 'panel tl-item';
+      const chipCls = r.kind === '藝術創作' ? 'chip-art' : (r.kind === '探究筆記' ? 'chip-note' : 'chip-invalid');
+      const canDownload = r.badge === '已發放';
+      item.innerHTML = `
+        <div class="tl-score" style="color:${(r.score || 0) >= 85 ? 'var(--amber)' : 'var(--ink)'}">${r.score ?? '—'}<small>PTS</small></div>
+        <div class="tl-body">
+          <div><span class="chip ${chipCls}">${esc(r.kind)}</span> <span class="chip">${esc(r.assignment)}</span> ${r.tag ? `<span class="chip">${esc(r.tag)}</span>` : ''} <span class="small muted">${esc(r.time)}</span></div>
+          <h3>${esc(r.topic)}</h3>
+          <div class="small muted">${esc(r.summary)}</div>
+          ${r.teacherComment ? `<div class="teacher-comment"><b>老師評語：</b>${esc(r.teacherComment)}</div>` : `<div class="small" style="margin-top:6px;color:var(--forest)"><b>AI 評語草稿：</b>${esc(r.feedback)}（${esc(r.review)}）</div>`}
+          ${r.advice ? `<div class="small muted" style="margin-top:4px">下一步：${esc(r.advice)}</div>` : ''}
+        </div>
+        <div style="text-align:right">
+          <span class="chip ${r.badge === '已發放' ? 'chip-gold' : ''}">胸章：${esc(r.badge)}</span>
+          ${canDownload ? `<div style="margin-top:8px;display:grid;gap:6px"><button type="button" class="btn btn-sm btn-gold" data-dl-print="${esc(r.receipt)}">58mm 印刷檔</button><button type="button" class="btn btn-sm" data-dl-cert="${esc(r.receipt)}">A4 證書</button></div>` : ''}
+        </div>`;
+      tl.appendChild(item);
+    });
+  } catch (err) {
+    $('t-msg').textContent = err.message || '查詢失敗';
+  }
+}
+
+async function downloadFromTrajectory(receipt, type) {
+  try {
+    toast('正在準備圖檔…');
+    const res = await rpc('getBadgeImage', { receipt });
+    const r = res.record;
+    const png = 'data:image/png;base64,' + res.imageBase64;
+    const meta = { className: r.className, seat: r.seat, name: r.name, assignment: r.assignment, kindLabel: r.kind, topic: r.topic, score: r.score, receipt: r.receipt };
+    if (type === 'print') downloadBadgePrint(png, meta);
+    else downloadCertificate(png, meta);
+  } catch (err) {
+    toast(err.message || '無法下載胸章');
+  }
+}
+
+// ==============================================
+// 班級成果星空
+// ==============================================
+async function loadGallery() {
+  const grid = $('gallery-grid');
+  grid.innerHTML = '<div class="empty" style="grid-column:1/-1">正在載入成果星空…</div>';
+  try {
+    const res = await rpc('getGallery');
+    if (!res.enabled) {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1">老師目前關閉了公開成果星空。</div>';
+      return;
+    }
+    if (!res.list.length) {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1">還沒有已發放的胸章，快去挑戰 85 分成為第一顆星！</div>';
+      return;
+    }
+    grid.innerHTML = '';
+    res.list.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'panel g-card';
+      const src = item.thumb ? `data:image/jpeg;base64,${item.thumb}` : makeEmblemDataUrl(item.title, item.score, item.kind, item.name);
+      card.innerHTML = `
+        <img src="${src}" alt="${esc(item.title)}">
+        <b>${esc(item.title)}</b>
+        <div class="small muted">${esc(item.className)} ${esc(item.name)}</div>
+        <div style="margin-top:6px;display:flex;justify-content:space-between;font-size:11px;border-top:1px solid var(--line);padding-top:6px">
+          <span>${esc(item.kind)}</span>
+          <span class="tech" style="color:var(--amber);font-weight:800">${Number(item.score)}分</span>
+        </div>`;
+      grid.appendChild(card);
+    });
+  } catch (err) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">${esc(err.message)}</div>`;
+  }
+}
+
+// ==============================================
+// 教師後台
+// ==============================================
+function openAdmin() {
+  $('admin-modal').classList.remove('hidden');
+  if (state.adminPwd) loadAdminOverview();
+  else $('a-pwd').focus();
+}
+function closeAdmin() { $('admin-modal').classList.add('hidden'); }
+
+async function adminLogin() {
+  const pwd = $('a-pwd').value;
+  setMsg('a-login-msg', '驗證中…');
+  try {
+    await rpc('verifyAdmin', { password: pwd });
+    state.adminPwd = pwd;
+    setMsg('a-login-msg', '');
+    $('admin-login').classList.add('hidden');
+    $('admin-body').classList.remove('hidden');
+    await loadAdminOverview();
+  } catch (err) {
+    setMsg('a-login-msg', err.message || '密碼錯誤', true);
+  }
+}
+
+async function loadAdminOverview() {
+  try {
+    const ov = await rpc('getAdminOverview', { password: state.adminPwd });
+    state.adminOverview = ov;
+    state.adminAssign = [...ov.assignments];
+    updateAssignmentsSelect(ov.assignments);
+
+    const list = ov.submissions || [];
+    const scored = list.filter(r => typeof r.score === 'number');
+    $('k-total').textContent = list.length;
+    $('k-scored').textContent = scored.length;
+    $('k-avg').textContent = scored.length ? Math.round(scored.reduce((s, r) => s + r.score, 0) / scored.length) : '—';
+    $('k-badges').textContent = list.filter(r => r.badge === '已發放').length;
+    $('k-pending').textContent = ov.pendingBadges || 0;
+
+    const pChip = $('a-pending-chip');
+    if (ov.pendingBadges > 0) { pChip.textContent = ov.pendingBadges; pChip.classList.remove('hidden'); }
+    else pChip.classList.add('hidden');
+
+    // 班級篩選與匯出下拉
+    const classes = [...new Set(list.map(r => r.className).filter(Boolean))].sort();
+    const fillSel = (id, items, allLabel) => {
+      const el = $(id); const cur = el.value;
+      el.innerHTML = `<option value="">${allLabel}</option>` + items.map(x => `<option>${esc(x)}</option>`).join('');
+      if (items.includes(cur)) el.value = cur;
+    };
+    fillSel('af-class', classes, '全部班級');
+    fillSel('ex-class', classes, '全部班級');
+    fillSel('ex-assign', ov.assignments, '全部作業');
+
+    $('a-sheet-link').href = ov.sheetUrl || '#';
+    document.querySelectorAll('input[name="s-approval"]').forEach(r => { r.checked = r.value === ov.badgeApproval; });
+    $('s-gallery').checked = !!ov.galleryPublic;
+    renderAdminSubmissions();
+    renderAdminAssignList();
+  } catch (err) {
+    toast(err.message || '讀取後台失敗');
+  }
+}
+
+function renderAdminSubmissions() {
+  const list = (state.adminOverview && state.adminOverview.submissions) || [];
+  const fc = $('af-class').value, fk = $('af-kind').value, fb = $('af-badge').value, q = $('af-search').value.trim();
+  const filtered = list.filter(r => {
+    if (fc && r.className !== fc) return false;
+    if (fk && r.kind !== fk) return false;
+    if (fb && r.badge !== fb) return false;
+    if (q && !(r.name.includes(q) || r.topic.includes(q) || r.seat.includes(q))) return false;
+    return true;
+  });
+  const box = $('adm-list');
+  if (!filtered.length) {
+    box.innerHTML = '<div class="empty">沒有符合篩選條件的繳交紀錄。</div>';
+    return;
+  }
+  box.innerHTML = '';
+  filtered.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'adm-item' + (r.badge === '待審核' ? ' pending' : '');
+    const rc = esc(r.receipt);
+    el.innerHTML = `
+      <div class="adm-head">
+        <span class="who">${esc(r.className)} 班 ${esc(r.seat)} 號 ${esc(r.name)}</span>
+        <span class="chip">${esc(r.assignment)}</span>
+        <span class="chip">${esc(r.kind)}</span>
+        ${r.score !== null ? `<span class="chip tech" style="font-weight:800">${r.score} 分</span>` : ''}
+        <span class="chip ${r.badge === '待審核' ? 'chip-gold' : ''}">胸章：${esc(r.badge)}</span>
+        <span class="small muted" style="margin-left:auto">${esc(r.time)}</span>
+        ${r.fileUrl && r.fileUrl !== '#demo' ? `<a class="btn btn-sm" href="${esc(r.fileUrl)}" target="_blank" rel="noopener">原始檔</a>` : ''}
+      </div>
+      <div><b>${esc(r.topic)}</b> — <span class="muted">${esc(r.summary)}</span></div>
+      <div class="small" style="color:var(--forest);margin-top:3px">AI 評語草稿：${esc(r.feedback)}</div>
+      <div class="adm-controls">
+        <textarea data-comment="${rc}" placeholder="老師正式評語（留空則學生端只看到 AI 草稿）">${esc(r.teacherComment || r.feedback || '')}</textarea>
+        <div class="adm-btns">
+          <select data-review="${rc}" aria-label="審核狀態">
+            <option ${r.review === '待教師審查' ? 'selected' : ''}>待教師審查</option>
+            <option ${r.review === '已審查核准' ? 'selected' : ''}>已審查核准</option>
+            <option ${r.review === '請學生修正' ? 'selected' : ''}>請學生修正</option>
+          </select>
+          <button type="button" class="btn btn-sm btn-primary" data-save-review="${rc}">儲存評語</button>
+          ${(r.badge === '待審核' || r.badge === '已駁回') ? `<button type="button" class="btn btn-sm btn-gold" data-badge-act="approve" data-rc="${rc}">核准胸章</button>` : ''}
+          ${(r.badge === '待審核' || r.badge === '已發放') ? `<button type="button" class="btn btn-sm btn-danger" data-badge-act="reject" data-rc="${rc}">駁回胸章</button>` : ''}
+        </div>
+      </div>`;
+    box.appendChild(el);
+  });
+}
+
+function renderAdminAssignList() {
+  const box = $('assign-list');
+  box.innerHTML = '';
+  state.adminAssign.forEach((a, i) => {
+    const row = document.createElement('div');
+    row.className = 'assign-item';
+    row.innerHTML = `<span>${esc(a)}</span>
+      <button type="button" class="btn btn-sm" data-move="-1" data-idx="${i}" ${i === 0 ? 'disabled' : ''}>↑</button>
+      <button type="button" class="btn btn-sm" data-move="1" data-idx="${i}" ${i === state.adminAssign.length - 1 ? 'disabled' : ''}>↓</button>
+      <button type="button" class="btn btn-sm btn-danger" data-del="${i}">刪除</button>`;
+    box.appendChild(row);
+  });
+}
+
+// ==============================================
+// 初始化與事件綁定
+// ==============================================
+function updateAssignmentsSelect(items) {
+  const sel = $('f-assignment');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">請選擇本次作業</option>' + items.map(a => `<option>${esc(a)}</option>`).join('');
+  if (items.includes(prev)) sel.value = prev;
+  else if (items[0]) sel.value = items[0];
+}
+
+function selectTheme(name) {
+  state.selectedTheme = state.selectedTheme === name ? '' : name;
+  document.querySelectorAll('#themes .theme-chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === state.selectedTheme));
+  $('custom-theme-box').classList.toggle('hidden', state.selectedTheme !== '學生自訂主題');
+}
+
+function renderThemeChips() {
+  const box = $('themes');
+  box.innerHTML = '';
+  THEMES.forEach(([name, sub]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'theme-chip'; b.dataset.theme = name; b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = `<b>${esc(name)}</b><span>${esc(sub)}</span>`;
+    b.addEventListener('click', () => selectTheme(name));
+    box.appendChild(b);
+  });
+}
+
+function fireConfetti() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cols = ['#24654d', '#173e35', '#d97706', '#84cc16'];
+  for (let i = 0; i < 32; i++) {
+    const d = document.createElement('div');
+    d.className = 'confetti';
+    d.style.left = Math.random() * 100 + 'vw';
+    d.style.background = cols[i % cols.length];
+    d.style.animationDuration = (1.8 + Math.random() * 1.6) + 's';
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 3500);
+  }
+}
+
+async function init() {
+  if (isDemo) $('demo-banner').classList.remove('hidden');
+  renderThemeChips();
+  renderTrajectorySvg($('hero-traj'), [
+    { time: '2026/09/18', kind: '探究筆記', topic: '顯微鏡初探', score: 74, badge: '未達標' },
+    { time: '2026/10/02', kind: '藝術創作', topic: '綠葉觀察者', score: 82, badge: '未達標' },
+    { time: '2026/10/20', kind: '探究筆記', topic: '氣孔開閉實驗', score: 92, badge: '已發放' }
+  ]);
+
+  try {
+    const cfg = await rpc('getPublicConfig');
+    state.cfg = cfg;
+    const pill = $('engine-pill');
+    if (cfg.aiEnabled) { pill.classList.add('live'); $('engine-text').textContent = isDemo ? '示範引擎就緒' : 'Gemini 多模態就緒'; }
+    else { pill.classList.remove('live'); $('engine-text').textContent = '純收件模式'; }
+
+    if (!cfg.ready) {
+      setStatus('老師尚未設定雲端收件資料夾，請稍後再試。', true);
+      return;
+    }
+    updateAssignmentsSelect(cfg.assignments);
+    $('fields').disabled = false;
+    setStatus(cfg.aiEnabled ? '請填寫資料並拍照或上傳作品，AI 助教會即時給你回饋。' : '收件空間已開放，請填寫資料並上傳作品。');
+  } catch (err) {
+    setStatus('無法連線收件空間，請重新整理頁面。', true);
+  }
+}
+
+// 導覽與表單事件
+document.querySelectorAll('.nav button[data-view]').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
+$('btn-open-admin').addEventListener('click', openAdmin);
+$('btn-close-admin').addEventListener('click', closeAdmin);
+$('form').addEventListener('submit', submitForm);
+$('btn-reselect').addEventListener('click', clearSelectedFile);
+
+$('f-file').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  state.demoPreset = null;
+  setStatus('正在處理檔案…');
+  try {
+    const f = await compressFile(file);
+    showSelectedFile(f);
+    setStatus('檔案已就緒，請按「送出作品」。');
+  } catch (err) {
+    setStatus(err.message || '檔案處理失敗', true);
+  }
+});
+
+document.querySelectorAll('[data-demo]').forEach(b => b.addEventListener('click', () => generateDemoSample(b.dataset.demo)));
+
+// 結果頁事件
+$('btn-again').addEventListener('click', () => { clearSelectedFile(); switchView('submit'); });
+$('btn-retry').addEventListener('click', () => { clearSelectedFile(); switchView('submit'); });
+$('btn-copy-receipt').addEventListener('click', () => {
+  if (!state.current) return;
+  navigator.clipboard?.writeText(state.current.receipt);
+  toast('已複製收據編號');
+});
+$('btn-to-traj').addEventListener('click', () => {
+  if (state.current) $('t-receipt').value = state.current.receipt;
+  switchView('trajectory');
+  lookupTrajectory();
+});
+document.querySelectorAll('#r-overlay-modes button').forEach(b => b.addEventListener('click', () => {
+  state.overlayMode = b.dataset.overlay;
+  document.querySelectorAll('#r-overlay-modes button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  renderOverlayCanvas();
+}));
+document.querySelectorAll('#badge-src-switch button').forEach(b => b.addEventListener('click', () => setBadgeSource(b.dataset.badgeSrc)));
+$('btn-save-badge').addEventListener('click', saveBadgeToServer);
+$('btn-print').addEventListener('click', () => {
+  const cur = state.current;
+  downloadBadgePrint(cur.badgePng || renderCroppedBadgePng(), {
+    className: cur.student.className, seat: cur.student.seat, name: cur.student.name,
+    topic: cur.ai.topic, score: cur.ai.score
+  });
+});
+$('btn-cert').addEventListener('click', () => {
+  const cur = state.current;
+  downloadCertificate(cur.badgePng || renderCroppedBadgePng(), {
+    className: cur.student.className, seat: cur.student.seat, name: cur.student.name,
+    assignment: cur.assignment, kindLabel: cur.ai.kind === 'art' ? '藝術創作' : '探究筆記',
+    topic: cur.ai.topic, score: cur.ai.score, receipt: cur.receipt
+  });
+});
+$('btn-card').addEventListener('click', downloadSummaryCard);
+
+// 胸章裁切拖曳與縮放
+$('crop-zoom').addEventListener('input', e => {
+  state.crop.scale = parseFloat(e.target.value);
+  $('crop-zoom-val').textContent = Math.round(state.crop.scale * 100) + '%';
+  applyCropTransform();
+});
+const cropBox = $('badge-crop');
+function startCropDrag(e) {
+  if (e.touches && e.touches.length === 2) {
+    state.crop.drag = false;
+    state.crop.pinch = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    state.crop.pScale = state.crop.scale;
+    return;
+  }
+  e.preventDefault();
+  const pt = e.touches ? e.touches[0] : e;
+  state.crop.drag = true; state.crop.sx = pt.clientX; state.crop.sy = pt.clientY;
+  state.crop.ix = state.crop.x; state.crop.iy = state.crop.y;
+}
+function moveCropDrag(e) {
+  if (e.touches && e.touches.length === 2 && state.crop.pinch) {
+    e.preventDefault();
+    const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    state.crop.scale = Math.min(3, Math.max(0.4, Number((state.crop.pScale * (d / state.crop.pinch)).toFixed(2))));
+    $('crop-zoom').value = state.crop.scale;
+    $('crop-zoom-val').textContent = Math.round(state.crop.scale * 100) + '%';
+    applyCropTransform();
+    return;
+  }
+  if (!state.crop.drag) return;
+  e.preventDefault();
+  const pt = e.touches ? e.touches[0] : e;
+  state.crop.x = state.crop.ix + (pt.clientX - state.crop.sx);
+  state.crop.y = state.crop.iy + (pt.clientY - state.crop.sy);
+  applyCropTransform();
+}
+function endCropDrag() { state.crop.drag = false; state.crop.pinch = null; }
+cropBox.addEventListener('mousedown', startCropDrag);
+cropBox.addEventListener('touchstart', startCropDrag, { passive: false });
+window.addEventListener('mousemove', moveCropDrag);
+window.addEventListener('touchmove', moveCropDrag, { passive: false });
+window.addEventListener('mouseup', endCropDrag);
+window.addEventListener('touchend', endCropDrag);
+
+// 軌跡頁事件
+$('btn-lookup').addEventListener('click', lookupTrajectory);
+$('t-saved').addEventListener('change', e => { if (e.target.value) { $('t-receipt').value = e.target.value; lookupTrajectory(); } });
+$('btn-forget').addEventListener('click', () => {
+  localStorage.removeItem(RECEIPT_KEY);
+  $('t-receipt').value = '';
+  refreshSavedReceiptsUI();
+  toast('已清除這台裝置記住的收據');
+});
+$('t-timeline').addEventListener('click', e => {
+  const p = e.target.closest('[data-dl-print]');
+  const c = e.target.closest('[data-dl-cert]');
+  if (p) downloadFromTrajectory(p.dataset.dlPrint, 'print');
+  if (c) downloadFromTrajectory(c.dataset.dlCert, 'cert');
+});
+
+// 後台事件
+$('btn-admin-login').addEventListener('click', adminLogin);
+$('a-pwd').addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
+document.querySelectorAll('.tabs button[data-tab]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button[data-tab]').forEach(x => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('#admin-body > [data-panel]').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== b.dataset.tab));
+}));
+['af-class', 'af-kind', 'af-badge', 'af-search'].forEach(id => $(id).addEventListener('input', renderAdminSubmissions));
+$('btn-admin-refresh').addEventListener('click', loadAdminOverview);
+
+$('adm-list').addEventListener('click', async e => {
+  const saveBtn = e.target.closest('[data-save-review]');
+  const badgeBtn = e.target.closest('[data-badge-act]');
+  if (saveBtn) {
+    const rc = saveBtn.dataset.saveReview;
+    const comment = document.querySelector(`[data-comment="${rc}"]`).value;
+    const review = document.querySelector(`[data-review="${rc}"]`).value;
+    try {
+      await rpc('reviewSubmission', { password: state.adminPwd, receipt: rc, teacherComment: comment, review });
+      toast('已儲存審核與評語');
+      loadAdminOverview();
+    } catch (err) { toast(err.message); }
+  }
+  if (badgeBtn) {
+    const rc = badgeBtn.dataset.rc;
+    const comment = document.querySelector(`[data-comment="${rc}"]`)?.value;
+    try {
+      await rpc('reviewSubmission', { password: state.adminPwd, receipt: rc, teacherComment: comment, review: badgeBtn.dataset.badgeAct === 'approve' ? '已審查核准' : undefined, badgeDecision: badgeBtn.dataset.badgeAct });
+      toast(badgeBtn.dataset.badgeAct === 'approve' ? '已核准胸章' : '已駁回胸章');
+      loadAdminOverview();
+    } catch (err) { toast(err.message); }
+  }
+});
+
+$('assign-list').addEventListener('click', e => {
+  const mv = e.target.closest('[data-move]');
+  const del = e.target.closest('[data-del]');
+  if (mv) {
+    const i = Number(mv.dataset.idx), d = Number(mv.dataset.move);
+    const tmp = state.adminAssign[i]; state.adminAssign[i] = state.adminAssign[i + d]; state.adminAssign[i + d] = tmp;
+    renderAdminAssignList();
+  }
+  if (del) {
+    if (state.adminAssign.length <= 1) return toast('至少要保留一個作業項目');
+    state.adminAssign.splice(Number(del.dataset.del), 1);
+    renderAdminAssignList();
+  }
+});
+$('btn-assign-add').addEventListener('click', () => {
+  const v = $('assign-new').value.trim();
+  if (!v) return;
+  state.adminAssign.push(v); $('assign-new').value = '';
+  renderAdminAssignList();
+});
+$('btn-assign-save').addEventListener('click', async () => {
+  try {
+    const res = await rpc('updateAssignments', { password: state.adminPwd, assignments: state.adminAssign });
+    state.cfg.assignments = res.assignments;
+    updateAssignmentsSelect(res.assignments);
+    setMsg('assign-msg', '已儲存作業項目');
+  } catch (err) { setMsg('assign-msg', err.message, true); }
+});
+
+$('btn-key-save').addEventListener('click', async () => {
+  setMsg('key-msg', '正在儲存並測試…');
+  try {
+    const res = await rpc('setGeminiApiKey', { password: state.adminPwd, apiKey: $('s-key').value });
+    $('s-key').value = '';
+    setMsg('key-msg', res.ping ? (res.ping.message || res.ping.error) : '已清除 API Key', res.ping && !res.ping.success);
+  } catch (err) { setMsg('key-msg', err.message, true); }
+});
+$('btn-key-test').addEventListener('click', async () => {
+  setMsg('key-msg', '測試連線中…');
+  try {
+    const res = await rpc('testGeminiApiKey', { password: state.adminPwd, apiKey: $('s-key').value });
+    setMsg('key-msg', res.message);
+  } catch (err) { setMsg('key-msg', err.message, true); }
+});
+$('btn-settings-save').addEventListener('click', async () => {
+  const approval = document.querySelector('input[name="s-approval"]:checked')?.value || 'auto';
+  try {
+    const res = await rpc('updateSettings', { password: state.adminPwd, badgeApproval: approval, galleryPublic: $('s-gallery').checked });
+    state.cfg.badgeApproval = res.badgeApproval; state.cfg.galleryPublic = res.galleryPublic;
+    setMsg('settings-msg', '設定已更新');
+  } catch (err) { setMsg('settings-msg', err.message, true); }
+});
+$('btn-pwd-save').addEventListener('click', async () => {
+  const np = $('s-newpwd').value;
+  try {
+    await rpc('changeAdminPassword', { oldPassword: state.adminPwd, newPassword: np });
+    state.adminPwd = np; $('s-newpwd').value = '';
+    setMsg('pwd-msg', '密碼已更新');
+  } catch (err) { setMsg('pwd-msg', err.message, true); }
+});
+$('btn-export').addEventListener('click', async () => {
+  setMsg('export-msg', '正在產生 Google Docs 成果冊…');
+  try {
+    const res = await rpc('exportSummaryDoc', { password: state.adminPwd, assignment: $('ex-assign').value, className: $('ex-class').value });
+    $('export-msg').innerHTML = `已產生：<a href="${esc(res.docUrl)}" target="_blank" rel="noopener">${esc(res.title || '開啟成果冊')}</a>`;
+  } catch (err) { setMsg('export-msg', err.message, true); }
+});
+$('btn-seed').addEventListener('click', async () => {
+  try {
+    const res = await rpc('seedDemoSubmissions', { password: state.adminPwd });
+    rememberReceipt(res.demoReceipt, '701 王小明（示範軌跡）');
+    setMsg('seed-msg', `已寫入 ${res.count} 筆示範資料。收據：${res.demoReceipt}`);
+    loadAdminOverview();
+  } catch (err) { setMsg('seed-msg', err.message, true); }
+});
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
