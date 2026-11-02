@@ -18,6 +18,20 @@
    - AI 評語預設標示為「草稿」，老師在後台確認或改寫後才成為正式評語。
    - 胸章支援兩種模式：**AI 達 85 分自動發放**（預設）或**老師核准後才發放**。
 6. **一鍵匯出成果冊（Google Docs）**：依學生分頁，收錄個人能量軌跡摘要、每次作品評語與已發放的胸章圖。
+7. **試算表「系統設定」直接管理 API Key**：試算表內建 `系統設定` 工作表，老師可直接在試算表 `B2` 儲存格貼上 `GEMINI_API_KEY` 或修改作業清單與管理密碼，無須進程式碼編輯器。
+
+---
+
+## 線上入口與部署資訊
+
+- **GitHub Pages 展示與收件入口**：https://coolokey.github.io/learning-energy-tracker/
+- **Google Apps Script Web App (`/exec`)**：https://script.google.com/macros/s/AKfycbyaGok5hmsET-nITUopgK1W97JTMf0czfVc2KUOA7D2Xrmr24vIPBGLpiNY0L0grspO/exec
+- **Google Apps Script 專案編輯器**：https://script.google.com/d/1_WmPgM1oIK3oXSz3PA0EvMG-GVQIZ1NSo-SR-AY7hDhhOBXwKbti0kAb/edit
+
+### 如何在試算表內設定 `GEMINI_API_KEY`
+1. 首次進入系統後，系統會自動在您的 Google Drive 建立「**學習能量軌跡AI收件空間**」資料夾與「**學習能量軌跡AI彙整總表**」試算表（也可點右上角「教師後台」（預設密碼 `admin888`）→「系統設定」→「**開啟試算表『系統設定』分頁**」直接打開）。
+2. 在試算表下方切換至「**系統設定**」工作表。
+3. 在 `GEMINI_API_KEY` 右側的 **`B2` 儲存格**直接貼上您的 Gemini API Key，貼上後立即生效！
 
 ---
 

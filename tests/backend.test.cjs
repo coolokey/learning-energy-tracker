@@ -421,6 +421,29 @@ test('exportSummaryDoc groups by student with page breaks and badge images', () 
   assert.throws(() => s.ctx.exportSummaryDoc({ password: 'admin888', className: '999' }), /未找到/);
 });
 
+test('spreadsheet settings sheet stores and reads GEMINI_API_KEY and settings directly', () => {
+  const s = setup({ GEMINI_API_KEY: '' });
+  assert.equal(s.ctx.getPublicConfig().aiEnabled, false);
+
+  // Teacher pastes GEMINI_API_KEY directly into cell B2 of '系統設定' sheet
+  const setSheet = s.sheets['系統設定'];
+  assert.ok(setSheet, '系統設定 sheet should be auto-created');
+  const keyRowIdx = setSheet.rows.findIndex(r => r[0] === 'GEMINI_API_KEY');
+  assert.ok(keyRowIdx >= 1, 'GEMINI_API_KEY row should exist');
+  setSheet.rows[keyRowIdx][1] = 'sheet-stored-api-key-999';
+
+  // Backend immediately picks up the key from the spreadsheet even when ScriptProperties is empty
+  assert.equal(s.ctx.getPublicConfig().aiEnabled, true);
+  const res = s.ctx.uploadSubmission(s.sampleData);
+  assert.equal(res.ai.kind, 'note');
+  assert.equal(res.ai.score, 90);
+  assert.ok(s.urlFetchCalls.some(c => c.url.includes('sheet-stored-api-key-999')));
+
+  // Setting API key via Admin UI also syncs back to the spreadsheet
+  s.ctx.setGeminiApiKey({ password: 'admin888', apiKey: 'updated-from-ui-key' });
+  assert.equal(setSheet.rows[keyRowIdx][1], 'updated-from-ui-key');
+});
+
 test('doPost routes actions and reports errors as JSON', () => {
   const s = setup();
   const ok = JSON.parse(s.ctx.doPost({ postData: { contents: JSON.stringify({ action: 'getPublicConfig' }) } }).getContent());

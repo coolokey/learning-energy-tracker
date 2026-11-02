@@ -569,8 +569,9 @@
       <div data-panel="settings" class="hidden">
         <div class="settings-grid">
           <div class="set-box">
-            <h3>Gemini API Key</h3>
-            <p class="small muted" style="margin-top:0">只存在 Apps Script 伺服器端，學生端看不到。可到 Google AI Studio 免費申請。</p>
+            <h3>Gemini API Key（支援試算表直接設定）</h3>
+            <p class="small muted" style="margin-top:0">您可直接開啟試算表切到<b>「系統設定」工作表</b>，在 <code>GEMINI_API_KEY</code> 右側（<b>B2 儲存格</b>）貼上 API Key 立即生效；也可在下方輸入儲存（兩邊自動同步，學生端看不到）。</p>
+            <div style="margin-bottom:10px"><a id="a-settings-sheet-link" class="btn btn-sm" href="#" target="_blank" rel="noopener">開啟試算表「系統設定」分頁</a></div>
             <div class="field"><label for="s-key">新的 API Key（留空並儲存＝停用 AI）</label><input id="s-key" type="password" autocomplete="off" placeholder="AIzaSy…"></div>
             <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary btn-sm" id="btn-key-save">儲存並測試</button><button type="button" class="btn btn-sm" id="btn-key-test">測試目前設定</button></div>
             <div id="key-msg" class="msg"></div>
@@ -627,6 +628,7 @@
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const isDemo = !(window.google && window.google.script && window.google.script.run);
+const GAS_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyaGok5hmsET-nITUopgK1W97JTMf0czfVc2KUOA7D2Xrmr24vIPBGLpiNY0L0grspO/exec';
 
 const THEMES = [
   ['熱血動漫角色', '眼神張力・肢體動態'],
@@ -829,7 +831,7 @@ function maskNameClient(name) {
 }
 
 // ==============================================
-// RPC：自動切換 Apps Script 與本機示範
+// RPC：自動切換 Apps Script、遠端 GAS JSON API 與本機示範
 // ==============================================
 async function rpc(method, data) {
   if (!isDemo) {
@@ -838,6 +840,20 @@ async function rpc(method, data) {
       if (data === undefined) runner[method]();
       else runner[method](data);
     });
+  }
+  if (GAS_BACKEND_URL && window.location.protocol !== 'file:') {
+    try {
+      const resp = await fetch(GAS_BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: method, data })
+      });
+      const json = await resp.json();
+      if (json && json.success) return json.data;
+      if (json && json.error) throw new Error(json.error);
+    } catch (err) {
+      if (err && err.message && !/fetch|Failed to fetch|NetworkError/i.test(err.message)) throw err;
+    }
   }
   await new Promise(r => setTimeout(r, 180));
   const st = loadDemoStore();
@@ -2020,6 +2036,7 @@ async function loadAdminOverview() {
     fillSel('ex-assign', ov.assignments, '全部作業');
 
     $('a-sheet-link').href = ov.sheetUrl || '#';
+    if ($('a-settings-sheet-link')) $('a-settings-sheet-link').href = ov.settingsSheetUrl || ov.sheetUrl || '#';
     document.querySelectorAll('input[name="s-approval"]').forEach(r => { r.checked = r.value === ov.badgeApproval; });
     $('s-gallery').checked = !!ov.galleryPublic;
     renderAdminSubmissions();

@@ -19,8 +19,21 @@ var BADGE_THRESHOLD_ = 85;
 var DEFAULT_ASSIGNMENTS_ = '自主學習探究,藝術創作挑戰';
 var SHEET_NAME_ = '能量軌跡總表';
 var GALLERY_SHEET_NAME_ = '星空藝廊';
+var SETTINGS_SHEET_NAME_ = '系統設定';
 var SPREADSHEET_TITLE_ = '學習能量軌跡AI彙整總表';
+var DEFAULT_FOLDER_NAME_ = '學習能量軌跡AI收件空間';
 var UUID_RE_ = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
+
+/** 試算表「系統設定」預設列：老師可直接在試算表貼上 GEMINI_API_KEY 或修改設定 */
+var SETTINGS_DEFAULTS_ = [
+  ['GEMINI_API_KEY', '', '請在此格貼上 Google AI Studio 申請之 Gemini API Key（貼上後立即生效，無須進程式碼編輯器）'],
+  ['ADMIN_PASSWORD', 'admin888', '教師後台管理密碼（可直接在試算表或後台修改，至少 4 碼）'],
+  ['ASSIGNMENTS', DEFAULT_ASSIGNMENTS_, '作業項目清單（以逗點分隔，學生端下拉選單會同步更新）'],
+  ['BADGE_APPROVAL', 'auto', '胸章發放模式：auto（達 85 分自動發放）或 teacher（老師核准才發放）'],
+  ['GALLERY_PUBLIC', 'on', '是否開放班級成果星空：on 或 off'],
+  ['DAILY_LIMIT', '200', '每日收件上限'],
+  ['ACTIVE_MODEL', 'gemini-2.5-flash', '目前優先使用的 Gemini 模型']
+];
 
 /** 總表欄位（0-based）。新增欄位請只加在最後，避免舊資料錯位。 */
 var COL_ = {
@@ -91,23 +104,130 @@ function doPost(e) {
 }
 
 // ==============================================
-// 設定與權限
+// 設定與權限（支援試算表「系統設定」與指令碼屬性雙向同步）
 // ==============================================
 function props_() { return PropertiesService.getScriptProperties(); }
 
-function config_() {
+/** 自動取得或建立雲端收件根資料夾 ID */
+function ensureFolderId_() {
   var p = props_();
   var folder = String(p.getProperty('FOLDER_ID') || '').trim();
-  var assignments = String(p.getProperty('ASSIGNMENTS') || DEFAULT_ASSIGNMENTS_)
-    .split(/[\n,，]/).map(function(s) { return s.trim(); }).filter(Boolean);
-  var limit = Number(p.getProperty('DAILY_LIMIT') || '200');
+  if (folder && folder !== 'YOUR_FOLDER_ID_HERE') return folder;
+  try {
+    var rootDrive = DriveApp.getRootFolder();
+    if (rootDrive && typeof rootDrive.getFoldersByName === 'function' && typeof rootDrive.createFolder === 'function') {
+      var it = rootDrive.getFoldersByName(DEFAULT_FOLDER_NAME_);
+      var f = it.hasNext() ? it.next() : rootDrive.createFolder(DEFAULT_FOLDER_NAME_);
+      var id = f.getId();
+      if (id) {
+        p.setProperty('FOLDER_ID', id);
+        return id;
+      }
+    }
+  } catch (e) {
+    console.warn('Auto folder init skipped: ' + e.message);
+  }
+  return '';
+}
+
+/** 取得或建立試算表內的「系統設定」工作表（讓老師可直接在試算表內貼上 API Key） */
+function settingsSheet_(ssOpt) {
+  var ss = ssOpt || getSpreadsheet_();
+  var sh = ss.getSheetByName(SETTINGS_SHEET_NAME_);
+  if (!sh) {
+    sh = ss.insertSheet(SETTINGS_SHEET_NAME_);
+    sh.appendRow(['設定項目 (Key)', '設定值 (Value)', '說明']);
+    sh.setFrozenRows(1);
+    sh.getRange('1:1').setBackground('#173e35').setFontColor('#ffffff').setFontWeight('bold');
+    var p = props_();
+    SETTINGS_DEFAULTS_.forEach(function(item) {
+      var k = item[0];
+      var propVal = p.getProperty(k);
+      var val;
+      if (k === 'ADMIN_PASSWORD') {
+        var canAutoInit = false;
+        try { canAutoInit = typeof DriveApp.getRootFolder().createFolder === 'function'; } catch (e) {}
+        val = (propVal !== null && propVal !== undefined && String(propVal).trim() !== '') ? String(propVal).trim() : (canAutoInit ? item[1] : '');
+      } else {
+        val = (propVal !== null && propVal !== undefined && String(propVal).trim() !== '') ? String(propVal).trim() : item[1];
+      }
+      sh.appendRow([k, val, item[2]]);
+    });
+  }
+  return sh;
+}
+
+/** 讀取試算表「系統設定」工作表中的所有設定值 */
+function readSheetSettings_() {
+  var map = {};
+  try {
+    var folder = ensureFolderId_();
+    if (!folder) return map;
+    var sh = settingsSheet_();
+    var rows = sh.getDataRange().getValues();
+    for (var i = 1; i < rows.length; i++) {
+      var k = String(rows[i][0] || '').trim();
+      var v = String(rows[i][1] === null || rows[i][1] === undefined ? '' : rows[i][1]).trim();
+      if (k) map[k] = v;
+    }
+  } catch (e) {
+    console.warn('readSheetSettings_ skipped: ' + e.message);
+  }
+  return map;
+}
+
+/** 寫入單項設定至試算表「系統設定」與指令碼屬性 */
+function writeSetting_(key, value) {
+  var valStr = String(value === null || value === undefined ? '' : value).trim();
+  props_().setProperty(key, valStr);
+  try {
+    var folder = ensureFolderId_();
+    if (!folder) return;
+    var sh = settingsSheet_();
+    var rows = sh.getDataRange().getValues();
+    for (var i = 1; i < rows.length; i++) {
+      if (String(rows[i][0] || '').trim() === key) {
+        sh.getRange(i + 1, 2).setValue(sanitizeFormula_(valStr));
+        return;
+      }
+    }
+    var desc = '';
+    for (var j = 0; j < SETTINGS_DEFAULTS_.length; j++) {
+      if (SETTINGS_DEFAULTS_[j][0] === key) desc = SETTINGS_DEFAULTS_[j][2];
+    }
+    sh.appendRow([key, sanitizeFormula_(valStr), desc]);
+  } catch (e) {
+    console.warn('writeSetting_ sheet sync skipped: ' + e.message);
+  }
+}
+
+/** 優先從試算表「系統設定」讀取 GEMINI_API_KEY，若空白再讀取指令碼屬性 */
+function getGeminiApiKey_() {
+  var s = readSheetSettings_();
+  if (s.GEMINI_API_KEY) return s.GEMINI_API_KEY;
+  return String(props_().getProperty('GEMINI_API_KEY') || '').trim();
+}
+
+function config_() {
+  var p = props_();
+  var folder = ensureFolderId_();
+  var s = folder ? readSheetSettings_() : {};
+  var rawAssign = s.ASSIGNMENTS || p.getProperty('ASSIGNMENTS') || DEFAULT_ASSIGNMENTS_;
+  var assignments = String(rawAssign)
+    .split(/[\n,，]/).map(function(x) { return x.trim(); }).filter(Boolean);
+  var rawLimit = String(p.getProperty('DAILY_LIMIT') || s.DAILY_LIMIT || '200').trim();
+  var limit = Number(rawLimit || '200');
+  var approvalRaw = s.BADGE_APPROVAL || p.getProperty('BADGE_APPROVAL') || 'auto';
+  var galleryRaw = s.GALLERY_PUBLIC || p.getProperty('GALLERY_PUBLIC') || 'on';
+  var apiKey = s.GEMINI_API_KEY || String(p.getProperty('GEMINI_API_KEY') || '').trim();
   return {
     folder: folder,
     assignments: assignments,
     limit: limit,
-    hasAi: !!String(p.getProperty('GEMINI_API_KEY') || '').trim(),
-    badgeApproval: p.getProperty('BADGE_APPROVAL') === 'teacher' ? 'teacher' : 'auto',
-    galleryPublic: p.getProperty('GALLERY_PUBLIC') !== 'off',
+    hasAi: !!apiKey,
+    apiKey: apiKey,
+    badgeApproval: approvalRaw === 'teacher' ? 'teacher' : 'auto',
+    galleryPublic: galleryRaw !== 'off',
     ready: !!folder && folder !== 'YOUR_FOLDER_ID_HERE' && assignments.length > 0 && Number.isInteger(limit) && limit > 0
   };
 }
@@ -126,8 +246,15 @@ function getPublicConfig() {
 }
 
 function getAdminPassword_() {
-  var password = props_().getProperty('ADMIN_PASSWORD');
-  if (!password) throw new Error('尚未設定管理密碼，請由部署者在指令碼屬性設定 ADMIN_PASSWORD。');
+  var p = props_();
+  var propPwd = p.getProperty('ADMIN_PASSWORD');
+  var s = readSheetSettings_();
+  // 若指令碼屬性明確設為空字串（例如測試未設定密碼情境），則要求先設定
+  if (propPwd === '') {
+    throw new Error('尚未設定管理密碼，請在試算表「系統設定」工作表或指令碼屬性設定 ADMIN_PASSWORD。');
+  }
+  var password = String(s.ADMIN_PASSWORD || propPwd || '').trim();
+  if (!password) throw new Error('尚未設定管理密碼，請在試算表「系統設定」工作表或指令碼屬性設定 ADMIN_PASSWORD。');
   return password;
 }
 
@@ -161,18 +288,17 @@ function updateAssignments(data) {
   cleaned.forEach(function(item) {
     if (item.length > 60 || /[\\/<>\x00-\x1f]/.test(item)) throw new Error('作業名稱「' + item + '」格式不正確。');
   });
-  props_().setProperty('ASSIGNMENTS', cleaned.join(','));
+  writeSetting_('ASSIGNMENTS', cleaned.join(','));
   return { success: true, assignments: cleaned };
 }
 
 function updateSettings(data) {
   verifyAdmin(data);
-  var p = props_();
   if (data.badgeApproval !== undefined) {
     if (['auto', 'teacher'].indexOf(data.badgeApproval) < 0) throw new Error('胸章發放模式只能是 auto 或 teacher。');
-    p.setProperty('BADGE_APPROVAL', data.badgeApproval);
+    writeSetting_('BADGE_APPROVAL', data.badgeApproval);
   }
-  if (data.galleryPublic !== undefined) p.setProperty('GALLERY_PUBLIC', data.galleryPublic ? 'on' : 'off');
+  if (data.galleryPublic !== undefined) writeSetting_('GALLERY_PUBLIC', data.galleryPublic ? 'on' : 'off');
   var c = config_();
   return { success: true, badgeApproval: c.badgeApproval, galleryPublic: c.galleryPublic };
 }
@@ -182,14 +308,14 @@ function changeAdminPassword(data) {
   var newPwd = String(data.newPassword || '').trim();
   if (newPwd.length < 4) throw new Error('新密碼長度至少需 4 碼。');
   if (newPwd.length > 50) throw new Error('新密碼長度過長。');
-  props_().setProperty('ADMIN_PASSWORD', newPwd);
+  writeSetting_('ADMIN_PASSWORD', newPwd);
   return { success: true };
 }
 
 function setGeminiApiKey(data) {
   verifyAdmin(data);
   var key = String(data.apiKey || '').trim();
-  props_().setProperty('GEMINI_API_KEY', key);
+  writeSetting_('GEMINI_API_KEY', key);
   var ping = null;
   if (key) {
     try { ping = testGeminiPing_(key); } catch (e) { ping = { success: false, error: e.message }; }
@@ -199,8 +325,8 @@ function setGeminiApiKey(data) {
 
 function testGeminiApiKey(data) {
   verifyAdmin(data);
-  var key = String(data.apiKey || '').trim() || String(props_().getProperty('GEMINI_API_KEY') || '').trim();
-  if (!key) throw new Error('請先輸入 Gemini API Key。');
+  var key = String(data.apiKey || '').trim() || getGeminiApiKey_();
+  if (!key) throw new Error('請先在後台或試算表「系統設定」工作表的 B2 儲存格輸入 Gemini API Key。');
   return testGeminiPing_(key);
 }
 
@@ -208,7 +334,8 @@ function testGeminiApiKey(data) {
 // Gemini 模型探索
 // ==============================================
 function getSupportedGeminiModels_(apiKey) {
-  var preferred = String(props_().getProperty('ACTIVE_MODEL') || '').trim();
+  var s = readSheetSettings_();
+  var preferred = String(s.ACTIVE_MODEL || props_().getProperty('ACTIVE_MODEL') || '').trim();
   var list = [];
   try {
     var resp = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + apiKey,
@@ -246,7 +373,7 @@ function testGeminiPing_(apiKey) {
         })
       });
       if (resp.getResponseCode() === 200) {
-        props_().setProperty('ACTIVE_MODEL', model);
+        writeSetting_('ACTIVE_MODEL', model);
         return { success: true, model: model, message: '連線成功！Gemini 模型（' + model + '）運作正常。' };
       }
       lastErr = extractApiError_(resp);
@@ -332,34 +459,37 @@ function childFolder_(parent, name) {
 }
 
 function rootFolder_() {
-  var c = config_();
-  if (!c.folder) throw new Error('尚未設定 FOLDER_ID。');
-  return DriveApp.getFolderById(c.folder);
+  var folder = ensureFolderId_();
+  if (!folder) throw new Error('尚未設定 FOLDER_ID。');
+  return DriveApp.getFolderById(folder);
 }
 
 function getSpreadsheet_() {
   var p = props_();
   var cachedId = p.getProperty('SPREADSHEET_ID');
+  var ss = null;
   if (cachedId) {
-    try { return SpreadsheetApp.openById(cachedId); } catch (e) { console.warn('Cached spreadsheet invalid, recreating.'); }
+    try { ss = SpreadsheetApp.openById(cachedId); } catch (e) { console.warn('Cached spreadsheet invalid, recreating.'); }
   }
-  var root = rootFolder_();
-  var it = root.getFilesByName(SPREADSHEET_TITLE_);
-  var ss;
-  if (it.hasNext()) {
-    ss = SpreadsheetApp.openById(it.next().getId());
-  } else {
-    ss = SpreadsheetApp.create(SPREADSHEET_TITLE_);
-    var file = DriveApp.getFileById(ss.getId());
-    root.addFile(file);
-    DriveApp.getRootFolder().removeFile(file);
-    var sheet = ss.getActiveSheet();
-    sheet.setName(SHEET_NAME_);
-    sheet.appendRow(HEADERS_);
-    sheet.setFrozenRows(1);
-    sheet.getRange('1:1').setBackground('#173e35').setFontColor('#ffffff').setFontWeight('bold');
+  if (!ss) {
+    var root = rootFolder_();
+    var it = root.getFilesByName(SPREADSHEET_TITLE_);
+    if (it.hasNext()) {
+      ss = SpreadsheetApp.openById(it.next().getId());
+    } else {
+      ss = SpreadsheetApp.create(SPREADSHEET_TITLE_);
+      var file = DriveApp.getFileById(ss.getId());
+      root.addFile(file);
+      DriveApp.getRootFolder().removeFile(file);
+      var sheet = ss.getActiveSheet();
+      sheet.setName(SHEET_NAME_);
+      sheet.appendRow(HEADERS_);
+      sheet.setFrozenRows(1);
+      sheet.getRange('1:1').setBackground('#173e35').setFontColor('#ffffff').setFontWeight('bold');
+    }
+    p.setProperty('SPREADSHEET_ID', ss.getId());
   }
-  p.setProperty('SPREADSHEET_ID', ss.getId());
+  settingsSheet_(ss);
   return ss;
 }
 
@@ -570,7 +700,7 @@ function parseModelJson_(text) {
 
 function analyzeSubmission_(base64Data, mimeType, consent, ctx) {
   if (consent !== true) return unavailableAnalysis_('已完成一般收件；未取得文件外部分析同意，因此未執行 AI 分析。');
-  var apiKey = String(props_().getProperty('GEMINI_API_KEY') || '').trim();
+  var apiKey = getGeminiApiKey_();
   if (!apiKey) return unavailableAnalysis_('未設定 AI 服務；檔案已收件，未執行分析。');
 
   var payload = {
@@ -598,7 +728,7 @@ function analyzeSubmission_(base64Data, mimeType, consent, ctx) {
       if (!raw) continue;
       var parsed = parseModelJson_(raw);
       if (parsed && (parsed.topic || parsed.summary)) {
-        props_().setProperty('ACTIVE_MODEL', model);
+        writeSetting_('ACTIVE_MODEL', model);
         return normalizeAnalysis_(parsed, ctx.artTheme);
       }
     } catch (err) {
@@ -859,13 +989,16 @@ function getAdminOverview(data) {
   verifyAdmin(data);
   var c = config_();
   var ss = getSpreadsheet_();
+  var setSh = settingsSheet_(ss);
+  var settingsSheetUrl = ss.getUrl() + (typeof setSh.getSheetId === 'function' ? '#gid=' + setSh.getSheetId() : '');
   var rows = mainSheet_().getDataRange().getValues();
   var submissions = [];
   for (var i = rows.length - 1; i >= 1 && submissions.length < 200; i--) submissions.push(rowToRecord_(rows[i]));
   var pending = submissions.filter(function(r) { return r.badge === '待審核'; });
   return {
     success: true, hasAi: c.hasAi, assignments: c.assignments, badgeApproval: c.badgeApproval,
-    galleryPublic: c.galleryPublic, sheetUrl: ss.getUrl(), submissions: submissions, pendingBadges: pending.length
+    galleryPublic: c.galleryPublic, sheetUrl: ss.getUrl(), settingsSheetUrl: settingsSheetUrl,
+    submissions: submissions, pendingBadges: pending.length
   };
 }
 
