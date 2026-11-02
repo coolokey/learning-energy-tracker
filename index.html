@@ -597,8 +597,12 @@
         <div class="settings-grid">
           <div class="set-box">
             <h3>Google 試算表總表</h3>
-            <p class="small muted" style="margin-top:0">每一筆繳交都會即時寫入「學習能量軌跡AI彙整總表」。</p>
-            <a id="a-sheet-link" class="btn btn-sm" href="#" target="_blank" rel="noopener">開啟試算表</a>
+            <p class="small muted" style="margin-top:0">每一筆繳交都會即時寫入「學習能量軌跡AI彙整總表」，所有欄位已自動設定為最適欄寬。</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <a id="a-sheet-link" class="btn btn-sm" href="#" target="_blank" rel="noopener">開啟試算表</a>
+              <button type="button" class="btn btn-sm" id="btn-format-sheet">一鍵重整最適欄寬</button>
+            </div>
+            <div id="sheet-msg" class="msg"></div>
           </div>
           <div class="set-box">
             <h3>匯出成果冊（Google Docs）</h3>
@@ -984,6 +988,10 @@ async function rpc(method, data) {
   if (method === 'exportSummaryDoc') {
     checkPwd(data);
     return { success: true, title: '學習能量軌跡成果冊（示範）', docUrl: 'https://docs.google.com/document/' };
+  }
+  if (method === 'formatAllSheets') {
+    checkPwd(data);
+    return { success: true };
   }
   throw new Error('未知指令：' + method);
 }
@@ -2400,6 +2408,13 @@ $('btn-export').addEventListener('click', async () => {
     const res = await rpc('exportSummaryDoc', { password: state.adminPwd, assignment: $('ex-assign').value, className: $('ex-class').value });
     $('export-msg').innerHTML = `已產生：<a href="${esc(res.docUrl)}" target="_blank" rel="noopener">${esc(res.title || '開啟成果冊')}</a>`;
   } catch (err) { setMsg('export-msg', err.message, true); }
+});
+$('btn-format-sheet').addEventListener('click', async () => {
+  setMsg('sheet-msg', '正在調整試算表各欄寬度…');
+  try {
+    await rpc('formatAllSheets', { password: state.adminPwd });
+    setMsg('sheet-msg', '已將三張工作表所有欄位調整為最適寬度');
+  } catch (err) { setMsg('sheet-msg', err.message, true); }
 });
 $('btn-seed').addEventListener('click', async () => {
   try {

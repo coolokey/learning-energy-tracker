@@ -25,14 +25,26 @@ function artReply(over = {}) {
 
 function makeSheet(name) {
   const rows = [];
+  const colWidths = {};
   return {
     rows,
+    colWidths,
     getName: () => name,
     setName: () => {},
     appendRow: row => rows.push([...row]),
     setFrozenRows: () => {},
-    getRange: (r, c) => {
-      if (typeof r === 'string') return { setBackground: () => ({ setFontColor: () => ({ setFontWeight: () => {} }) }) };
+    setColumnWidth: (col, w) => { colWidths[col] = w; },
+    getLastRow: () => rows.length,
+    getRange: (r, c, numRows) => {
+      if (typeof r === 'string' || numRows !== undefined) {
+        const chain = {
+          setBackground: () => chain,
+          setFontColor: () => chain,
+          setFontWeight: () => chain,
+          setVerticalAlignment: () => chain
+        };
+        return chain;
+      }
       return { setValue: v => { while (rows[r - 1].length < c) rows[r - 1].push(''); rows[r - 1][c - 1] = v; } };
     },
     getDataRange: () => ({ getValues: () => rows.map(r => [...r]) })
@@ -442,6 +454,13 @@ test('spreadsheet settings sheet stores and reads GEMINI_API_KEY and settings di
   // Setting API key via Admin UI also syncs back to the spreadsheet
   s.ctx.setGeminiApiKey({ password: 'admin888', apiKey: 'updated-from-ui-key' });
   assert.equal(setSheet.rows[keyRowIdx][1], 'updated-from-ui-key');
+
+  // Verify column widths are automatically formatted across all sheets
+  const fmt = s.ctx.formatAllSheets({ password: 'admin888' });
+  assert.equal(fmt.success, true);
+  assert.equal(Object.keys(s.sheets['能量軌跡總表'].colWidths).length, 22);
+  assert.equal(Object.keys(s.sheets['系統設定'].colWidths).length, 3);
+  assert.equal(Object.keys(s.sheets['星空藝廊'].colWidths).length, 9);
 });
 
 test('doPost routes actions and reports errors as JSON', () => {

@@ -49,6 +49,16 @@ var HEADERS_ = [
   '胸章狀態', '胸章檔案連結', '教師評語', '胸章檔案ID'
 ];
 
+/** 三張工作表各欄最適欄寬（px） */
+var MAIN_COL_WIDTHS_ = [
+  155, 70, 60, 95, 135, 95,
+  210, 145, 165, 165, 290, 290,
+  230, 145, 85, 210, 260, 115,
+  95, 145, 250, 170
+];
+var SETTINGS_COL_WIDTHS_ = [185, 340, 480];
+var GALLERY_COL_WIDTHS_ = [125, 260, 75, 100, 100, 175, 90, 150, 95];
+
 var KIND_LABEL_ = { note: '探究筆記', art: '藝術創作', invalid: '無法辨識', unavailable: '未分析' };
 var NOTE_DIMS_ = ['focus', 'depth', 'structure', 'insight', 'presentation'];
 var ART_DIMS_ = ['themeScore', 'compScore', 'colorScore', 'lightScore', 'detailScore'];
@@ -91,7 +101,8 @@ function doPost(e) {
       setGeminiApiKey: setGeminiApiKey,
       testGeminiApiKey: testGeminiApiKey,
       seedDemoSubmissions: seedDemoSubmissions,
-      exportSummaryDoc: exportSummaryDoc
+      exportSummaryDoc: exportSummaryDoc,
+      formatAllSheets: formatAllSheets
     };
     if (!Object.prototype.hasOwnProperty.call(routes, action)) throw new Error('未知的後端操作指令：' + action);
     var result = routes[action](data);
@@ -153,6 +164,7 @@ function settingsSheet_(ssOpt) {
       }
       sh.appendRow([k, val, item[2]]);
     });
+    applyColumnWidths_(sh, SETTINGS_COL_WIDTHS_);
   }
   return sh;
 }
@@ -464,6 +476,46 @@ function rootFolder_() {
   return DriveApp.getFolderById(folder);
 }
 
+function applyColumnWidths_(sheet, widths) {
+  if (!sheet || !widths || typeof sheet.setColumnWidth !== 'function') return;
+  try {
+    for (var i = 0; i < widths.length; i++) {
+      sheet.setColumnWidth(i + 1, widths[i]);
+    }
+    var lastRow = typeof sheet.getLastRow === 'function' ? Math.max(sheet.getLastRow(), 2) : 2;
+    var range = sheet.getRange(1, 1, lastRow, widths.length);
+    if (range && typeof range.setVerticalAlignment === 'function') range.setVerticalAlignment('middle');
+    var header = sheet.getRange(1, 1, 1, widths.length);
+    if (header && typeof header.setBackground === 'function') {
+      header.setBackground('#173e35').setFontColor('#ffffff').setFontWeight('bold');
+    }
+  } catch (e) {
+    console.warn('applyColumnWidths_ skipped: ' + e.message);
+  }
+}
+
+/** 一鍵將試算表內所有工作表（能量軌跡總表、系統設定、星空藝廊）的每一欄調整為適當欄寬 */
+function formatAllSheets(data) {
+  if (data && data.password !== undefined) verifyAdmin(data);
+  var ss = getSpreadsheet_();
+  var mainSh = mainSheet_();
+  var setSh = settingsSheet_(ss);
+  var galSh = gallerySheet_();
+  applyColumnWidths_(mainSh, MAIN_COL_WIDTHS_);
+  applyColumnWidths_(setSh, SETTINGS_COL_WIDTHS_);
+  applyColumnWidths_(galSh, GALLERY_COL_WIDTHS_);
+  props_().setProperty('SHEET_COLS_FORMATTED', 'v1');
+  return {
+    success: true,
+    sheetUrl: ss.getUrl(),
+    formatted: [
+      { sheet: SHEET_NAME_, columns: MAIN_COL_WIDTHS_.length },
+      { sheet: SETTINGS_SHEET_NAME_, columns: SETTINGS_COL_WIDTHS_.length },
+      { sheet: GALLERY_SHEET_NAME_, columns: GALLERY_COL_WIDTHS_.length }
+    ]
+  };
+}
+
 function getSpreadsheet_() {
   var p = props_();
   var cachedId = p.getProperty('SPREADSHEET_ID');
@@ -486,10 +538,19 @@ function getSpreadsheet_() {
       sheet.appendRow(HEADERS_);
       sheet.setFrozenRows(1);
       sheet.getRange('1:1').setBackground('#173e35').setFontColor('#ffffff').setFontWeight('bold');
+      applyColumnWidths_(sheet, MAIN_COL_WIDTHS_);
     }
     p.setProperty('SPREADSHEET_ID', ss.getId());
   }
-  settingsSheet_(ss);
+  var setSh = settingsSheet_(ss);
+  if (p.getProperty('SHEET_COLS_FORMATTED') !== 'v1') {
+    var mainSh = ss.getSheetByName(SHEET_NAME_) || ss.getActiveSheet();
+    applyColumnWidths_(mainSh, MAIN_COL_WIDTHS_);
+    applyColumnWidths_(setSh, SETTINGS_COL_WIDTHS_);
+    var galSh = ss.getSheetByName(GALLERY_SHEET_NAME_);
+    if (galSh) applyColumnWidths_(galSh, GALLERY_COL_WIDTHS_);
+    p.setProperty('SHEET_COLS_FORMATTED', 'v1');
+  }
   return ss;
 }
 
@@ -505,6 +566,8 @@ function gallerySheet_() {
     sh = ss.insertSheet(GALLERY_SHEET_NAME_);
     sh.appendRow(['發放時間', '收據UUID', '班級', '顯示名稱', '作品類型', '稱號', '能量總分', '縮圖(Base64)', '狀態']);
     sh.setFrozenRows(1);
+    sh.getRange('1:1').setBackground('#173e35').setFontColor('#ffffff').setFontWeight('bold');
+    applyColumnWidths_(sh, GALLERY_COL_WIDTHS_);
   }
   return sh;
 }
