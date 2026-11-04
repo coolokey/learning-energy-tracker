@@ -364,35 +364,44 @@ function testGeminiApiKey(data) {
 }
 
 // ==============================================
-// Gemini 模型探索（預設優先使用高階 gemini-2.5-pro）
+// Gemini 模型探索（預設優先使用高階 gemini-2.5-pro，其次 gemini-2.5-flash，絕不優先落入 lite）
 // ==============================================
+var PRIORITY_MODELS_ = [
+  'gemini-2.5-pro',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
+  'gemini-1.5-pro',
+  'gemini-1.5-flash'
+];
+
 function getSupportedGeminiModels_(apiKey) {
   var s = readSheetSettings_();
   var preferred = String(s.ACTIVE_MODEL || props_().getProperty('ACTIVE_MODEL') || 'gemini-2.5-pro').trim();
-  var list = [];
+  if (/lite/i.test(preferred)) preferred = 'gemini-2.5-pro';
+  var available = {};
+  var hasRemoteList = false;
   try {
     var resp = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + apiKey,
       { method: 'get', muteHttpExceptions: true });
     if (resp.getResponseCode() === 200) {
       var models = (JSON.parse(resp.getContentText()).models || []);
-      var pro = [], flash = [], other = [];
       models.forEach(function(m) {
         if ((m.supportedGenerationMethods || []).indexOf('generateContent') < 0) return;
         var name = m.name.replace(/^models\//, '');
-        if (/pro/i.test(name)) pro.push(name);
-        else if (/flash/i.test(name)) flash.push(name);
-        else other.push(name);
+        available[name] = true;
+        hasRemoteList = true;
       });
-      pro.sort().reverse();
-      flash.sort().reverse();
-      list = pro.concat(flash).concat(other);
     }
   } catch (e) {
     console.warn('ListModels failed, using fallback list: ' + e.message);
   }
-  if (!list.length) list = ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'];
+  var list = [];
+  PRIORITY_MODELS_.forEach(function(m) {
+    if (!hasRemoteList || available[m]) list.push(m);
+  });
+  if (!list.length) list = PRIORITY_MODELS_.slice();
   if (preferred) list = [preferred].concat(list.filter(function(m) { return m !== preferred; }));
-  return list.slice(0, 6);
+  return list.slice(0, 5);
 }
 
 function testGeminiPing_(apiKey) {
@@ -540,7 +549,7 @@ function formatAllSheets(data) {
         var rIdx = existingIdx[key];
         setSh.getRange(rIdx + 1, 3).setValue(desc);
         if (data && data.upgradeDefaults) {
-          if (key === 'ACTIVE_MODEL' && String(rows[rIdx][1] || '').trim() === 'gemini-2.5-flash') {
+          if (key === 'ACTIVE_MODEL') {
             setSh.getRange(rIdx + 1, 2).setValue('gemini-2.5-pro');
             props_().setProperty('ACTIVE_MODEL', 'gemini-2.5-pro');
           }
