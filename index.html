@@ -346,15 +346,15 @@
         <div class="mode-switch" role="group" aria-label="選擇評分與上傳模式">
           <button type="button" class="mode-btn" data-mode="note" aria-pressed="true">
             <b>📘 探究筆記／學習單</b>
-            <span>五維探究素養・達 85 分獲胸章</span>
+            <span>五維探究素養・關鍵詞與歷程摘要</span>
           </button>
           <button type="button" class="mode-btn" data-mode="art" aria-pressed="false">
             <b>🎨 畫作／胸章圖片評分</b>
             <span>五維美感掃描・58mm 實體胸章</span>
           </button>
         </div>
-        <h2 id="form-title">繳交作品與 AI 能量評分</h2>
-        <div id="form-subtitle" class="small muted">老師會在後台確認 AI 評語後，才成為正式評語。</div>
+        <h2 id="form-title">📘 探究筆記上傳與 AI 素養評分</h2>
+        <div id="form-subtitle" class="small muted">上傳自主學習筆記、心智圖或學習單，AI 自動給五維探究回饋與下一步建議。</div>
         <div id="status" class="status" role="status">正在連線收件空間…</div>
         <form id="form" novalidate>
           <fieldset id="fields" disabled>
@@ -365,10 +365,10 @@
             <div class="field"><label for="f-name">姓名</label><input id="f-name" type="text" maxlength="30" placeholder="請填完整姓名" autocomplete="name" required></div>
             <div class="field"><label for="f-assignment">作業項目</label><select id="f-assignment" required><option value="">請選擇本次作業</option></select></div>
             <div class="field">
-              <span class="label" id="file-label">作品檔案（筆記、學習單或胸章畫作）</span>
+              <span class="label" id="file-label">作品檔案（探究筆記、心智圖或學習單）</span>
               <div id="drop" class="drop">
                 <strong id="drop-title">點這裡拍照或選擇檔案上傳評分</strong>
-                <span id="drop-sub" class="small muted">JPG、PNG 或 PDF，最大 10 MB（達 85 分即可裁切製作 58mm 胸章）</span>
+                <span id="drop-sub" class="small muted">支援 JPG、PNG 或 PDF，最大 10 MB</span>
                 <input id="f-file" type="file" accept="image/jpeg,image/png,application/pdf,.jpg,.jpeg,.png,.pdf" aria-labelledby="file-label">
               </div>
               <div id="preview" class="preview hidden">
@@ -378,8 +378,8 @@
                 <button type="button" class="btn btn-sm" id="btn-reselect">更換</button>
               </div>
             </div>
-            <details class="art-opt" id="art-opt">
-              <summary id="art-opt-summary">🎨 胸章與藝術創作主題（30 大主題＋創作自述引導，點此展開）</summary>
+            <details class="art-opt hidden" id="art-opt">
+              <summary id="art-opt-summary">🎨 胸章與藝術創作主題（30 大主題＋創作自述引導）</summary>
               <div class="art-body">
                 <p class="small muted" style="margin:0 0 6px">選一個主題，AI 會依主題語意（35%）、結構重心、色彩、光影、筆觸進行五維評分；文不對題會得到 10–30 分。</p>
                 <div id="theme-cats" class="theme-cats" role="group" aria-label="主題分類篩選"></div>
@@ -1474,9 +1474,13 @@ async function submitForm(e) {
   if (!assignment) return setStatus('請選擇作業項目。', true);
   if (!state.file) return setStatus('請先拍照或選擇作品檔案。', true);
 
-  let artTheme = state.selectedTheme;
-  if (artTheme === '學生自訂主題') artTheme = $('f-custom-theme').value.trim() || '自由創作';
-  const studentNote = $('f-note').value.trim();
+  let artTheme = '';
+  let studentNote = '';
+  if (state.submitMode === 'art') {
+    artTheme = state.selectedTheme;
+    if (artTheme === '學生自訂主題') artTheme = $('f-custom-theme').value.trim() || '自由創作';
+    studentNote = $('f-note').value.trim();
+  }
 
   // 切換到掃描動畫
   if (state.file.mimeType === 'application/pdf') {
@@ -1598,9 +1602,15 @@ function showResult() {
   $('r-score').textContent = score;
   $('r-score').style.color = score >= 85 ? '#d97706' : (score < 60 ? '#b91c1c' : '#173e35');
 
+  const showBadgeSection = state.submitMode === 'art' || ai.kind === 'art';
   const eligible = (ai.kind === 'note' || ai.kind === 'art') && score >= 85;
-  $('r-status').textContent = eligible ? '已達 85 分，可製作 58mm 能量胸章！' : (ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : `距離 85 分胸章門檻還差 ${Math.max(1, 85 - score)} 分`);
-  $('r-status').style.color = eligible ? '#b45309' : '#5d7068';
+  if (showBadgeSection) {
+    $('r-status').textContent = eligible ? '已達 85 分，可製作 58mm 能量胸章！' : (ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : `距離 85 分胸章門檻還差 ${Math.max(1, 85 - score)} 分`);
+    $('r-status').style.color = eligible ? '#b45309' : '#5d7068';
+  } else {
+    $('r-status').textContent = ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : (score >= 85 ? '探究表現優異！已納入你的學期能量軌跡' : '已完成五維探究素養分析，並納入能量軌跡');
+    $('r-status').style.color = score >= 85 ? '#24654d' : '#5d7068';
+  }
 
   const meta = ai.kind === 'art' ? ART_META : NOTE_META;
   const bars = $('r-bars');
@@ -1618,8 +1628,12 @@ function showResult() {
     fill: 'rgba(36,101,77,.32)', stroke: '#24654d', dot: '#d97706', width: 2.5
   }], meta.map(x => x[1].replace(/\s*\(.+\)/, '')));
 
-  // 胸章區塊
-  if (eligible) {
+  // 胸章區塊（僅在畫作／胸章模式顯示）
+  if (!showBadgeSection) {
+    $('badge-panel').classList.add('hidden');
+    $('badge-locked').classList.add('hidden');
+    if (score >= 85) fireConfetti();
+  } else if (eligible) {
     $('badge-panel').classList.remove('hidden');
     $('badge-locked').classList.add('hidden');
     $('badge-msg').classList.add('hidden');
@@ -2209,11 +2223,12 @@ function setSubmitMode(mode) {
   $('form-title').textContent = isArt ? '🎨 胸章畫作上傳與 AI 美感評分' : '📘 探究筆記上傳與 AI 素養評分';
   $('form-subtitle').textContent = isArt
     ? '上傳畫作或胸章設計圖，AI 進行五維美感掃描；達 85 分即可裁切輸出 58mm 實體胸章！'
-    : '上傳自主學習筆記、心智圖或學習單，AI 自動給五維探究回饋；達 85 分同樣可獲胸章！';
-  $('file-label').textContent = isArt ? '胸章畫作／設計圖檔案（請上傳 JPG 或 PNG 圖片）' : '作品檔案（筆記、學習單或胸章畫作）';
+    : '上傳自主學習筆記、心智圖或學習單，AI 自動給五維探究回饋與下一步建議。';
+  $('file-label').textContent = isArt ? '胸章畫作／設計圖檔案（請上傳 JPG 或 PNG 圖片）' : '作品檔案（探究筆記、心智圖或學習單）';
   $('drop-title').textContent = isArt ? '點這裡拍照或上傳「胸章畫作／設計圖」評分' : '點這裡拍照或選擇檔案上傳評分';
-  $('drop-sub').textContent = isArt ? '建議上傳清晰的 JPG 或 PNG 畫作，AI 評分達 85 分即可直接裁切圓形胸章' : 'JPG、PNG 或 PDF，最大 10 MB（達 85 分即可裁切製作 58mm 胸章）';
+  $('drop-sub').textContent = isArt ? '建議上傳清晰的 JPG 或 PNG 畫作，AI 評分達 85 分即可直接裁切圓形胸章' : '支援 JPG、PNG 或 PDF，最大 10 MB';
   $('drop').classList.toggle('art-drop', isArt);
+  $('art-opt').classList.toggle('hidden', !isArt);
   $('art-opt').classList.toggle('art-highlight', isArt);
   $('art-opt').open = isArt;
   $('btn-submit').textContent = isArt ? '開始 AI 胸章美感評分' : '送出作品並開始 AI 評分';
