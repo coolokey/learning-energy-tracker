@@ -112,8 +112,8 @@
   .mode-btn b { display: block; font-size: 14px; color: var(--ink); margin-bottom: 2px; }
   .mode-btn span { display: block; font-size: 11.5px; line-height: 1.3; }
   .mode-btn[aria-pressed="true"] { background: #fff; border-color: var(--line); box-shadow: 0 3px 10px rgba(23, 62, 53, .08); color: var(--forest); }
-  .mode-btn[aria-pressed="true"][data-mode="art"] { border-color: var(--amber); background: #fffaf0; }
-  .mode-btn[aria-pressed="true"][data-mode="art"] b { color: var(--amber-deep); }
+  .mode-btn[aria-pressed="true"][data-mode="art"], .mode-btn[aria-pressed="true"][data-art-purpose] { border-color: var(--amber); background: #fffaf0; }
+  .mode-btn[aria-pressed="true"][data-mode="art"] b, .mode-btn[aria-pressed="true"][data-art-purpose] b { color: var(--amber-deep); }
   .status { font-size: 13px; padding: 9px 12px; border-radius: 10px; background: #eff3e7; color: var(--forest); margin: 12px 0 16px; font-weight: 600; }
   .status.error { background: #fdecec; color: var(--rose); }
   fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
@@ -363,8 +363,18 @@
             <span>五維探究素養・關鍵詞與歷程摘要</span>
           </button>
           <button type="button" class="mode-btn" data-mode="art" aria-pressed="false">
-            <b>🎨 畫作／胸章圖片評分</b>
-            <span>五維美感掃描・58mm 實體胸章</span>
+            <b>🎨 畫作／圖片美感評分</b>
+            <span>一般畫作鑑賞・或 58mm 胸章設計</span>
+          </button>
+        </div>
+        <div id="art-purpose-box" class="mode-switch hidden" role="group" aria-label="選擇畫作繳交類型" style="margin-top:-6px;margin-bottom:14px;background:#fff8eb;border:1px solid #f5cf95">
+          <button type="button" class="mode-btn" data-art-purpose="artwork" aria-pressed="true">
+            <b>🖼️ 一般畫作／美術作品</b>
+            <span>保持完整畫幅評分，不裁切胸章</span>
+          </button>
+          <button type="button" class="mode-btn" data-art-purpose="badge" aria-pressed="false">
+            <b>🏅 58mm 胸章設計作品</b>
+            <span>圓形胸章取景・達標可申請實體胸章</span>
           </button>
         </div>
         <h2 id="form-title">📘 探究筆記上傳與 AI 素養評分</h2>
@@ -614,7 +624,7 @@
         <div class="filters">
           <select id="af-class" aria-label="班級"><option value="">全部班級</option></select>
           <select id="af-kind" aria-label="作品類型"><option value="">全部類型</option><option>探究筆記</option><option>藝術創作</option><option>無法辨識</option><option>未分析</option></select>
-          <select id="af-badge" aria-label="胸章狀態"><option value="">全部胸章狀態</option><option>待審核</option><option>已發放</option><option>可製作</option><option>已駁回</option><option>未達標</option></select>
+          <select id="af-badge" aria-label="胸章狀態"><option value="">全部胸章狀態</option><option>待審核</option><option>已發放</option><option>可製作</option><option>已駁回</option><option>未達標</option><option>不製作胸章</option></select>
           <input id="af-search" type="text" placeholder="搜尋姓名或主題" aria-label="搜尋">
           <button type="button" class="btn btn-sm" id="btn-admin-refresh">重新整理</button>
         </div>
@@ -777,6 +787,7 @@ const ART_META = [
 const state = {
   cfg: { ready: true, assignments: ['自主學習探究', '藝術創作挑戰'], maxBytes: 10485760, aiEnabled: false, badgeApproval: 'auto', badgeThreshold: 85, galleryPublic: true },
   submitMode: 'note',  // 'note' | 'art'
+  artPurpose: 'artwork', // 'artwork' (一般畫作) | 'badge' (58mm 胸章設計)
   themeCat: 'all',
   selectedTheme: '',
   file: null,          // { name, size, mimeType, base64, dataUrl }
@@ -1187,8 +1198,8 @@ function renderPreCroppedImage() {
     ctx.restore();
   } catch (_) {}
 
-  const isArt = state.submitMode === 'art';
-  const inset = isArt ? 22 : 0;
+  const isBadgeCrop = state.submitMode === 'art' && state.artPurpose === 'badge';
+  const inset = isBadgeCrop ? 22 : 0;
   const viewSize = box - inset * 2;
   const ratio = S / viewSize;
   const w = pc.baseW * pc.scale;
@@ -1215,9 +1226,9 @@ function showSelectedFile(f) {
   } else {
     $('preview').classList.add('hidden');
     $('pre-crop-box').classList.remove('hidden');
-    const isArt = state.submitMode === 'art';
-    $('pre-crop-title').textContent = isArt ? '58mm 胸章取景與放大縮小' : '作品圖片預覽與放大縮小';
-    $('pre-crop-view').querySelector('.pre-crop-mask').classList.toggle('hidden', !isArt);
+    const isBadgeCrop = state.submitMode === 'art' && state.artPurpose === 'badge';
+    $('pre-crop-title').textContent = isBadgeCrop ? '58mm 胸章取景與放大縮小' : '作品圖片預覽與放大縮小';
+    $('pre-crop-view').querySelector('.pre-crop-mask').classList.toggle('hidden', !isBadgeCrop);
     $('pre-crop-meta').textContent = `${f.name}（${Math.max(1, Math.round(f.size / 1024))} KB）`;
     initPreCrop(f.dataUrl);
   }
@@ -1293,6 +1304,7 @@ async function submitForm(e) {
       requestId: reqId,
       className, seat, name, assignment,
       artTheme, studentNote,
+      wantBadge: state.submitMode === 'art' && state.artPurpose === 'badge',
       mimeType: activeFile.mimeType,
       fileData: activeFile.base64,
       anonymousDocumentConsent: $('f-consent').checked
@@ -1384,13 +1396,16 @@ function showResult() {
   $('r-score').textContent = score;
   $('r-score').style.color = score >= th ? '#d97706' : (score < 60 ? '#b91c1c' : '#173e35');
 
-  const showBadgeSection = state.submitMode === 'art' || ai.kind === 'art';
+  const showBadgeSection = state.submitMode === 'art' && state.artPurpose === 'badge';
   const eligible = (ai.kind === 'note' || ai.kind === 'art') && score >= th;
   if (showBadgeSection) {
     $('r-status').textContent = eligible
       ? (cur.badgeApproval === 'teacher' ? `已達 ${th} 分標準，可裁切送出胸章申請（待導師確認核准）！` : `已達 ${th} 分標準，可製作 58mm 能量胸章！`)
       : (ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : `距離 ${th} 分胸章標準還差 ${Math.max(1, th - score)} 分（導師審核時亦可調整確認）`);
     $('r-status').style.color = eligible ? '#b45309' : '#5d7068';
+  } else if (state.submitMode === 'art' || ai.kind === 'art') {
+    $('r-status').textContent = ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : (score >= th ? '畫作表現優異！已納入你的學期美感能量軌跡' : '已完成五維美感掃描分析，並納入能量軌跡');
+    $('r-status').style.color = score >= th ? '#b45309' : '#5d7068';
   } else {
     $('r-status').textContent = ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : (score >= th ? '探究表現優異！已納入你的學期能量軌跡' : '已完成五維探究素養分析，並納入能量軌跡');
     $('r-status').style.color = score >= th ? '#24654d' : '#5d7068';
@@ -2010,24 +2025,10 @@ function updateAssignmentsSelect(items) {
 
 function setSubmitMode(mode) {
   state.submitMode = mode === 'art' ? 'art' : 'note';
-  document.querySelectorAll('.mode-switch .mode-btn').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === state.submitMode));
+  document.querySelectorAll('.mode-switch .mode-btn[data-mode]').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === state.submitMode));
   const isArt = state.submitMode === 'art';
-  $('form-title').textContent = isArt ? '🎨 胸章畫作上傳與 AI 美感評分' : '📘 探究筆記上傳與 AI 素養評分';
-  $('form-subtitle').textContent = isArt
-    ? '上傳畫作或胸章設計圖，AI 進行五維美感掃描；達 85 分即可裁切輸出 58mm 實體胸章！'
-    : '上傳自主學習筆記、心智圖或學習單，AI 自動給五維探究回饋與下一步建議。';
-  $('file-label').textContent = isArt ? '胸章畫作／設計圖檔案（請上傳 JPG 或 PNG 圖片）' : '作品檔案（探究筆記、心智圖或學習單）';
-  $('drop-title').textContent = isArt ? '點這裡拍照或上傳「胸章畫作／設計圖」評分' : '點這裡拍照或選擇檔案上傳評分';
-  $('drop-sub').textContent = isArt ? '建議上傳清晰的 JPG 或 PNG 畫作，AI 評分達 85 分即可直接裁切圓形胸章' : '支援 JPG、PNG 或 PDF，最大 10 MB';
-  $('drop').classList.toggle('art-drop', isArt);
-  $('art-opt').classList.toggle('hidden', !isArt);
-  $('art-opt').classList.toggle('art-highlight', isArt);
-  $('art-opt').open = isArt;
-  $('btn-submit').textContent = isArt ? '開始 AI 胸章美感評分' : '送出作品並開始 AI 評分';
-  if ($('pre-crop-title')) {
-    $('pre-crop-title').textContent = isArt ? '58mm 胸章取景與放大縮小' : '作品圖片預覽與放大縮小';
-    $('pre-crop-view').querySelector('.pre-crop-mask').classList.toggle('hidden', !isArt);
-  }
+  if ($('art-purpose-box')) $('art-purpose-box').classList.toggle('hidden', !isArt);
+  updateArtPurposeUI();
 
   // 自動對應作業項目下拉選單
   const assigns = state.cfg.assignments || [];
@@ -2037,6 +2038,52 @@ function setSubmitMode(mode) {
   } else {
     const noteAssign = assigns.find(a => /自主|探究|筆記|學習/.test(a));
     if (noteAssign) $('f-assignment').value = noteAssign;
+  }
+}
+
+function setArtPurpose(purpose) {
+  state.artPurpose = purpose === 'badge' ? 'badge' : 'artwork';
+  document.querySelectorAll('#art-purpose-box .mode-btn[data-art-purpose]').forEach(b => b.setAttribute('aria-pressed', b.dataset.artPurpose === state.artPurpose));
+  updateArtPurposeUI();
+}
+
+function updateArtPurposeUI() {
+  const isArt = state.submitMode === 'art';
+  const isBadge = isArt && state.artPurpose === 'badge';
+  if (!isArt) {
+    $('form-title').textContent = '📘 探究筆記上傳與 AI 素養評分';
+    $('form-subtitle').textContent = '上傳自主學習筆記、心智圖或學習單，AI 自動給五維探究回饋與下一步建議。';
+    $('file-label').textContent = '作品檔案（探究筆記、心智圖或學習單）';
+    $('drop-title').textContent = '點這裡拍照或選擇檔案上傳評分';
+    $('drop-sub').textContent = '支援 JPG、PNG 或 PDF，最大 10 MB';
+    $('btn-submit').textContent = '送出作品並開始 AI 評分';
+  } else if (isBadge) {
+    $('form-title').textContent = '🏅 58mm 胸章設計上傳與 AI 美感評分';
+    $('form-subtitle').textContent = '上傳胸章設計圖，提供 58mm 圓形取景與五維美感掃描；達標即可申請製作實體胸章！';
+    $('file-label').textContent = '胸章設計圖檔案（請上傳 JPG 或 PNG 圖片）';
+    $('drop-title').textContent = '點這裡拍照或上傳「58mm 胸章設計圖」評分';
+    $('drop-sub').textContent = '支援圓形胸章取景縮放，AI 評分達標即可裁切輸出 58mm 實體胸章';
+    $('btn-submit').textContent = '開始 AI 胸章美感評分';
+  } else {
+    $('form-title').textContent = '🎨 一般畫作上傳與 AI 美感評分';
+    $('form-subtitle').textContent = '上傳水彩、素描、插畫或海報等完整畫作，AI 進行五維美感掃描與構圖分析（不強制裁切為胸章）。';
+    $('file-label').textContent = '畫作／美術作品檔案（支援 JPG、PNG 或 PDF）';
+    $('drop-title').textContent = '點這裡拍照或上傳「一般畫作／美術作品」評分';
+    $('drop-sub').textContent = '保持完整畫幅比例進行五維美感評分，支援 JPG、PNG 或 PDF';
+    $('btn-submit').textContent = '開始 AI 畫作美感評分';
+  }
+  if ($('art-opt-summary')) {
+    $('art-opt-summary').textContent = isBadge
+      ? '🎨 胸章與藝術創作主題（30 大主題＋創作自述引導）'
+      : '🎨 藝術創作主題與自述（30 大主題＋創作理念引導）';
+  }
+  $('drop').classList.toggle('art-drop', isArt);
+  $('art-opt').classList.toggle('hidden', !isArt);
+  $('art-opt').classList.toggle('art-highlight', isArt);
+  $('art-opt').open = isArt;
+  if ($('pre-crop-title')) {
+    $('pre-crop-title').textContent = isBadge ? '58mm 胸章取景與放大縮小' : '作品圖片預覽與放大縮小';
+    $('pre-crop-view').querySelector('.pre-crop-mask').classList.toggle('hidden', !isBadge);
   }
 }
 
@@ -2135,7 +2182,8 @@ async function init() {
   renderThemeCats();
   renderThemeChips();
   renderPromptChips();
-  document.querySelectorAll('.mode-switch .mode-btn').forEach(b => b.addEventListener('click', () => setSubmitMode(b.dataset.mode)));
+  document.querySelectorAll('.mode-switch .mode-btn[data-mode]').forEach(b => b.addEventListener('click', () => setSubmitMode(b.dataset.mode)));
+  document.querySelectorAll('#art-purpose-box .mode-btn[data-art-purpose]').forEach(b => b.addEventListener('click', () => setArtPurpose(b.dataset.artPurpose)));
   renderTrajectorySvg($('hero-traj'), [
     { time: '2026/09/18', kind: '探究筆記', topic: '顯微鏡初探', score: 74, badge: '未達標' },
     { time: '2026/10/02', kind: '藝術創作', topic: '綠葉觀察者', score: 82, badge: '未達標' },

@@ -915,7 +915,8 @@ function uploadSubmission(data) {
     // (3) AI 分析（無鎖平行）
     var ai = analyzeSubmission_(data.fileData, data.mimeType, data.anonymousDocumentConsent === true,
       { assignment: v.assignment, artTheme: v.artTheme, studentNote: v.studentNote });
-    var badge = badgeEligible_(ai.kind, ai.score, c.badgeThreshold) ? '可製作' : '未達標';
+    var wantBadge = data && data.wantBadge === false ? false : true;
+    var badge = !wantBadge ? '不製作胸章' : (badgeEligible_(ai.kind, ai.score, c.badgeThreshold) ? '可製作' : '未達標');
 
     // (4) 寫入總表
     try {
