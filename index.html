@@ -107,6 +107,13 @@
 
   .form-panel { padding: 22px; }
   .form-panel h2 { font-size: 22px; margin-bottom: 4px; }
+  .mode-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; background: #eff3e7; padding: 5px; border-radius: 12px; }
+  .mode-btn { border: 1px solid transparent; background: transparent; border-radius: 9px; padding: 10px 10px; text-align: left; color: var(--muted); transition: all .18s; }
+  .mode-btn b { display: block; font-size: 14px; color: var(--ink); margin-bottom: 2px; }
+  .mode-btn span { display: block; font-size: 11.5px; line-height: 1.3; }
+  .mode-btn[aria-pressed="true"] { background: #fff; border-color: var(--line); box-shadow: 0 3px 10px rgba(23, 62, 53, .08); color: var(--forest); }
+  .mode-btn[aria-pressed="true"][data-mode="art"] { border-color: var(--amber); background: #fffaf0; }
+  .mode-btn[aria-pressed="true"][data-mode="art"] b { color: var(--amber-deep); }
   .status { font-size: 13px; padding: 9px 12px; border-radius: 10px; background: #eff3e7; color: var(--forest); margin: 12px 0 16px; font-weight: 600; }
   .status.error { background: #fdecec; color: var(--rose); }
   fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
@@ -121,6 +128,7 @@
     position: relative; border: 2px dashed #b7cfac; border-radius: 12px; background: #fafbf5; padding: 22px 14px;
     text-align: center; overflow: hidden; transition: border-color .2s, background .2s;
   }
+  .drop.art-drop { border-color: #eab308; background: #fffdf7; }
   .drop:hover, .drop.drag { border-color: var(--forest); background: #f2f6ea; }
   .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
   .drop strong { display: block; font-size: 15px; }
@@ -130,16 +138,23 @@
   .preview-meta { flex: 1; min-width: 0; font-size: 13px; }
   .preview-meta div:first-child { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   details.art-opt { border: 1px solid var(--line); border-radius: 12px; background: #fcfcf7; margin-bottom: 14px; }
+  details.art-opt.art-highlight { border-color: #f5cf95; background: #fffdf8; }
   details.art-opt summary { cursor: pointer; padding: 11px 14px; font-weight: 700; font-size: 13px; list-style: none; display: flex; justify-content: space-between; gap: 8px; }
   details.art-opt summary::-webkit-details-marker { display: none; }
   details.art-opt summary::after { content: "＋"; color: var(--muted); }
   details.art-opt[open] summary::after { content: "－"; }
   .art-body { padding: 0 14px 14px; }
-  .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; margin: 4px 0 12px; }
+  .theme-cats { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 8px; }
+  .cat-btn { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; color: var(--muted); }
+  .cat-btn[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(122px, 1fr)); gap: 6px; margin: 4px 0 12px; max-height: 255px; overflow-y: auto; padding-right: 3px; }
   .theme-chip { text-align: left; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 7px 9px; font-size: 12px; line-height: 1.35; }
   .theme-chip b { display: block; font-size: 12.5px; }
   .theme-chip span { color: var(--muted); font-size: 11px; }
   .theme-chip[aria-pressed="true"] { border-color: var(--amber); background: #fff7e6; box-shadow: inset 0 0 0 1px var(--amber); }
+  .prompt-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 4px 0 6px; }
+  .prompt-chip { border: 1px dashed #cbd5c0; background: #fff; border-radius: 999px; padding: 3px 9px; font-size: 11px; color: var(--forest); }
+  .prompt-chip:hover { border-color: var(--amber); background: #fff7e6; color: var(--amber-deep); }
   .consent { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; margin: 4px 0 6px; }
   .consent input { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; accent-color: var(--forest); }
   .privacy { font-size: 11.5px; color: var(--muted); margin: 0 0 16px; }
@@ -328,8 +343,18 @@
       </div>
 
       <div class="panel form-panel">
-        <h2>繳交作品</h2>
-        <div class="small muted">老師會在後台確認 AI 評語後，才成為正式評語。</div>
+        <div class="mode-switch" role="group" aria-label="選擇評分與上傳模式">
+          <button type="button" class="mode-btn" data-mode="note" aria-pressed="true">
+            <b>📘 探究筆記／學習單</b>
+            <span>五維探究素養・達 85 分獲胸章</span>
+          </button>
+          <button type="button" class="mode-btn" data-mode="art" aria-pressed="false">
+            <b>🎨 畫作／胸章圖片評分</b>
+            <span>五維美感掃描・58mm 實體胸章</span>
+          </button>
+        </div>
+        <h2 id="form-title">繳交作品與 AI 能量評分</h2>
+        <div id="form-subtitle" class="small muted">老師會在後台確認 AI 評語後，才成為正式評語。</div>
         <div id="status" class="status" role="status">正在連線收件空間…</div>
         <form id="form" novalidate>
           <fieldset id="fields" disabled>
@@ -340,10 +365,10 @@
             <div class="field"><label for="f-name">姓名</label><input id="f-name" type="text" maxlength="30" placeholder="請填完整姓名" autocomplete="name" required></div>
             <div class="field"><label for="f-assignment">作業項目</label><select id="f-assignment" required><option value="">請選擇本次作業</option></select></div>
             <div class="field">
-              <span class="label" id="file-label">作品檔案</span>
+              <span class="label" id="file-label">作品檔案（筆記、學習單或胸章畫作）</span>
               <div id="drop" class="drop">
-                <strong>點這裡拍照或選擇檔案</strong>
-                <span class="small muted">JPG、PNG 或 PDF，最大 10 MB</span>
+                <strong id="drop-title">點這裡拍照或選擇檔案上傳評分</strong>
+                <span id="drop-sub" class="small muted">JPG、PNG 或 PDF，最大 10 MB（達 85 分即可裁切製作 58mm 胸章）</span>
                 <input id="f-file" type="file" accept="image/jpeg,image/png,application/pdf,.jpg,.jpeg,.png,.pdf" aria-labelledby="file-label">
               </div>
               <div id="preview" class="preview hidden">
@@ -354,17 +379,22 @@
               </div>
             </div>
             <details class="art-opt" id="art-opt">
-              <summary>交的是畫作嗎？選一個挑戰主題（選填）</summary>
+              <summary id="art-opt-summary">🎨 胸章與藝術創作主題（30 大主題＋創作自述引導，點此展開）</summary>
               <div class="art-body">
-                <p class="small muted" style="margin:0 0 6px">選了主題，AI 會檢查畫面是否切題；文不對題會得到 10–30 分。</p>
+                <p class="small muted" style="margin:0 0 6px">選一個主題，AI 會依主題語意（35%）、結構重心、色彩、光影、筆觸進行五維評分；文不對題會得到 10–30 分。</p>
+                <div id="theme-cats" class="theme-cats" role="group" aria-label="主題分類篩選"></div>
                 <div id="themes" class="themes" role="group" aria-label="藝術挑戰主題"></div>
-                <div id="custom-theme-box" class="field hidden"><label for="f-custom-theme">自訂主題名稱</label><input id="f-custom-theme" type="text" maxlength="20" placeholder="例如：我家的貓"></div>
-                <div class="field" style="margin-bottom:0"><label for="f-note">我在畫什麼（選填，150 字內）</label><textarea id="f-note" maxlength="150" placeholder="用一兩句話說明你的創作想法"></textarea></div>
+                <div id="custom-theme-box" class="field hidden"><label for="f-custom-theme">自訂主題名稱</label><input id="f-custom-theme" type="text" maxlength="20" placeholder="例如：我家的貓、大溪陀螺王"></div>
+                <div class="field" style="margin-bottom:0">
+                  <label for="f-note">創作自述／我在畫什麼（選填，150 字內，點下方膠囊可快速帶入靈感）</label>
+                  <div id="prompt-chips" class="prompt-chips"></div>
+                  <textarea id="f-note" maxlength="150" placeholder="用一兩句話說明你的主角、配色想法或想傳達的故事…"></textarea>
+                </div>
               </div>
             </details>
             <label class="consent"><input id="f-consent" type="checkbox" checked><span>我已移除作品中的姓名、班級、座號、人像等可識別資訊，並同意將作品傳送 Google Gemini 進行 AI 分析。</span></label>
             <p class="privacy">勾選為自願；不勾選仍可繳交，只是不會有 AI 回饋。系統不會自動遮蔽影像中的個資。班級座號姓名只用於校內收件，不會放進 AI 提示詞。</p>
-            <button class="btn btn-primary btn-block" id="btn-submit" type="submit" style="padding:12px">送出作品</button>
+            <button class="btn btn-primary btn-block" id="btn-submit" type="submit" style="padding:12px">送出作品並開始 AI 評分</button>
           </fieldset>
         </form>
         <div class="demo-row">
@@ -440,16 +470,18 @@
     <div id="badge-panel" class="panel badge-panel hidden">
       <div class="eyebrow">MAKER BADGE</div>
       <h2 style="font-size:22px;margin:4px 0 2px">你解鎖了 58mm 能量胸章</h2>
-      <p class="small muted" style="margin:0 0 14px" id="badge-lead">調整胸章畫面後按「儲存胸章」，就能下載印刷檔與證書。</p>
+      <p class="small muted" style="margin:0 0 14px" id="badge-lead">調整胸章畫面後按「儲存胸章」，就能下載印刷檔與證書（也可換一張自己畫的胸章圖）。</p>
       <div class="badge-layout">
         <div>
           <div id="badge-crop" class="crop-view"><img id="crop-img" alt="胸章裁切"><div class="crop-mask"></div></div>
           <img id="badge-emblem" class="emblem-img hidden" alt="能量徽記預覽">
           <div id="zoom-row" class="zoom-row"><span>縮放</span><input id="crop-zoom" type="range" min="0.4" max="3" step="0.01" value="1"><span id="crop-zoom-val" class="tech">100%</span></div>
-          <div id="badge-src-switch" class="seg" style="grid-template-columns:1fr 1fr">
-            <button type="button" data-badge-src="crop" aria-pressed="true">裁切作品照片</button>
-            <button type="button" data-badge-src="emblem" aria-pressed="false">能量徽記</button>
+          <div id="badge-src-switch" class="seg" style="grid-template-columns:1fr 1fr 1fr">
+            <button type="button" data-badge-src="crop" aria-pressed="true">裁切作品圖</button>
+            <button type="button" data-badge-src="emblem" aria-pressed="false">AI 能量徽記</button>
+            <button type="button" id="btn-custom-badge-img">更換胸章圖片</button>
           </div>
+          <input id="f-badge-img" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" class="hidden">
         </div>
         <div>
           <div class="badge-actions">
@@ -634,20 +666,59 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&a
 const isDemo = !(window.google && window.google.script && window.google.script.run);
 const GAS_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyaGok5hmsET-nITUopgK1W97JTMf0czfVc2KUOA7D2Xrmr24vIPBGLpiNY0L0grspO/exec';
 
+const THEME_CATS = [
+  ['all', '全部主題 (30)'],
+  ['char', '角色與奇幻'],
+  ['world', '風景與科幻'],
+  ['local', '大溪在地與文化'],
+  ['badge', '校園與胸章徽章'],
+  ['style', '多元媒材與風格']
+];
+
 const THEMES = [
-  ['熱血動漫角色', '眼神張力・肢體動態'],
-  ['奇幻生物與幻獸', '羽翼鱗甲・神話氣場'],
-  ['絕美自然風景', '空間景深・光影透視'],
-  ['未來科幻世界', '霓虹光暈・機械結構'],
-  ['Q版吉祥物設計', '圓潤造型・高辨識度'],
-  ['精緻靜物與美食', '油潤光感・色彩層次'],
-  ['超酷機械與載具', '剛硬塊面・工業結構'],
-  ['傳統國風與水墨', '濃淡乾濕・詩意留白'],
-  ['復古像素遊戲風', '限定色票・幾何秩序'],
-  ['街頭潮流塗鴉 Pop', '對比撞色・流行符號'],
-  ['童話繪本與療癒風', '柔和色調・溫馨敘事'],
-  ['視覺錯視與幾何抽象', '歐普錯視・線條韻律'],
-  ['學生自訂主題', '自己命名創作主題']
+  // 角色與奇幻
+  ['熱血動漫角色', '眼神張力・肢體動態', 'char', '我設計了一位眼神堅定的動漫主角，利用誇張的透視與動感線條呈現爆發力。'],
+  ['奇幻生物與幻獸', '羽翼鱗甲・神話氣場', 'char', '我描繪守護森林的神話幻獸，結合發光羽翼與漸層鱗片，營造神祕氣場。'],
+  ['Q版吉祥物設計', '圓潤造型・高辨識度', 'char', '以三頭身圓潤比例設計專屬吉祥物，強化表情特徵，最適合做成圓形胸章。'],
+  ['萌寵與動物朋友', '毛流質感・生動神態', 'char', '觀察動物的毛流方向與清澈眼神，捕捉牠最療癒、活潑的一瞬間。'],
+  ['神話傳說與英雄', '史詩造型・象徵圖騰', 'char', '取材自東方或西方神話英雄，加入代表力量的武器與背景光暈。'],
+  ['原創VTuber與偶像', '華麗服飾・舞台聚光', 'char', '設計具有個人特色的虛擬偶像服裝與配件，搭配舞台高光與星芒。'],
+  // 風景與科幻
+  ['絕美自然風景', '空間景深・光影透視', 'world', '運用前景、中景、遠景表現山林與天空的空氣透視感，捕捉晨昏光影。'],
+  ['未來科幻世界', '霓虹光暈・機械結構', 'world', '以賽博龐克冷暖霓虹對比描繪未來城市，展現科技感與空間立體度。'],
+  ['超酷機械與載具', '剛硬塊面・工業結構', 'world', '強調金屬反光、裝甲接縫與精密結構，展現機械載具的重量感。'],
+  ['浩瀚宇宙與星系', '星雲漸層・太空探索', 'world', '以深邃藍紫與金黃星芒交織出宇宙星雲，描繪太空人或星球探索之旅。'],
+  ['深海奇境與海洋', '水波折射・發光生物', 'world', '表現陽光穿透海面的波光與深海發光水母，營造寧靜深邃的藍色調。'],
+  ['奇幻建築與秘境', '透視結構・想像空間', 'world', '設計漂浮空島或森林樹屋秘境，結合幾何透視與藤蔓自然元素。'],
+  // 大溪在地與文化
+  ['大溪老街巴洛克牌樓', '雕花立面・歷史光影', 'local', '實地觀察大溪和平老街牌樓，細膩描繪巴洛克山牆、希臘柱頭與祥獸浮雕。'],
+  ['大溪木藝與陀螺童玩', '木紋肌理・旋轉動感', 'local', '以大溪木博館與傳統大陀螺為主題，表現溫潤木頭紋理與旋轉速度線。'],
+  ['大溪橋與大漢溪夕照', '吊橋結構・金色晚霞', 'local', '描繪夕陽映照大漢溪河畔與大溪橋拱門倒影，展現家鄉黃昏之美。'],
+  ['大溪豆干與在地美食', '職人工藝・誘人色澤', 'local', '記錄大溪老街黑豆干、月光餅、花生糖等特色小吃，用暖色調呈現美味光澤。'],
+  ['傳統節慶與社頭文化', '大仙尪仔・熱鬧陣頭', 'local', '以大溪普濟堂關聖帝君誕辰「六月廿四」社頭遶境為靈感，展現將軍與陣頭活力。'],
+  ['傳統國風與水墨', '濃淡乾濕・詩意留白', 'local', '運用水墨濃淡與留白意境，結合書法線條與古典印章構圖。'],
+  // 校園與胸章徽章
+  ['班級精神與班徽設計', '向心標誌・對稱構圖', 'badge', '把班級最具代表性的口號與吉祥物濃縮在圓形構圖中，展現全班向心力。'],
+  ['社團專屬榮耀徽章', '社團特色・視覺識別', 'badge', '為球隊、管樂社、美術社或科學社設計一眼就能認出的專屬榮耀胸章。'],
+  ['運動會與熱血賽事', '衝刺瞬間・速度張力', 'badge', '捕捉大隊接力交棒或拔河全班齊心的熱血瞬間，表現肌肉動態與汗水。'],
+  ['自主學習探究圖解', '科學繪圖・結構拆解', 'badge', '將自然觀察、植物構造或歷史踏查成果繪製成精緻的知識圖解徽章。'],
+  ['SDGs永續地球行動', '生態保育・淨零綠生活', 'badge', '呼應聯合國永續發展目標，以綠意與循環符號傳達守護海洋與陸地生態。'],
+  ['畢業紀念與青春印記', '校園角落・友情回憶', 'badge', '畫下大溪國中熟悉的走廊、制服與好朋友，做成獨一無二的青春紀念胸章。'],
+  // 多元媒材與風格
+  ['精緻靜物與美食', '油潤光感・色彩層次', 'style', '細膩觀察器皿反光與食物切面紋理，用高彩度與高光點綴出立體感。'],
+  ['復古像素遊戲風', '限定色票・幾何秩序', 'style', '以 8-bit 像素方格與精選色票拼貼出經典電玩角色與寶物圖示。'],
+  ['街頭潮流塗鴉 Pop', '對比撞色・流行符號', 'style', '大膽使用互補色撞色、粗黑外框與噴漆質感，展現美式波普街頭潮流。'],
+  ['童話繪本與療癒風', '柔和色調・溫馨敘事', 'style', '採用色鉛筆與水彩般的粉嫩柔和筆觸，說一個溫暖人心的小故事。'],
+  ['視覺錯視與幾何抽象', '歐普錯視・線條韻律', 'style', '利用黑白或高對比幾何線條的疏密排列，在圓形胸章內創造旋轉立體錯覺。'],
+  ['學生自訂主題', '自己命名創作主題', 'style', '']
+];
+
+const SELF_NOTE_PROMPTS = [
+  '主角與動作：我畫的主角是…，正在…',
+  '配色巧思：我特別用了…色與…色對比，想表現…',
+  '圓形胸章構圖：為了放進圓形胸章，我把視覺重心放在…',
+  '大溪在地連結：這件作品靈感來自大溪的…',
+  '我想傳達的故事：看到這枚胸章的人會感受到…'
 ];
 
 const NOTE_META = [
@@ -667,6 +738,8 @@ const ART_META = [
 
 const state = {
   cfg: { ready: true, assignments: ['自主學習探究', '藝術創作挑戰'], maxBytes: 10485760, aiEnabled: false, badgeApproval: 'auto', badgeThreshold: 85, galleryPublic: true },
+  submitMode: 'note',  // 'note' | 'art'
+  themeCat: 'all',
   selectedTheme: '',
   file: null,          // { name, size, mimeType, base64, dataUrl }
   demoPreset: null,    // 'note' | 'art' | 'invalid'
@@ -1327,6 +1400,7 @@ function generateDemoSample(kind) {
   const ctx = c.getContext('2d');
 
   if (kind === 'note') {
+    setSubmitMode('note');
     $('f-assignment').value = assigns[0] || '';
     ctx.fillStyle = '#fffdf7'; ctx.fillRect(0, 0, 900, 900);
     ctx.strokeStyle = '#e5ebe4'; ctx.lineWidth = 1.5;
@@ -1355,6 +1429,7 @@ function generateDemoSample(kind) {
     ctx.fillStyle = '#173e35'; ctx.font = 'bold 20px sans-serif';
     ctx.fillText('二、反思與延伸：若環境溫度升高，蒸散作用與氣孔調節如何平衡？', 65, 760);
   } else if (kind === 'art') {
+    setSubmitMode('art');
     $('f-assignment').value = assigns[1] || assigns[0] || '';
     $('art-opt').open = true;
     selectTheme('奇幻生物與幻獸');
@@ -1604,19 +1679,18 @@ function setupBadgeStudio() {
   const who = `${cur.student.className} ${maskNameClient(cur.student.name)}`;
   $('badge-emblem').src = makeEmblemDataUrl(cur.ai.topic, cur.ai.score, cur.ai.kind, who);
 
+  $('badge-src-switch').classList.remove('hidden');
   if (cur.previewUrl) {
-    $('badge-src-switch').classList.remove('hidden');
     initCrop(cur.previewUrl);
     setBadgeSource('crop');
   } else {
-    $('badge-src-switch').classList.add('hidden');
     setBadgeSource('emblem');
   }
 }
 
 function setBadgeSource(src) {
   state.badgeSrc = src;
-  document.querySelectorAll('#badge-src-switch button').forEach(b => b.setAttribute('aria-pressed', b.dataset.badgeSrc === src));
+  document.querySelectorAll('#badge-src-switch button[data-badge-src]').forEach(b => b.setAttribute('aria-pressed', b.dataset.badgeSrc === src));
   $('badge-crop').classList.toggle('hidden', src !== 'crop');
   $('zoom-row').classList.toggle('hidden', src !== 'crop');
   $('badge-emblem').classList.toggle('hidden', src !== 'emblem');
@@ -2128,20 +2202,106 @@ function updateAssignmentsSelect(items) {
   else if (items[0]) sel.value = items[0];
 }
 
+function setSubmitMode(mode) {
+  state.submitMode = mode === 'art' ? 'art' : 'note';
+  document.querySelectorAll('.mode-switch .mode-btn').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === state.submitMode));
+  const isArt = state.submitMode === 'art';
+  $('form-title').textContent = isArt ? '🎨 胸章畫作上傳與 AI 美感評分' : '📘 探究筆記上傳與 AI 素養評分';
+  $('form-subtitle').textContent = isArt
+    ? '上傳畫作或胸章設計圖，AI 進行五維美感掃描；達 85 分即可裁切輸出 58mm 實體胸章！'
+    : '上傳自主學習筆記、心智圖或學習單，AI 自動給五維探究回饋；達 85 分同樣可獲胸章！';
+  $('file-label').textContent = isArt ? '胸章畫作／設計圖檔案（請上傳 JPG 或 PNG 圖片）' : '作品檔案（筆記、學習單或胸章畫作）';
+  $('drop-title').textContent = isArt ? '點這裡拍照或上傳「胸章畫作／設計圖」評分' : '點這裡拍照或選擇檔案上傳評分';
+  $('drop-sub').textContent = isArt ? '建議上傳清晰的 JPG 或 PNG 畫作，AI 評分達 85 分即可直接裁切圓形胸章' : 'JPG、PNG 或 PDF，最大 10 MB（達 85 分即可裁切製作 58mm 胸章）';
+  $('drop').classList.toggle('art-drop', isArt);
+  $('art-opt').classList.toggle('art-highlight', isArt);
+  $('art-opt').open = isArt;
+  $('btn-submit').textContent = isArt ? '開始 AI 胸章美感評分' : '送出作品並開始 AI 評分';
+
+  // 自動對應作業項目下拉選單
+  const assigns = state.cfg.assignments || [];
+  if (isArt) {
+    const artAssign = assigns.find(a => /藝術|創作|美術|胸章|繪/.test(a));
+    if (artAssign) $('f-assignment').value = artAssign;
+  } else {
+    const noteAssign = assigns.find(a => /自主|探究|筆記|學習/.test(a));
+    if (noteAssign) $('f-assignment').value = noteAssign;
+  }
+}
+
 function selectTheme(name) {
   state.selectedTheme = state.selectedTheme === name ? '' : name;
   document.querySelectorAll('#themes .theme-chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === state.selectedTheme));
   $('custom-theme-box').classList.toggle('hidden', state.selectedTheme !== '學生自訂主題');
+  if (state.selectedTheme) {
+    const found = THEMES.find(t => t[0] === state.selectedTheme);
+    if (found && found[3] && !$('f-note').value.trim()) {
+      $('f-note').placeholder = '靈感範例：' + found[3];
+    }
+  }
+}
+
+function renderThemeCats() {
+  const box = $('theme-cats');
+  if (!box) return;
+  box.innerHTML = '';
+  THEME_CATS.forEach(([id, label]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'cat-btn';
+    b.setAttribute('aria-pressed', state.themeCat === id);
+    b.textContent = label;
+    b.addEventListener('click', () => {
+      state.themeCat = id;
+      renderThemeCats();
+      renderThemeChips();
+    });
+    box.appendChild(b);
+  });
 }
 
 function renderThemeChips() {
   const box = $('themes');
   box.innerHTML = '';
-  THEMES.forEach(([name, sub]) => {
+  const list = state.themeCat === 'all' ? THEMES : THEMES.filter(t => t[2] === state.themeCat || t[0] === '學生自訂主題');
+  list.forEach(([name, sub]) => {
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'theme-chip'; b.dataset.theme = name; b.setAttribute('aria-pressed', 'false');
+    b.type = 'button'; b.className = 'theme-chip'; b.dataset.theme = name;
+    b.setAttribute('aria-pressed', name === state.selectedTheme);
     b.innerHTML = `<b>${esc(name)}</b><span>${esc(sub)}</span>`;
     b.addEventListener('click', () => selectTheme(name));
+    box.appendChild(b);
+  });
+}
+
+function renderPromptChips() {
+  const box = $('prompt-chips');
+  if (!box) return;
+  box.innerHTML = '';
+  const fillBtn = document.createElement('button');
+  fillBtn.type = 'button';
+  fillBtn.className = 'prompt-chip';
+  fillBtn.textContent = '✨ 帶入所選主題範本';
+  fillBtn.addEventListener('click', () => {
+    const found = THEMES.find(t => t[0] === state.selectedTheme);
+    const tpl = (found && found[3]) ? found[3] : '我畫的主角是…，特別運用了…的色彩與光影，希望能做成獨一無二的 58mm 胸章。';
+    $('f-note').value = tpl;
+    $('f-note').focus();
+  });
+  box.appendChild(fillBtn);
+
+  SELF_NOTE_PROMPTS.forEach(p => {
+    const label = p.split('：')[0];
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'prompt-chip';
+    b.textContent = '＋' + label;
+    b.addEventListener('click', () => {
+      const cur = $('f-note').value.trim();
+      const next = (cur ? cur + ' ' : '') + p.split('：')[1];
+      $('f-note').value = next.slice(0, 150);
+      $('f-note').focus();
+    });
     box.appendChild(b);
   });
 }
@@ -2162,7 +2322,10 @@ function fireConfetti() {
 
 async function init() {
   if (isDemo) $('demo-banner').classList.remove('hidden');
+  renderThemeCats();
   renderThemeChips();
+  renderPromptChips();
+  document.querySelectorAll('.mode-switch .mode-btn').forEach(b => b.addEventListener('click', () => setSubmitMode(b.dataset.mode)));
   renderTrajectorySvg($('hero-traj'), [
     { time: '2026/09/18', kind: '探究筆記', topic: '顯微鏡初探', score: 74, badge: '未達標' },
     { time: '2026/10/02', kind: '藝術創作', topic: '綠葉觀察者', score: 82, badge: '未達標' },
@@ -2229,7 +2392,24 @@ document.querySelectorAll('#r-overlay-modes button').forEach(b => b.addEventList
   document.querySelectorAll('#r-overlay-modes button').forEach(x => x.setAttribute('aria-pressed', x === b));
   renderOverlayCanvas();
 }));
-document.querySelectorAll('#badge-src-switch button').forEach(b => b.addEventListener('click', () => setBadgeSource(b.dataset.badgeSrc)));
+document.querySelectorAll('#badge-src-switch button[data-badge-src]').forEach(b => b.addEventListener('click', () => setBadgeSource(b.dataset.badgeSrc)));
+$('btn-custom-badge-img').addEventListener('click', () => $('f-badge-img').click());
+$('f-badge-img').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  try {
+    const f = await compressFile(file);
+    if (f.mimeType === 'application/pdf') return toast('胸章底圖請選擇 JPG 或 PNG 圖片');
+    if (state.current) {
+      state.current.previewUrl = f.dataUrl;
+      initCrop(f.dataUrl);
+      setBadgeSource('crop');
+      toast('已載入新的胸章圖片，請拖曳縮放後按「儲存胸章」');
+    }
+  } catch (err) {
+    toast(err.message || '圖片載入失敗');
+  }
+});
 $('btn-save-badge').addEventListener('click', saveBadgeToServer);
 $('btn-print').addEventListener('click', () => {
   const cur = state.current;
