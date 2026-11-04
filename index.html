@@ -316,7 +316,6 @@
 </style>
 </head>
 <body>
-<div id="demo-banner" class="demo-banner hidden" role="status">示範模式：目前在瀏覽器本機執行，資料只存在這台裝置。部署到 Google Apps Script 後才會真正收件與分析。</div>
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -435,12 +434,6 @@
             <button class="btn btn-primary btn-block" id="btn-submit" type="submit" style="padding:12px">送出作品並開始 AI 評分</button>
           </fieldset>
         </form>
-        <div class="demo-row">
-          <span>沒有作品也能試：</span>
-          <button type="button" class="btn btn-sm" data-demo="note">探究筆記範例</button>
-          <button type="button" class="btn btn-sm" data-demo="art">藝術作品範例</button>
-          <button type="button" class="btn btn-sm" data-demo="invalid">空白紙範例</button>
-        </div>
       </div>
     </div>
   </section>
@@ -681,12 +674,6 @@
             <button type="button" class="btn btn-primary btn-sm" id="btn-export" style="margin-top:10px">匯出成果冊</button>
             <div id="export-msg" class="msg"></div>
           </div>
-          <div class="set-box">
-            <h3>評審展示資料</h3>
-            <p class="small muted" style="margin-top:0">寫入 6 筆示範紀錄，其中「701 王小明」有三次成長軌跡。</p>
-            <button type="button" class="btn btn-sm" id="btn-seed">寫入示範資料</button>
-            <div id="seed-msg" class="msg"></div>
-          </div>
         </div>
       </div>
     </div>
@@ -701,7 +688,7 @@
 'use strict';
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const isDemo = !(window.google && window.google.script && window.google.script.run);
+const isNativeGas = !!(window.google && window.google.script && window.google.script.run);
 const GAS_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyaGok5hmsET-nITUopgK1W97JTMf0czfVc2KUOA7D2Xrmr24vIPBGLpiNY0L0grspO/exec';
 
 const THEME_CATS = [
@@ -780,7 +767,6 @@ const state = {
   themeCat: 'all',
   selectedTheme: '',
   file: null,          // { name, size, mimeType, base64, dataUrl }
-  demoPreset: null,    // 'note' | 'art' | 'invalid'
   current: null,       // { receipt, student, assignment, studentNote, ai, badge, badgeUrl, previewUrl, badgePng }
   overlayMode: 'thirds',
   badgeSrc: 'crop',
@@ -861,313 +847,24 @@ function refreshSavedReceiptsUI() {
 }
 
 // ==============================================
-// 示範模式本機資料庫（當不在 Apps Script 內執行時使用）
-// ==============================================
-const DEMO_STORE_KEY = 'LET_DEMO_STORE_V1';
-function defaultDemoStore() {
-  const emblem = makeEmblemDataUrl('保衛細胞與氣孔開閉', 92, '探究筆記', '701 王○明');
-  const artEmblem = makeEmblemDataUrl('星界守護者', 91, '藝術創作', '802 黃○涵');
-  return {
-    pwd: 'admin888',
-    hasAi: true,
-    assignments: ['自主學習探究', '藝術創作挑戰'],
-    badgeApproval: 'auto',
-    galleryPublic: true,
-    records: [
-      {
-        time: '2026/09/18 10:15', className: '701', seat: '03', name: '王小明', assignment: '自主學習探究',
-        kind: '探究筆記', fileName: '顯微鏡初探.jpg', fileUrl: '#demo',
-        topic: '顯微鏡初探', keywords: '細胞, 倍率, 對焦',
-        summary: '第一次使用光學顯微鏡，記錄洋蔥表皮細胞並學習調整粗細調節輪。',
-        feedback: '觀察步驟記錄清楚；若能加上不同倍率的比較圖會更完整。',
-        advice: '試試看換一種植物葉片，比較細胞形狀有什麼不同？',
-        tag: 'SDG 4 優質教育', score: 74,
-        dims: { focus: 78, depth: 70, structure: 75, insight: 68, presentation: 79 },
-        receipt: 'd01e4a12-88aa-4e99-b123-112233445501', review: '已審查核准', badge: '未達標', badgeUrl: '',
-        teacherComment: '第一次操作就能對焦成功，很棒的起點！'
-      },
-      {
-        time: '2026/10/02 11:05', className: '701', seat: '03', name: '王小明', assignment: '藝術創作挑戰',
-        kind: '藝術創作', fileName: '綠葉觀察者.png', fileUrl: '#demo',
-        topic: '綠葉觀察者', keywords: '',
-        summary: '以水彩與代針筆描繪顯微鏡下的葉片氣孔與葉脈光影。',
-        feedback: '把自然課觀察到的結構轉化成畫作，綠色層次豐富，構圖穩定。',
-        advice: '加深氣孔內側暗部，立體感會更突出。',
-        tag: '絕美自然風景', score: 82,
-        dims: { themeScore: 86, compScore: 80, colorScore: 84, lightScore: 76, detailScore: 80 },
-        focusX: 0.5, focusY: 0.46, palette: ['#173e35', '#24654d', '#84cc16', '#e4edb7', '#f7f5ed'],
-        receipt: 'd01e4a12-88aa-4e99-b123-112233445502', review: '已審查核准', badge: '未達標', badgeUrl: '',
-        teacherComment: '跨領域的嘗試非常精彩！'
-      },
-      {
-        time: '2026/10/20 09:40', className: '701', seat: '03', name: '王小明', assignment: '自主學習探究',
-        kind: '探究筆記', fileName: '保衛細胞與氣孔開閉.jpg', fileUrl: '#demo',
-        topic: '保衛細胞與氣孔開閉', keywords: '保衛細胞, 氣孔, 蒸散作用, 光照對照',
-        summary: '設計光照與遮光對照實驗，觀察紫背萬年青下表皮保衛細胞膨壓變化，繪製開閉連動圖。',
-        feedback: '從單純觀察進步到自己設計對照實驗，推論有數據與繪圖支持！',
-        advice: '如果改變環境濕度，氣孔的反應時間會不會不同？',
-        tag: 'SDG 15 陸地生態', score: 92,
-        dims: { focus: 94, depth: 92, structure: 90, insight: 88, presentation: 95 },
-        receipt: 'd01e4a12-88aa-4e99-b123-112233445503', review: '已審查核准', badge: '已發放', badgeUrl: '#demo-badge',
-        teacherComment: '完整呈現三次探究的成長，核准發放能量胸章！', badgeThumb: emblem
-      },
-      {
-        time: '2026/10/08 14:05', className: '802', seat: '15', name: '黃語涵', assignment: '藝術創作挑戰',
-        kind: '藝術創作', fileName: '星界守護者.png', fileUrl: '#demo',
-        topic: '星界守護者', keywords: '',
-        summary: '翡翠與琥珀色調的奇幻守護者半身像，結合星芒背景。',
-        feedback: '冷暖色對比強烈，角色神態堅定，圓形構圖重心穩固。',
-        advice: '外輪廓可加一道細高光，胸章壓製後更醒目。',
-        tag: '奇幻生物與幻獸', score: 91,
-        dims: { themeScore: 94, compScore: 90, colorScore: 92, lightScore: 88, detailScore: 89 },
-        focusX: 0.5, focusY: 0.45, palette: ['#091512', '#173e35', '#24654d', '#d97706', '#e4edb7'],
-        receipt: 'b45c8e56-22ee-4c33-f567-556677889900', review: '待教師審查', badge: '已發放', badgeUrl: '#demo-badge',
-        teacherComment: '', badgeThumb: artEmblem
-      }
-    ]
-  };
-}
-function loadDemoStore() {
-  try {
-    const raw = localStorage.getItem(DEMO_STORE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch (_) {}
-  const init = defaultDemoStore();
-  saveDemoStore(init);
-  return init;
-}
-function saveDemoStore(st) {
-  try { localStorage.setItem(DEMO_STORE_KEY, JSON.stringify(st)); } catch (_) {}
-}
-function maskNameClient(name) {
-  const s = String(name || '');
-  if (s.length <= 1) return s;
-  if (s.length === 2) return s[0] + '○';
-  return s[0] + '○'.repeat(s.length - 2) + s[s.length - 1];
-}
-
-// ==============================================
-// RPC：自動切換 Apps Script、遠端 GAS JSON API 與本機示範
+// 雲端正式收件後端 RPC（Apps Script 原生或 GitHub Pages 直連 GAS）
 // ==============================================
 async function rpc(method, data) {
-  if (!isDemo) {
+  if (isNativeGas) {
     return new Promise((resolve, reject) => {
       const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
       if (data === undefined) runner[method]();
       else runner[method](data);
     });
   }
-  if (GAS_BACKEND_URL && window.location.protocol !== 'file:') {
-    try {
-      const resp = await fetch(GAS_BACKEND_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: method, data })
-      });
-      const json = await resp.json();
-      if (json && json.success) return json.data;
-      if (json && json.error) throw new Error(json.error);
-    } catch (err) {
-      if (err && err.message && !/fetch|Failed to fetch|NetworkError/i.test(err.message)) throw err;
-    }
-  }
-  await new Promise(r => setTimeout(r, 180));
-  const st = loadDemoStore();
-  const checkPwd = p => {
-    const pwd = typeof p === 'object' && p !== null ? p.password : p;
-    if (pwd !== st.pwd) throw new Error('管理密碼不正確。');
-  };
-
-  if (method === 'getPublicConfig') {
-    return { ready: true, assignments: st.assignments, maxBytes: 10485760, aiEnabled: st.hasAi, badgeApproval: st.badgeApproval, badgeThreshold: 85, galleryPublic: st.galleryPublic };
-  }
-  if (method === 'uploadSubmission') {
-    const ai = await demoAnalyze(data);
-    const badge = (ai.kind === 'note' || ai.kind === 'art') && ai.score >= 85 ? '可製作' : '未達標';
-    const rec = {
-      time: new Date().toLocaleString('zh-TW', { hour12: false }).slice(0, 16),
-      className: data.className, seat: ('0' + Number(data.seat)).slice(-2), name: data.name,
-      assignment: data.assignment, kind: { note: '探究筆記', art: '藝術創作', invalid: '無法辨識', unavailable: '未分析' }[ai.kind] || '未分析',
-      fileName: `${data.className}_${('0' + Number(data.seat)).slice(-2)}_${data.name}.${data.mimeType === 'application/pdf' ? 'pdf' : 'jpg'}`,
-      fileUrl: '#demo', topic: ai.topic, keywords: ai.keywords || '', summary: ai.summary, feedback: ai.feedback,
-      advice: ai.advice, tag: ai.tag, score: ai.score, dims: ai.dims, focusX: ai.focusX, focusY: ai.focusY, palette: ai.palette,
-      receipt: data.requestId, review: '待教師審查', badge, badgeUrl: '', teacherComment: ''
-    };
-    st.records.push(rec);
-    saveDemoStore(st);
-    return { success: true, receipt: data.requestId, fileName: rec.fileName, url: '#demo', ai, badge, badgeApproval: st.badgeApproval };
-  }
-  if (method === 'saveBadge') {
-    const rec = st.records.find(r => r.receipt.toLowerCase() === String(data.receipt || '').toLowerCase());
-    if (!rec) throw new Error('找不到這張收據對應的作品。');
-    if (rec.score < 85 || (rec.kind !== '探究筆記' && rec.kind !== '藝術創作')) throw new Error('尚未達到 85 分。');
-    rec.badge = st.badgeApproval === 'teacher' ? '待審核' : '已發放';
-    rec.badgeUrl = '#demo-badge';
-    rec.badgeThumb = data.thumbBase64 ? ('data:image/jpeg;base64,' + data.thumbBase64.replace(/^data:[^,]+,/, '')) : data.imageBase64;
-    saveDemoStore(st);
-    return { success: true, status: rec.badge, badgeUrl: '#demo-badge', fileName: 'badge.png' };
-  }
-  if (method === 'getBadgeImage') {
-    const rec = st.records.find(r => r.receipt.toLowerCase() === String(data.receipt || '').toLowerCase());
-    if (!rec || rec.badge !== '已發放') throw new Error('這枚胸章尚未發放。');
-    const b64 = (rec.badgeThumb || makeEmblemDataUrl(rec.topic, rec.score, rec.kind, rec.name)).split(',')[1];
-    return { success: true, imageBase64: b64, record: rec };
-  }
-  if (method === 'getStudentTrajectory') {
-    const r = String(data.receipt || '').trim().toLowerCase();
-    if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(r)) throw new Error('請輸入完整的收據編號；遺失收據請聯絡老師。');
-    const anchor = st.records.find(x => x.receipt.toLowerCase() === r);
-    if (!anchor) return { success: true, found: false, list: [] };
-    const list = st.records.filter(x => x.className === anchor.className && x.seat === anchor.seat && x.name === anchor.name);
-    const scored = list.filter(x => typeof x.score === 'number');
-    return {
-      success: true, found: true,
-      student: { className: anchor.className, seat: anchor.seat, name: anchor.name },
-      list,
-      stats: {
-        total: list.length, scored: scored.length,
-        notes: list.filter(x => x.kind === '探究筆記').length,
-        arts: list.filter(x => x.kind === '藝術創作').length,
-        badges: list.filter(x => x.badge === '已發放').length,
-        average: scored.length ? Math.round(scored.reduce((s, x) => s + x.score, 0) / scored.length) : null,
-        best: scored.length ? Math.max(...scored.map(x => x.score)) : null,
-        growth: scored.length >= 2 ? scored[scored.length - 1].score - scored[0].score : null
-      }
-    };
-  }
-  if (method === 'getGallery') {
-    if (!st.galleryPublic) return { success: true, enabled: false, list: [] };
-    const list = st.records.filter(r => r.badge === '已發放').slice().reverse().map(r => ({
-      date: r.time.slice(0, 10), className: r.className, name: maskNameClient(r.name),
-      kind: r.kind, title: r.topic, score: r.score,
-      thumb: (r.badgeThumb || makeEmblemDataUrl(r.topic, r.score, r.kind, r.name)).replace(/^data:[^,]+,/, '')
-    }));
-    return { success: true, enabled: true, list };
-  }
-  if (method === 'verifyAdmin') { checkPwd(data); return { success: true }; }
-  if (method === 'getAdminOverview') {
-    checkPwd(data);
-    const submissions = st.records.slice().reverse();
-    return {
-      success: true, hasAi: st.hasAi, assignments: st.assignments, badgeApproval: st.badgeApproval,
-      galleryPublic: st.galleryPublic, sheetUrl: 'https://docs.google.com/spreadsheets/',
-      submissions, pendingBadges: submissions.filter(r => r.badge === '待審核').length
-    };
-  }
-  if (method === 'reviewSubmission') {
-    checkPwd(data);
-    const rec = st.records.find(r => r.receipt === data.receipt);
-    if (!rec) throw new Error('找不到這筆繳交紀錄。');
-    if (data.teacherComment !== undefined) rec.teacherComment = data.teacherComment;
-    if (data.review) rec.review = data.review;
-    if (data.badgeDecision === 'approve') rec.badge = '已發放';
-    if (data.badgeDecision === 'reject') rec.badge = '已駁回';
-    saveDemoStore(st);
-    return { success: true, receipt: rec.receipt, badge: rec.badge };
-  }
-  if (method === 'updateAssignments') {
-    checkPwd(data);
-    const cleaned = (data.assignments || []).map(s => String(s || '').trim()).filter(Boolean);
-    if (!cleaned.length) throw new Error('至少需要保留一個作業項目。');
-    st.assignments = cleaned; saveDemoStore(st);
-    return { success: true, assignments: cleaned };
-  }
-  if (method === 'updateSettings') {
-    checkPwd(data);
-    if (data.badgeApproval) st.badgeApproval = data.badgeApproval;
-    if (data.galleryPublic !== undefined) st.galleryPublic = !!data.galleryPublic;
-    saveDemoStore(st);
-    return { success: true, badgeApproval: st.badgeApproval, galleryPublic: st.galleryPublic };
-  }
-  if (method === 'changeAdminPassword') {
-    checkPwd(data.oldPassword);
-    if (!data.newPassword || data.newPassword.trim().length < 4) throw new Error('新密碼長度至少需 4 碼。');
-    st.pwd = data.newPassword.trim(); saveDemoStore(st);
-    return { success: true };
-  }
-  if (method === 'setGeminiApiKey') {
-    checkPwd(data);
-    st.hasAi = !!String(data.apiKey || '').trim(); saveDemoStore(st);
-    return { success: true, hasAi: st.hasAi, ping: st.hasAi ? { success: true, message: '示範模式：已模擬啟用 AI。' } : null };
-  }
-  if (method === 'testGeminiApiKey') { checkPwd(data); return { success: true, message: '示範模式：連線模擬正常。' }; }
-  if (method === 'seedDemoSubmissions') {
-    checkPwd(data);
-    const fresh = defaultDemoStore();
-    st.records = fresh.records; saveDemoStore(st);
-    return { success: true, count: st.records.length, demoReceipt: st.records[0].receipt };
-  }
-  if (method === 'exportSummaryDoc') {
-    checkPwd(data);
-    return { success: true, title: '學習能量軌跡成果冊（示範）', docUrl: 'https://docs.google.com/document/' };
-  }
-  if (method === 'formatAllSheets') {
-    checkPwd(data);
-    return { success: true };
-  }
-  throw new Error('未知指令：' + method);
-}
-
-// 示範模式的模擬 AI（含像素標準差空白檢測）
-async function analyzeImageEntropy(dataUrl) {
-  return new Promise(resolve => {
-    if (!dataUrl || !dataUrl.startsWith('data:image/')) return resolve({ mean: 128, stdDev: 50 });
-    const img = new Image();
-    img.onload = () => {
-      const c = document.createElement('canvas'); c.width = 64; c.height = 64;
-      const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, 64, 64);
-      const d = ctx.getImageData(0, 0, 64, 64).data;
-      let sum = 0, sq = 0; const n = 64 * 64;
-      for (let i = 0; i < d.length; i += 4) {
-        const g = d[i] * .299 + d[i + 1] * .587 + d[i + 2] * .114;
-        sum += g; sq += g * g;
-      }
-      const mean = sum / n;
-      resolve({ mean, stdDev: Math.sqrt(Math.max(0, sq / n - mean * mean)) });
-    };
-    img.onerror = () => resolve({ mean: 128, stdDev: 50 });
-    img.src = dataUrl;
+  const resp = await fetch(GAS_BACKEND_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: method, data })
   });
-}
-
-async function demoAnalyze(data) {
-  if (!data.anonymousDocumentConsent) {
-    return { status: 'unavailable', kind: 'unavailable', topic: '未啟用或未完成 AI 分析', keywords: '', summary: '已完成一般收件；未取得文件外部分析同意，因此未執行 AI 分析。', feedback: '請由教師檢視原始作業。', advice: '', tag: '', dims: null, score: null };
-  }
-  const dataUrl = data.mimeType === 'application/pdf' ? '' : `data:${data.mimeType};base64,${data.fileData}`;
-  const entropy = await analyzeImageEntropy(dataUrl);
-  if (state.demoPreset === 'invalid' || (dataUrl && (entropy.stdDev < 14 || (entropy.mean > 238 && entropy.stdDev < 24)))) {
-    const dims = { focus: 18, depth: 15, structure: 22, insight: 16, presentation: 20 };
-    return {
-      status: 'draft', kind: 'invalid', topic: '畫面過於空白・需重傳', keywords: '',
-      summary: '畫面色彩與線條變化極少，接近空白頁或未對焦影像。',
-      feedback: '系統檢測到畫面幾乎沒有手寫文字或繪畫筆觸，無法列入評鑑，請確認作品入鏡且對焦清晰後再試一次。',
-      advice: '在光線充足處平拍整頁作品，避免反光與模糊。', tag: '', dims, score: 18
-    };
-  }
-  const wantArt = state.demoPreset === 'art' || (!state.demoPreset && (data.artTheme || /藝術|創作|美術|繪/.test(data.assignment)));
-  if (wantArt) {
-    const theme = data.artTheme || '自由創作';
-    const dims = { themeScore: 95, compScore: 91, colorScore: 90, lightScore: 92, detailScore: 93 };
-    const score = Math.round(dims.themeScore * .35 + dims.compScore * .2 + dims.colorScore * .15 + dims.lightScore * .15 + dims.detailScore * .15);
-    return {
-      status: 'draft', kind: 'art', topic: theme + '・特級繪師', keywords: '',
-      summary: '主體居中偏上，冷暖色對比鮮明，外輪廓線條俐落。',
-      feedback: `【示範評析】畫面呼應「${theme}」主題${data.studentNote ? '與你的自述構想' : ''}，光影層次清楚，放在圓形胸章內視覺重心穩定。`,
-      advice: '外輪廓加上細緻高光，壓製成實體胸章時主體會更立體。',
-      tag: theme, dims, score, focusX: 0.5, focusY: 0.45,
-      palette: ['#173e35', '#24654d', '#e4edb7', '#d97706', '#f7f5ed']
-    };
-  }
-  const dims = { focus: 94, depth: 91, structure: 89, insight: 90, presentation: 95 };
-  return {
-    status: 'draft', kind: 'note', topic: '保衛細胞與氣孔開閉探究',
-    keywords: '保衛細胞, 氣孔, 蒸散作用, 對照實驗',
-    summary: '設計光照與遮光對照組，觀察紫背萬年青下表皮保衛細胞膨壓變化，並繪製氣孔開閉機制圖。',
-    feedback: '【示範評析】筆記結構清楚，從觀察紀錄推進到變因對照，圖文對照相當完整！',
-    advice: '若把溫度也列為變因，氣孔開閉速度會有什麼變化？',
-    tag: 'SDG 15 陸地生態', dims, score: 92
-  };
+  const json = await resp.json();
+  if (json && json.success) return json.data;
+  throw new Error((json && json.error) || '雲端伺服器回應異常，請稍後再試。');
 }
 
 // ==============================================
@@ -1489,83 +1186,11 @@ function showSelectedFile(f) {
 
 function clearSelectedFile() {
   state.file = null;
-  state.demoPreset = null;
   state.preCrop.active = false;
   $('f-file').value = '';
   $('preview').classList.add('hidden');
   $('pre-crop-box').classList.add('hidden');
   $('drop').classList.remove('hidden');
-}
-
-function generateDemoSample(kind) {
-  state.demoPreset = kind;
-  $('f-class').value = '701';
-  $('f-seat').value = '3';
-  $('f-name').value = '王小明';
-  $('f-consent').checked = true;
-  const assigns = state.cfg.assignments;
-  const c = document.createElement('canvas'); c.width = 900; c.height = 900;
-  const ctx = c.getContext('2d');
-
-  if (kind === 'note') {
-    setSubmitMode('note');
-    $('f-assignment').value = assigns[0] || '';
-    ctx.fillStyle = '#fffdf7'; ctx.fillRect(0, 0, 900, 900);
-    ctx.strokeStyle = '#e5ebe4'; ctx.lineWidth = 1.5;
-    for (let y = 70; y < 860; y += 42) { ctx.beginPath(); ctx.moveTo(55, y); ctx.lineTo(845, y); ctx.stroke(); }
-    ctx.fillStyle = '#173e35'; ctx.font = 'bold 34px "Noto Serif TC", serif';
-    ctx.fillText('自主學習探究筆記：紫背萬年青保衛細胞與氣孔開閉', 65, 105);
-    ctx.font = '22px sans-serif'; ctx.fillStyle = '#24654d';
-    ctx.fillText('一、研究問題：光照與遮光對葉下表皮氣孔開度的影響', 65, 165);
-    ctx.fillStyle = '#334155'; ctx.font = '20px sans-serif';
-    ctx.fillText('・實驗組（光照 30 分鐘）：保衛細胞吸水膨脹，氣孔明顯張開。', 65, 220);
-    ctx.fillText('・對照組（鋁箔遮光 30 分鐘）：保衛細胞失水，氣孔閉合。', 65, 265);
-    // 顯微鏡視野圖
-    ctx.save();
-    ctx.strokeStyle = '#173e35'; ctx.lineWidth = 4;
-    ctx.beginPath(); ctx.arc(280, 520, 160, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle = '#eef7f0'; ctx.fill();
-    for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) {
-      const gx = 280 + i * 78, gy = 520 + j * 72;
-      ctx.fillStyle = '#84cc16';
-      ctx.beginPath(); ctx.ellipse(gx - 12, gy, 14, 28, 0.2, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(gx + 12, gy, 14, 28, -0.2, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#173e35';
-      ctx.beginPath(); ctx.ellipse(gx, gy, 5, 14, 0, 0, Math.PI * 2); ctx.fill();
-    }
-    ctx.restore();
-    ctx.fillStyle = '#173e35'; ctx.font = 'bold 20px sans-serif';
-    ctx.fillText('二、反思與延伸：若環境溫度升高，蒸散作用與氣孔調節如何平衡？', 65, 760);
-  } else if (kind === 'art') {
-    setSubmitMode('art');
-    $('f-assignment').value = assigns[1] || assigns[0] || '';
-    $('art-opt').open = true;
-    selectTheme('奇幻生物與幻獸');
-    $('f-note').value = '我在畫一位穿梭星界的森林守護者，用翡翠與琥珀光暈表現神祕冒險感。';
-    const g = ctx.createRadialGradient(450, 420, 40, 450, 450, 520);
-    g.addColorStop(0, '#e4edb7'); g.addColorStop(.4, '#24654d'); g.addColorStop(.8, '#173e35'); g.addColorStop(1, '#091512');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, 900, 900);
-    ctx.fillStyle = '#fff';
-    for (let i = 0; i < 55; i++) {
-      ctx.beginPath(); ctx.arc((i * 73) % 900, (i * 131) % 900, (i % 3) + 1.5, 0, Math.PI * 2); ctx.fill();
-    }
-    ctx.strokeStyle = '#d97706'; ctx.lineWidth = 6;
-    ctx.beginPath(); ctx.arc(450, 390, 185, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle = '#173e35';
-    ctx.beginPath(); ctx.moveTo(290, 820); ctx.lineTo(385, 480); ctx.lineTo(450, 430); ctx.lineTo(515, 480); ctx.lineTo(610, 820); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#e4edb7';
-    ctx.beginPath(); ctx.arc(425, 470, 9, 0, Math.PI * 2); ctx.arc(475, 470, 9, 0, Math.PI * 2); ctx.fill();
-  } else {
-    $('f-assignment').value = assigns[0] || '';
-    ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, 900, 900);
-    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(450, 450, 60, 0, Math.PI * 2); ctx.stroke();
-  }
-
-  const dataUrl = c.toDataURL('image/jpeg', 0.88);
-  const base64 = dataUrl.split(',')[1];
-  showSelectedFile({ name: `示範_${kind}.jpg`, size: Math.round(base64.length * 0.75), mimeType: 'image/jpeg', base64, dataUrl });
-  toast('已帶入範例作品，按「送出作品」即可體驗。');
 }
 
 // ==============================================
@@ -2457,7 +2082,6 @@ function fireConfetti() {
 }
 
 async function init() {
-  if (isDemo) $('demo-banner').classList.remove('hidden');
   renderThemeCats();
   renderThemeChips();
   renderPromptChips();
@@ -2472,7 +2096,7 @@ async function init() {
     const cfg = await rpc('getPublicConfig');
     state.cfg = cfg;
     const pill = $('engine-pill');
-    if (cfg.aiEnabled) { pill.classList.add('live'); $('engine-text').textContent = isDemo ? '示範引擎就緒' : 'Gemini 多模態就緒'; }
+    if (cfg.aiEnabled) { pill.classList.add('live'); $('engine-text').textContent = 'Gemini 多模態就緒'; }
     else { pill.classList.remove('live'); $('engine-text').textContent = '純收件模式'; }
 
     if (!cfg.ready) {
@@ -2540,7 +2164,6 @@ window.addEventListener('touchend', endPreCropDrag);
 $('f-file').addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
-  state.demoPreset = null;
   setStatus('正在處理檔案…');
   try {
     const f = await compressFile(file);
@@ -2550,8 +2173,6 @@ $('f-file').addEventListener('change', async e => {
     setStatus(err.message || '檔案處理失敗', true);
   }
 });
-
-document.querySelectorAll('[data-demo]').forEach(b => b.addEventListener('click', () => generateDemoSample(b.dataset.demo)));
 
 // 結果頁事件
 $('btn-again').addEventListener('click', () => { clearSelectedFile(); switchView('submit'); });
@@ -2782,14 +2403,6 @@ $('btn-format-sheet').addEventListener('click', async () => {
     await rpc('formatAllSheets', { password: state.adminPwd });
     setMsg('sheet-msg', '已將三張工作表所有欄位調整為最適寬度');
   } catch (err) { setMsg('sheet-msg', err.message, true); }
-});
-$('btn-seed').addEventListener('click', async () => {
-  try {
-    const res = await rpc('seedDemoSubmissions', { password: state.adminPwd });
-    rememberReceipt(res.demoReceipt, '701 王小明（示範軌跡）');
-    setMsg('seed-msg', `已寫入 ${res.count} 筆示範資料。收據：${res.demoReceipt}`);
-    loadAdminOverview();
-  } catch (err) { setMsg('seed-msg', err.message, true); }
 });
 
 window.addEventListener('DOMContentLoaded', init);
