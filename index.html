@@ -343,7 +343,7 @@
       <div class="hero">
         <div class="eyebrow">LEARNING ENERGY TRACKER</div>
         <h1>每一次繳交，<br>都是軌跡上的<em>一個能量點</em>。</h1>
-        <p class="lead">筆記、學習單、畫作都可以交。AI 會先判斷作品類型，再用對應的五維規準給你回饋；能量達 85 分，就能做一枚 58mm 胸章。</p>
+        <p id="hero-lead" class="lead">筆記、學習單、畫作都可以交。AI 會先判斷作品類型，再用對應的五維規準給你回饋；能量達標或經導師核准，就能做一枚 58mm 胸章。</p>
         <div class="panel traj-card">
           <div class="traj-card-head"><strong>一位同學的學期軌跡（範例）</strong><span class="small muted">701 王○明</span></div>
           <svg id="hero-traj" class="traj-svg" viewBox="0 0 520 220" role="img" aria-label="範例能量軌跡：74 分、82 分、92 分並獲得胸章"></svg>
@@ -570,7 +570,7 @@
       </div>
       <div class="traj-main">
         <div class="panel traj-card">
-          <div class="traj-card-head"><strong>能量軌跡</strong><span class="small muted">虛線為胸章門檻 85 分</span></div>
+          <div class="traj-card-head"><strong>能量軌跡</strong><span id="t-th-label" class="small muted">虛線為胸章門檻 85 分</span></div>
           <svg id="t-svg" class="traj-svg" viewBox="0 0 520 220" role="img" aria-label="個人能量軌跡"></svg>
           <div class="traj-legend"><span><i class="lg-note"></i>探究筆記</span><span><i class="lg-art"></i>藝術創作</span><span><i class="lg-badge"></i>已獲胸章</span></div>
         </div>
@@ -589,7 +589,7 @@
     <div class="gallery-hero">
       <div class="eyebrow" style="color:#e4edb7">CLASS CONSTELLATION</div>
       <h2>班級成果星空</h2>
-      <p style="margin:6px 0 0;opacity:.85;font-size:14px">每一枚胸章都是一位同學達到 85 分的作品。為保護隱私，姓名只顯示首尾字。</p>
+      <p id="gallery-lead" style="margin:6px 0 0;opacity:.85;font-size:14px">每一枚胸章都是一位同學經評分達標或導師核准的優秀作品。為保護隱私，姓名只顯示首尾字。</p>
     </div>
     <div id="gallery-grid" class="gallery-grid"></div>
   </section>
@@ -921,13 +921,15 @@ function renderTrajectorySvg(svg, items) {
     svg.innerHTML = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" fill="#5d7068" font-size="13">尚無已評分的作品</text>`;
     return;
   }
+  const th = (state.cfg && state.cfg.badgeThreshold) || 85;
   const xOf = (i, n) => n === 1 ? padL + plotW / 2 : padL + (plotW * i) / (n - 1);
   let html = '';
-  [40, 60, 85, 100].forEach(v => {
+  const ticks = Array.from(new Set([40, 60, th, 100])).sort((a, b) => a - b);
+  ticks.forEach(v => {
     const y = yOf(v).toFixed(1);
-    const is85 = v === 85;
-    html += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${is85 ? '#d97706' : '#e2e8dc'}" stroke-width="${is85 ? 1.5 : 1}" ${is85 ? 'stroke-dasharray="5 4"' : ''}/>`;
-    html += `<text x="${padL - 8}" y="${Number(y) + 4}" text-anchor="end" font-size="10" font-family="Orbitron,monospace" fill="${is85 ? '#d97706' : '#5d7068'}">${v}</text>`;
+    const isTh = v === th;
+    html += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${isTh ? '#d97706' : '#e2e8dc'}" stroke-width="${isTh ? 1.5 : 1}" ${isTh ? 'stroke-dasharray="5 4"' : ''}/>`;
+    html += `<text x="${padL - 8}" y="${Number(y) + 4}" text-anchor="end" font-size="10" font-family="Orbitron,monospace" fill="${isTh ? '#d97706' : '#5d7068'}">${v}</text>`;
   });
 
   const pts = scored.map((r, i) => [xOf(i, scored.length), yOf(r.score), r]);
@@ -954,7 +956,7 @@ function renderTrajectorySvg(svg, items) {
     } else {
       html += `<circle cx="${x}" cy="${y}" r="6.5" fill="#24654d" stroke="#fff" stroke-width="1.8"/>`;
     }
-    html += `<text x="${x}" y="${y - 15}" text-anchor="middle" font-family="Orbitron,monospace" font-weight="800" font-size="11" fill="${r.score >= 85 ? '#b45309' : '#173e35'}">${r.score}</text>`;
+    html += `<text x="${x}" y="${y - 15}" text-anchor="middle" font-family="Orbitron,monospace" font-weight="800" font-size="11" fill="${r.score >= th ? '#b45309' : '#173e35'}">${r.score}</text>`;
     html += `<text x="${x}" y="${padT + plotH + 16}" text-anchor="middle" font-size="11" font-weight="700" fill="#173e35">${esc(shortTopic)}</text>`;
     html += `<text x="${x}" y="${padT + plotH + 30}" text-anchor="middle" font-size="10" fill="#5d7068">${esc(dateStr)}</text>`;
     html += `</g>`;
@@ -1789,6 +1791,8 @@ async function lookupTrajectory() {
     $('s-growth').textContent = s.growth === null ? '—' : (s.growth >= 0 ? '+' + s.growth : s.growth);
     $('s-badges').textContent = s.badges;
 
+    const th = (state.cfg && state.cfg.badgeThreshold) || 85;
+    if ($('t-th-label')) $('t-th-label').textContent = `虛線為胸章門檻 ${th} 分`;
     renderTrajectorySvg($('t-svg'), res.list);
 
     // 最近三次雷達疊圖
@@ -1817,7 +1821,7 @@ async function lookupTrajectory() {
       const chipCls = r.kind === '藝術創作' ? 'chip-art' : (r.kind === '探究筆記' ? 'chip-note' : 'chip-invalid');
       const canDownload = r.badge === '已發放';
       item.innerHTML = `
-        <div class="tl-score" style="color:${(r.score || 0) >= 85 ? 'var(--amber)' : 'var(--ink)'}">${r.score ?? '—'}<small>PTS</small></div>
+        <div class="tl-score" style="color:${(r.score || 0) >= th ? 'var(--amber)' : 'var(--ink)'}">${r.score ?? '—'}<small>PTS</small></div>
         <div class="tl-body">
           <div><span class="chip ${chipCls}">${esc(r.kind)}</span> <span class="chip">${esc(r.assignment)}</span> ${r.tag ? `<span class="chip">${esc(r.tag)}</span>` : ''} <span class="small muted">${esc(r.time)}</span></div>
           <h3>${esc(r.topic)}</h3>
@@ -1841,7 +1845,10 @@ async function downloadFromTrajectory(receipt, type) {
     toast('正在準備圖檔…');
     const res = await rpc('getBadgeImage', { receipt });
     const r = res.record;
-    const png = 'data:image/png;base64,' + res.imageBase64;
+    const who = `${r.className} ${maskNameClient(r.name)}`;
+    const png = res.imageBase64
+      ? `data:${res.mimeType || 'image/png'};base64,${res.imageBase64}`
+      : makeEmblemDataUrl(r.topic, r.score, r.kind, who);
     const meta = { className: r.className, seat: r.seat, name: r.name, assignment: r.assignment, kindLabel: r.kind, topic: r.topic, score: r.score, receipt: r.receipt };
     if (type === 'print') downloadBadgePrint(png, meta);
     else downloadCertificate(png, meta);
@@ -1863,7 +1870,8 @@ async function loadGallery() {
       return;
     }
     if (!res.list.length) {
-      grid.innerHTML = '<div class="empty" style="grid-column:1/-1">還沒有已發放的胸章，快去挑戰 85 分成為第一顆星！</div>';
+      const th = (state.cfg && state.cfg.badgeThreshold) || 85;
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1">還沒有已發放的胸章，快去挑戰 ${th} 分成為第一顆星！</div>`;
       return;
     }
     grid.innerHTML = '';

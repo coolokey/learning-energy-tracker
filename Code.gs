@@ -1051,10 +1051,21 @@ function getBadgeImage(data) {
   var idx = findRowByReceipt_(rows, receipt);
   if (idx < 0) throw new Error('找不到這張收據對應的作品。');
   if (String(rows[idx][COL_.badge]) !== '已發放') throw new Error('這枚胸章尚未發放。');
+  var rec = rowToRecord_(rows[idx]);
   var id = String(rows[idx][COL_.badgeFileId] || '');
-  if (!id) throw new Error('找不到胸章檔案。');
-  var blob = DriveApp.getFileById(id).getBlob();
-  return { success: true, imageBase64: Utilities.base64Encode(blob.getBytes()), record: rowToRecord_(rows[idx]) };
+  if (!id) {
+    return { success: true, imageBase64: '', mimeType: '', record: rec };
+  }
+  try {
+    var blob = DriveApp.getFileById(id).getBlob();
+    var mime = blob.getContentType() || 'image/png';
+    if (mime.indexOf('image/') !== 0) {
+      return { success: true, imageBase64: '', mimeType: '', record: rec };
+    }
+    return { success: true, imageBase64: Utilities.base64Encode(blob.getBytes()), mimeType: mime, record: rec };
+  } catch (e) {
+    return { success: true, imageBase64: '', mimeType: '', record: rec };
+  }
 }
 
 // ==============================================
@@ -1187,11 +1198,17 @@ function reviewSubmission(data) {
           if (origIt.hasNext()) {
             var origFile = origIt.next();
             var badgeFolder = childFolder_(childFolder_(root, '胸章成果庫'), recForGal.assignment || '未分類');
-            var bName = recForGal.className + '_' + recForGal.seat + '_' + recForGal.name + '_' + currentScore + '分_' + receipt.slice(0, 8) + '.jpg';
             var origBlob = origFile.getBlob();
-            var copied = badgeFolder.createFile(Utilities.newBlob(origBlob.getBytes(), 'image/jpeg', bName));
-            setCell_(sheet, idx, COL_.badgeUrl, copied.getUrl());
-            setCell_(sheet, idx, COL_.badgeFileId, copied.getId());
+            var origMime = origBlob.getContentType() || 'image/jpeg';
+            if (origMime.indexOf('image/') === 0) {
+              var ext = origMime === 'image/png' ? '.png' : '.jpg';
+              var bName = recForGal.className + '_' + recForGal.seat + '_' + recForGal.name + '_' + currentScore + '分_' + receipt.slice(0, 8) + ext;
+              var copied = badgeFolder.createFile(Utilities.newBlob(origBlob.getBytes(), origMime, bName));
+              setCell_(sheet, idx, COL_.badgeUrl, copied.getUrl());
+              setCell_(sheet, idx, COL_.badgeFileId, copied.getId());
+            } else if (rows[idx][COL_.fileUrl]) {
+              setCell_(sheet, idx, COL_.badgeUrl, rows[idx][COL_.fileUrl]);
+            }
           } else if (rows[idx][COL_.fileUrl]) {
             setCell_(sheet, idx, COL_.badgeUrl, rows[idx][COL_.fileUrl]);
           }

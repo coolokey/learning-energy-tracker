@@ -72,9 +72,9 @@ function setup(overrides = {}, geminiReply = noteReply()) {
       createFile: b => {
         const id = 'file-' + files.length;
         const f = {
-          name: b.name, bytes: b.bytes, getId: () => id, getName: () => b.name, setDescription: () => {},
+          name: b.name, bytes: b.bytes, mime: b.mime || 'image/png', getId: () => id, getName: () => b.name, setDescription: () => {},
           getUrl: () => 'https://drive.google.com/file/' + b.name,
-          getBlob: () => ({ getBytes: () => b.bytes })
+          getBlob: () => ({ getBytes: () => b.bytes, getContentType: () => b.mime || 'image/png' })
         };
         files.push(f);
         return f;
