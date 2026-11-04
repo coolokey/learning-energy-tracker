@@ -1972,8 +1972,8 @@ function renderAdminSubmissions() {
             <option ${r.review === '請學生修正' ? 'selected' : ''}>請學生修正</option>
           </select>
           <button type="button" class="btn btn-sm btn-primary" data-save-review="${rc}">儲存評語與分數</button>
-          ${(r.badge === '待審核' || r.badge === '已駁回' || r.badge === '未達標' || r.badge === '可製作') ? `<button type="button" class="btn btn-sm btn-gold" data-badge-act="approve" data-rc="${rc}">確認核准胸章</button>` : ''}
-          ${(r.badge === '待審核' || r.badge === '已發放' || r.badge === '可製作') ? `<button type="button" class="btn btn-sm btn-danger" data-badge-act="reject" data-rc="${rc}">駁回胸章</button>` : ''}
+          ${r.badge !== '已發放' ? `<button type="button" class="btn btn-sm btn-gold" data-badge-act="approve" data-rc="${rc}">確認核准胸章</button>` : `<span class="chip chip-note">✓ 已核准發放</span>`}
+          ${r.badge !== '已駁回' ? `<button type="button" class="btn btn-sm btn-danger" data-badge-act="reject" data-rc="${rc}">駁回胸章</button>` : ''}
         </div>
       </div>`;
     box.appendChild(el);
@@ -2361,21 +2361,35 @@ $('adm-list').addEventListener('click', async e => {
     const comment = document.querySelector(`[data-comment="${rc}"]`).value;
     const review = document.querySelector(`[data-review="${rc}"]`).value;
     const teacherScore = document.querySelector(`[data-score="${rc}"]`)?.value;
+    const origText = saveBtn.textContent;
+    saveBtn.disabled = true;
+    saveBtn.textContent = '儲存中…';
     try {
       await rpc('reviewSubmission', { password: state.adminPwd, receipt: rc, teacherComment: comment, review, teacherScore });
       toast('已儲存導師評語與調整後分數');
-      loadAdminOverview();
-    } catch (err) { toast(err.message); }
+      await loadAdminOverview();
+    } catch (err) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = origText;
+      toast(err.message);
+    }
   }
   if (badgeBtn) {
     const rc = badgeBtn.dataset.rc;
     const comment = document.querySelector(`[data-comment="${rc}"]`)?.value;
     const teacherScore = document.querySelector(`[data-score="${rc}"]`)?.value;
+    const origText = badgeBtn.textContent;
+    badgeBtn.disabled = true;
+    badgeBtn.textContent = '處理中…';
     try {
       await rpc('reviewSubmission', { password: state.adminPwd, receipt: rc, teacherComment: comment, teacherScore, review: badgeBtn.dataset.badgeAct === 'approve' ? '已審查核准' : undefined, badgeDecision: badgeBtn.dataset.badgeAct });
-      toast(badgeBtn.dataset.badgeAct === 'approve' ? '已確認核准胸章' : '已駁回胸章');
-      loadAdminOverview();
-    } catch (err) { toast(err.message); }
+      toast(badgeBtn.dataset.badgeAct === 'approve' ? '✓ 已確認核准發放胸章！' : '已駁回胸章');
+      await loadAdminOverview();
+    } catch (err) {
+      badgeBtn.disabled = false;
+      badgeBtn.textContent = origText;
+      toast(err.message);
+    }
   }
 });
 

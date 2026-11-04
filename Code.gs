@@ -1017,7 +1017,8 @@ function upsertGallery_(receipt, rec, thumb, status) {
   var rows = gs.getDataRange().getValues();
   for (var i = 1; i < rows.length; i++) {
     if (String(rows[i][1]).toLowerCase() === receipt.toLowerCase()) {
-      gs.getRange(i + 1, 8).setValue(thumb);
+      if (rec && rec.score !== null && rec.score !== undefined) gs.getRange(i + 1, 7).setValue(rec.score);
+      if (thumb) gs.getRange(i + 1, 8).setValue(thumb);
       gs.getRange(i + 1, 9).setValue(status);
       return;
     }
@@ -1025,7 +1026,7 @@ function upsertGallery_(receipt, rec, thumb, status) {
   gs.appendRow([
     Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy/MM/dd'), receipt,
     sanitizeFormula_(rec.className), sanitizeFormula_(maskName_(rec.name)), rec.kind,
-    sanitizeFormula_(rec.topic), rec.score, thumb, status
+    sanitizeFormula_(rec.topic), rec.score, thumb || '', status
   ]);
 }
 
@@ -1173,21 +1174,20 @@ function reviewSubmission(data) {
   var decision = String(data.badgeDecision || '').trim();
   if (decision) {
     if (decision === 'approve') {
-      if (['待審核', '已駁回', '可製作', '未達標'].indexOf(badge) < 0) throw new Error('這筆作品目前沒有待審核的胸章。');
-      if (!rows[idx][COL_.badgeFileId]) {
-        if (badge === '待審核' || badge === '已駁回') throw new Error('學生尚未製作胸章。');
-        badge = '可製作';
-      } else {
-        badge = '已發放';
+      badge = '已發放';
+      if (!rows[idx][COL_.badgeUrl] && rows[idx][COL_.fileUrl]) {
+        setCell_(sheet, idx, COL_.badgeUrl, rows[idx][COL_.fileUrl]);
       }
+      var recForGal = rowToRecord_(rows[idx]);
+      recForGal.score = currentScore;
+      upsertGallery_(receipt, recForGal, '', '已發放');
     } else if (decision === 'reject') {
-      if (['待審核', '已發放', '可製作'].indexOf(badge) < 0) throw new Error('這筆作品目前沒有可駁回的胸章。');
       badge = '已駁回';
+      setGalleryStatus_(receipt, badge);
     } else {
       throw new Error('胸章審核指令不正確。');
     }
     setCell_(sheet, idx, COL_.badge, badge);
-    setGalleryStatus_(receipt, badge);
   }
   return { success: true, receipt: receipt, badge: badge, score: currentScore };
 }
