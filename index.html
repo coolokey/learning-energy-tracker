@@ -632,19 +632,31 @@
       <div data-panel="settings" class="hidden">
         <div class="settings-grid">
           <div class="set-box">
-            <h3>Gemini API Key（支援試算表直接設定）</h3>
-            <p class="small muted" style="margin-top:0">您可直接開啟試算表切到<b>「系統設定」工作表</b>，在 <code>GEMINI_API_KEY</code> 右側（<b>B2 儲存格</b>）貼上 API Key 立即生效；也可在下方輸入儲存（兩邊自動同步，學生端看不到）。</p>
+            <h3>Gemini API Key 與優先模型</h3>
+            <p class="small muted" style="margin-top:0">您可直接開啟試算表切到<b>「系統設定」工作表</b>設定 <code>GEMINI_API_KEY</code> 與 <code>ACTIVE_MODEL</code>，或在下方調整（兩邊自動同步）。</p>
             <div style="margin-bottom:10px"><a id="a-settings-sheet-link" class="btn btn-sm" href="#" target="_blank" rel="noopener">開啟試算表「系統設定」分頁</a></div>
-            <div class="field"><label for="s-key">新的 API Key（留空並儲存＝停用 AI）</label><input id="s-key" type="password" autocomplete="off" placeholder="AIzaSy…"></div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary btn-sm" id="btn-key-save">儲存並測試</button><button type="button" class="btn btn-sm" id="btn-key-test">測試目前設定</button></div>
+            <div class="field">
+              <label for="s-model">優先使用的 Gemini 模型（預設高階 2.5 Pro）</label>
+              <select id="s-model">
+                <option value="gemini-2.5-pro">gemini-2.5-pro（最高階深度推理與視覺評析・預設）</option>
+                <option value="gemini-2.5-flash">gemini-2.5-flash（高速均衡多模態）</option>
+                <option value="gemini-2.0-flash">gemini-2.0-flash（輕量快速備援）</option>
+              </select>
+            </div>
+            <div class="field"><label for="s-key">更新 API Key（留空不變；若要更換請貼上新的 Key）</label><input id="s-key" type="password" autocomplete="off" placeholder="AIzaSy…"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn btn-primary btn-sm" id="btn-key-save">儲存金鑰並測試</button><button type="button" class="btn btn-sm" id="btn-key-test">測試目前設定</button></div>
             <div id="key-msg" class="msg"></div>
           </div>
           <div class="set-box">
-            <h3>胸章發放方式</h3>
-            <label class="radio-line"><input type="radio" name="s-approval" value="auto"><span><b>AI 達 85 分自動發放</b><br><span class="muted small">學生當下就能下載印刷檔與證書。</span></span></label>
-            <label class="radio-line"><input type="radio" name="s-approval" value="teacher"><span><b>老師確認後才發放</b><br><span class="muted small">學生儲存胸章後進入待審核，核准後才開放下載與上星空。</span></span></label>
+            <h3>胸章分數標準與導師確認模式</h3>
+            <div class="field" style="margin-bottom:10px">
+              <label for="s-threshold">胸章達標分數標準（50～100 分，導師可隨時調整）</label>
+              <input id="s-threshold" type="number" min="50" max="100" value="85">
+            </div>
+            <label class="radio-line"><input type="radio" name="s-approval" value="teacher"><span><b>導師調整分數／確認核准後才發放（推薦）</b><br><span class="muted small">導師可於後台調整學生分數並按「核准胸章」，確認後才開放下載與上星空。</span></span></label>
+            <label class="radio-line"><input type="radio" name="s-approval" value="auto"><span><b>AI 達設定標準分自動發放</b><br><span class="muted small">學生達到上方設定的分數標準，當下就能下載印刷檔與證書。</span></span></label>
             <label class="radio-line" style="margin-top:12px"><input type="checkbox" id="s-gallery"><span><b>公開班級成果星空</b><br><span class="muted small">只顯示已發放的胸章，姓名遮蔽。</span></span></label>
-            <button type="button" class="btn btn-primary btn-sm" id="btn-settings-save">儲存設定</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-settings-save">儲存模型與胸章設定</button>
             <div id="settings-msg" class="msg"></div>
           </div>
           <div class="set-box">
@@ -844,6 +856,13 @@ function refreshSavedReceiptsUI() {
     sel.appendChild(opt);
   });
   if (!$('t-receipt').value && list[0]) $('t-receipt').value = list[0].receipt;
+}
+
+function maskNameClient(name) {
+  const s = String(name || '');
+  if (s.length <= 1) return s;
+  if (s.length === 2) return s[0] + '○';
+  return s[0] + '○'.repeat(s.length - 2) + s[s.length - 1];
 }
 
 // ==============================================
@@ -1336,22 +1355,25 @@ function showResult() {
 
   // 分數動畫與指標條
   const score = ai.score || 0;
+  const th = state.cfg.badgeThreshold || 85;
   const ring = $('r-ring');
   const circ = 251.3;
   ring.style.strokeDashoffset = circ;
-  ring.style.stroke = score >= 85 ? '#d97706' : (score < 60 ? '#b91c1c' : '#24654d');
+  ring.style.stroke = score >= th ? '#d97706' : (score < 60 ? '#b91c1c' : '#24654d');
   setTimeout(() => { ring.style.strokeDashoffset = circ - (score / 100) * circ; }, 60);
   $('r-score').textContent = score;
-  $('r-score').style.color = score >= 85 ? '#d97706' : (score < 60 ? '#b91c1c' : '#173e35');
+  $('r-score').style.color = score >= th ? '#d97706' : (score < 60 ? '#b91c1c' : '#173e35');
 
   const showBadgeSection = state.submitMode === 'art' || ai.kind === 'art';
-  const eligible = (ai.kind === 'note' || ai.kind === 'art') && score >= 85;
+  const eligible = (ai.kind === 'note' || ai.kind === 'art') && score >= th;
   if (showBadgeSection) {
-    $('r-status').textContent = eligible ? '已達 85 分，可製作 58mm 能量胸章！' : (ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : `距離 85 分胸章門檻還差 ${Math.max(1, 85 - score)} 分`);
+    $('r-status').textContent = eligible
+      ? (cur.badgeApproval === 'teacher' ? `已達 ${th} 分標準，可裁切送出胸章申請（待導師確認核准）！` : `已達 ${th} 分標準，可製作 58mm 能量胸章！`)
+      : (ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : `距離 ${th} 分胸章標準還差 ${Math.max(1, th - score)} 分（導師審核時亦可調整確認）`);
     $('r-status').style.color = eligible ? '#b45309' : '#5d7068';
   } else {
-    $('r-status').textContent = ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : (score >= 85 ? '探究表現優異！已納入你的學期能量軌跡' : '已完成五維探究素養分析，並納入能量軌跡');
-    $('r-status').style.color = score >= 85 ? '#24654d' : '#5d7068';
+    $('r-status').textContent = ai.kind === 'invalid' ? '請換一張清晰的作品重新上傳' : (score >= th ? '探究表現優異！已納入你的學期能量軌跡' : '已完成五維探究素養分析，並納入能量軌跡');
+    $('r-status').style.color = score >= th ? '#24654d' : '#5d7068';
   }
 
   const meta = ai.kind === 'art' ? ART_META : NOTE_META;
@@ -1374,7 +1396,7 @@ function showResult() {
   if (!showBadgeSection) {
     $('badge-panel').classList.add('hidden');
     $('badge-locked').classList.add('hidden');
-    if (score >= 85) fireConfetti();
+    if (score >= th) fireConfetti();
   } else if (eligible) {
     $('badge-panel').classList.remove('hidden');
     $('badge-locked').classList.add('hidden');
@@ -1386,7 +1408,7 @@ function showResult() {
   } else {
     $('badge-panel').classList.add('hidden');
     $('badge-locked').classList.remove('hidden');
-    $('badge-gap').textContent = Math.max(1, 85 - score);
+    $('badge-gap').textContent = Math.max(1, th - score);
   }
 }
 
@@ -1876,6 +1898,8 @@ async function loadAdminOverview() {
     $('a-sheet-link').href = ov.sheetUrl || '#';
     if ($('a-settings-sheet-link')) $('a-settings-sheet-link').href = ov.settingsSheetUrl || ov.sheetUrl || '#';
     document.querySelectorAll('input[name="s-approval"]').forEach(r => { r.checked = r.value === ov.badgeApproval; });
+    if ($('s-threshold') && ov.badgeThreshold) $('s-threshold').value = ov.badgeThreshold;
+    if ($('s-model') && ov.activeModel) $('s-model').value = ov.activeModel;
     $('s-gallery').checked = !!ov.galleryPublic;
     renderAdminSubmissions();
     renderAdminAssignList();
@@ -1919,14 +1943,18 @@ function renderAdminSubmissions() {
       <div class="adm-controls">
         <textarea data-comment="${rc}" placeholder="老師正式評語（留空則學生端只看到 AI 草稿）">${esc(r.teacherComment || r.feedback || '')}</textarea>
         <div class="adm-btns">
+          <div style="display:flex;align-items:center;gap:6px">
+            <label class="small muted" style="white-space:nowrap">導師調分：</label>
+            <input type="number" min="0" max="100" data-score="${rc}" value="${r.score !== null ? r.score : ''}" placeholder="分數" style="padding:6px 8px;width:82px">
+          </div>
           <select data-review="${rc}" aria-label="審核狀態">
             <option ${r.review === '待教師審查' ? 'selected' : ''}>待教師審查</option>
             <option ${r.review === '已審查核准' ? 'selected' : ''}>已審查核准</option>
             <option ${r.review === '請學生修正' ? 'selected' : ''}>請學生修正</option>
           </select>
-          <button type="button" class="btn btn-sm btn-primary" data-save-review="${rc}">儲存評語</button>
-          ${(r.badge === '待審核' || r.badge === '已駁回') ? `<button type="button" class="btn btn-sm btn-gold" data-badge-act="approve" data-rc="${rc}">核准胸章</button>` : ''}
-          ${(r.badge === '待審核' || r.badge === '已發放') ? `<button type="button" class="btn btn-sm btn-danger" data-badge-act="reject" data-rc="${rc}">駁回胸章</button>` : ''}
+          <button type="button" class="btn btn-sm btn-primary" data-save-review="${rc}">儲存評語與分數</button>
+          ${(r.badge === '待審核' || r.badge === '已駁回' || r.badge === '未達標' || r.badge === '可製作') ? `<button type="button" class="btn btn-sm btn-gold" data-badge-act="approve" data-rc="${rc}">確認核准胸章</button>` : ''}
+          ${(r.badge === '待審核' || r.badge === '已發放' || r.badge === '可製作') ? `<button type="button" class="btn btn-sm btn-danger" data-badge-act="reject" data-rc="${rc}">駁回胸章</button>` : ''}
         </div>
       </div>`;
     box.appendChild(el);
@@ -2313,18 +2341,20 @@ $('adm-list').addEventListener('click', async e => {
     const rc = saveBtn.dataset.saveReview;
     const comment = document.querySelector(`[data-comment="${rc}"]`).value;
     const review = document.querySelector(`[data-review="${rc}"]`).value;
+    const teacherScore = document.querySelector(`[data-score="${rc}"]`)?.value;
     try {
-      await rpc('reviewSubmission', { password: state.adminPwd, receipt: rc, teacherComment: comment, review });
-      toast('已儲存審核與評語');
+      await rpc('reviewSubmission', { password: state.adminPwd, receipt: rc, teacherComment: comment, review, teacherScore });
+      toast('已儲存導師評語與調整後分數');
       loadAdminOverview();
     } catch (err) { toast(err.message); }
   }
   if (badgeBtn) {
     const rc = badgeBtn.dataset.rc;
     const comment = document.querySelector(`[data-comment="${rc}"]`)?.value;
+    const teacherScore = document.querySelector(`[data-score="${rc}"]`)?.value;
     try {
-      await rpc('reviewSubmission', { password: state.adminPwd, receipt: rc, teacherComment: comment, review: badgeBtn.dataset.badgeAct === 'approve' ? '已審查核准' : undefined, badgeDecision: badgeBtn.dataset.badgeAct });
-      toast(badgeBtn.dataset.badgeAct === 'approve' ? '已核准胸章' : '已駁回胸章');
+      await rpc('reviewSubmission', { password: state.adminPwd, receipt: rc, teacherComment: comment, teacherScore, review: badgeBtn.dataset.badgeAct === 'approve' ? '已審查核准' : undefined, badgeDecision: badgeBtn.dataset.badgeAct });
+      toast(badgeBtn.dataset.badgeAct === 'approve' ? '已確認核准胸章' : '已駁回胸章');
       loadAdminOverview();
     } catch (err) { toast(err.message); }
   }
@@ -2375,11 +2405,22 @@ $('btn-key-test').addEventListener('click', async () => {
   } catch (err) { setMsg('key-msg', err.message, true); }
 });
 $('btn-settings-save').addEventListener('click', async () => {
-  const approval = document.querySelector('input[name="s-approval"]:checked')?.value || 'auto';
+  const approval = document.querySelector('input[name="s-approval"]:checked')?.value || 'teacher';
+  const badgeThreshold = Number($('s-threshold')?.value || 85);
+  const activeModel = $('s-model')?.value || 'gemini-2.5-pro';
   try {
-    const res = await rpc('updateSettings', { password: state.adminPwd, badgeApproval: approval, galleryPublic: $('s-gallery').checked });
-    state.cfg.badgeApproval = res.badgeApproval; state.cfg.galleryPublic = res.galleryPublic;
-    setMsg('settings-msg', '設定已更新');
+    const res = await rpc('updateSettings', {
+      password: state.adminPwd,
+      badgeApproval: approval,
+      badgeThreshold,
+      activeModel,
+      galleryPublic: $('s-gallery').checked
+    });
+    state.cfg.badgeApproval = res.badgeApproval;
+    state.cfg.badgeThreshold = res.badgeThreshold;
+    state.cfg.activeModel = res.activeModel;
+    state.cfg.galleryPublic = res.galleryPublic;
+    setMsg('settings-msg', `設定已更新（模型：${res.activeModel}｜胸章標準：${res.badgeThreshold} 分｜模式：${res.badgeApproval === 'teacher' ? '導師確認核准' : '自動發放'}）`);
   } catch (err) { setMsg('settings-msg', err.message, true); }
 });
 $('btn-pwd-save').addEventListener('click', async () => {

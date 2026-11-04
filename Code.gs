@@ -29,10 +29,11 @@ var SETTINGS_DEFAULTS_ = [
   ['GEMINI_API_KEY', '', '請在此格貼上 Google AI Studio 申請之 Gemini API Key（貼上後立即生效，無須進程式碼編輯器）'],
   ['ADMIN_PASSWORD', 'admin888', '教師後台管理密碼（可直接在試算表或後台修改，至少 4 碼）'],
   ['ASSIGNMENTS', DEFAULT_ASSIGNMENTS_, '作業項目清單（以逗點分隔，學生端下拉選單會同步更新）'],
-  ['BADGE_APPROVAL', 'auto', '胸章發放模式：auto（達 85 分自動發放）或 teacher（老師核准才發放）'],
+  ['BADGE_APPROVAL', 'auto', '胸章發放模式：teacher（導師調整分數／確認核准後才發放）或 auto（達設定標準分自動發放）'],
+  ['BADGE_THRESHOLD', '85', '胸章達標分數標準（50~100 整數，導師可自由調整；亦可於後台單筆調整學生分數並確認發放）'],
   ['GALLERY_PUBLIC', 'on', '是否開放班級成果星空：on 或 off'],
   ['DAILY_LIMIT', '200', '每日收件上限'],
-  ['ACTIVE_MODEL', 'gemini-2.5-flash', '目前優先使用的 Gemini 模型']
+  ['ACTIVE_MODEL', 'gemini-2.5-pro', '目前優先使用的 Gemini 模型（預設高階 gemini-2.5-pro，可改為 gemini-2.5-flash）']
 ];
 
 /** 總表欄位（0-based）。新增欄位請只加在最後，避免舊資料錯位。 */
@@ -230,6 +231,9 @@ function config_() {
   var rawLimit = String(p.getProperty('DAILY_LIMIT') || s.DAILY_LIMIT || '200').trim();
   var limit = Number(rawLimit || '200');
   var approvalRaw = s.BADGE_APPROVAL || p.getProperty('BADGE_APPROVAL') || 'auto';
+  var rawThreshold = Number(s.BADGE_THRESHOLD || p.getProperty('BADGE_THRESHOLD') || BADGE_THRESHOLD_);
+  var badgeThreshold = (isFinite(rawThreshold) && rawThreshold >= 50 && rawThreshold <= 100) ? Math.round(rawThreshold) : BADGE_THRESHOLD_;
+  var activeModel = String(s.ACTIVE_MODEL || p.getProperty('ACTIVE_MODEL') || 'gemini-2.5-pro').trim() || 'gemini-2.5-pro';
   var galleryRaw = s.GALLERY_PUBLIC || p.getProperty('GALLERY_PUBLIC') || 'on';
   var apiKey = s.GEMINI_API_KEY || String(p.getProperty('GEMINI_API_KEY') || '').trim();
   return {
@@ -239,6 +243,8 @@ function config_() {
     hasAi: !!apiKey,
     apiKey: apiKey,
     badgeApproval: approvalRaw === 'teacher' ? 'teacher' : 'auto',
+    badgeThreshold: badgeThreshold,
+    activeModel: activeModel,
     galleryPublic: galleryRaw !== 'off',
     ready: !!folder && folder !== 'YOUR_FOLDER_ID_HERE' && assignments.length > 0 && Number.isInteger(limit) && limit > 0
   };
@@ -252,7 +258,8 @@ function getPublicConfig() {
     maxBytes: MAX_BYTES_,
     aiEnabled: c.hasAi,
     badgeApproval: c.badgeApproval,
-    badgeThreshold: BADGE_THRESHOLD_,
+    badgeThreshold: c.badgeThreshold,
+    activeModel: c.activeModel,
     galleryPublic: c.galleryPublic
   };
 }
@@ -310,9 +317,23 @@ function updateSettings(data) {
     if (['auto', 'teacher'].indexOf(data.badgeApproval) < 0) throw new Error('胸章發放模式只能是 auto 或 teacher。');
     writeSetting_('BADGE_APPROVAL', data.badgeApproval);
   }
+  if (data.badgeThreshold !== undefined && data.badgeThreshold !== '') {
+    var th = Number(data.badgeThreshold);
+    if (!isFinite(th) || th < 50 || th > 100) throw new Error('胸章分數標準請設定在 50 到 100 分之間。');
+    writeSetting_('BADGE_THRESHOLD', String(Math.round(th)));
+  }
+  if (data.activeModel !== undefined && String(data.activeModel || '').trim()) {
+    writeSetting_('ACTIVE_MODEL', String(data.activeModel).trim());
+  }
   if (data.galleryPublic !== undefined) writeSetting_('GALLERY_PUBLIC', data.galleryPublic ? 'on' : 'off');
   var c = config_();
-  return { success: true, badgeApproval: c.badgeApproval, galleryPublic: c.galleryPublic };
+  return {
+    success: true,
+    badgeApproval: c.badgeApproval,
+    badgeThreshold: c.badgeThreshold,
+    activeModel: c.activeModel,
+    galleryPublic: c.galleryPublic
+  };
 }
 
 function changeAdminPassword(data) {
@@ -343,30 +364,33 @@ function testGeminiApiKey(data) {
 }
 
 // ==============================================
-// Gemini 模型探索
+// Gemini 模型探索（預設優先使用高階 gemini-2.5-pro）
 // ==============================================
 function getSupportedGeminiModels_(apiKey) {
   var s = readSheetSettings_();
-  var preferred = String(s.ACTIVE_MODEL || props_().getProperty('ACTIVE_MODEL') || '').trim();
+  var preferred = String(s.ACTIVE_MODEL || props_().getProperty('ACTIVE_MODEL') || 'gemini-2.5-pro').trim();
   var list = [];
   try {
     var resp = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + apiKey,
       { method: 'get', muteHttpExceptions: true });
     if (resp.getResponseCode() === 200) {
       var models = (JSON.parse(resp.getContentText()).models || []);
-      var flash = [], other = [];
+      var pro = [], flash = [], other = [];
       models.forEach(function(m) {
         if ((m.supportedGenerationMethods || []).indexOf('generateContent') < 0) return;
         var name = m.name.replace(/^models\//, '');
-        (/flash/i.test(name) ? flash : other).push(name);
+        if (/pro/i.test(name)) pro.push(name);
+        else if (/flash/i.test(name)) flash.push(name);
+        else other.push(name);
       });
+      pro.sort().reverse();
       flash.sort().reverse();
-      list = flash.concat(other);
+      list = pro.concat(flash).concat(other);
     }
   } catch (e) {
     console.warn('ListModels failed, using fallback list: ' + e.message);
   }
-  if (!list.length) list = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  if (!list.length) list = ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'];
   if (preferred) list = [preferred].concat(list.filter(function(m) { return m !== preferred; }));
   return list.slice(0, 6);
 }
@@ -501,6 +525,38 @@ function formatAllSheets(data) {
   var mainSh = mainSheet_();
   var setSh = settingsSheet_(ss);
   var galSh = gallerySheet_();
+
+  // 同步補齊最新系統設定項目與說明
+  try {
+    var rows = setSh.getDataRange().getValues();
+    var existingIdx = {};
+    for (var i = 1; i < rows.length; i++) {
+      var k = String(rows[i][0] || '').trim();
+      if (k) existingIdx[k] = i;
+    }
+    SETTINGS_DEFAULTS_.forEach(function(item) {
+      var key = item[0], defVal = item[1], desc = item[2];
+      if (existingIdx[key] !== undefined) {
+        var rIdx = existingIdx[key];
+        setSh.getRange(rIdx + 1, 3).setValue(desc);
+        if (data && data.upgradeDefaults) {
+          if (key === 'ACTIVE_MODEL' && String(rows[rIdx][1] || '').trim() === 'gemini-2.5-flash') {
+            setSh.getRange(rIdx + 1, 2).setValue('gemini-2.5-pro');
+            props_().setProperty('ACTIVE_MODEL', 'gemini-2.5-pro');
+          }
+          if (key === 'BADGE_APPROVAL') {
+            setSh.getRange(rIdx + 1, 2).setValue('teacher');
+            props_().setProperty('BADGE_APPROVAL', 'teacher');
+          }
+        }
+      } else {
+        setSh.appendRow([key, defVal, desc]);
+      }
+    });
+  } catch (e) {
+    console.warn('Settings sync in formatAllSheets skipped: ' + e.message);
+  }
+
   applyColumnWidths_(mainSh, MAIN_COL_WIDTHS_);
   applyColumnWidths_(setSh, SETTINGS_COL_WIDTHS_);
   applyColumnWidths_(galSh, GALLERY_COL_WIDTHS_);
@@ -791,7 +847,6 @@ function analyzeSubmission_(base64Data, mimeType, consent, ctx) {
       if (!raw) continue;
       var parsed = parseModelJson_(raw);
       if (parsed && (parsed.topic || parsed.summary)) {
-        writeSetting_('ACTIVE_MODEL', model);
         return normalizeAnalysis_(parsed, ctx.artTheme);
       }
     } catch (err) {
@@ -801,8 +856,9 @@ function analyzeSubmission_(base64Data, mimeType, consent, ctx) {
   return unavailableAnalysis_('檔案已收件，但 AI 服務未完成分析；請由教師檢視。');
 }
 
-function badgeEligible_(kind, score) {
-  return (kind === 'note' || kind === 'art') && typeof score === 'number' && score >= BADGE_THRESHOLD_;
+function badgeEligible_(kind, score, threshold) {
+  var th = typeof threshold === 'number' && isFinite(threshold) ? threshold : BADGE_THRESHOLD_;
+  return (kind === 'note' || kind === 'art') && typeof score === 'number' && score >= th;
 }
 
 // ==============================================
@@ -850,7 +906,7 @@ function uploadSubmission(data) {
     // (3) AI 分析（無鎖平行）
     var ai = analyzeSubmission_(data.fileData, data.mimeType, data.anonymousDocumentConsent === true,
       { assignment: v.assignment, artTheme: v.artTheme, studentNote: v.studentNote });
-    var badge = badgeEligible_(ai.kind, ai.score) ? '可製作' : '未達標';
+    var badge = badgeEligible_(ai.kind, ai.score, c.badgeThreshold) ? '可製作' : '未達標';
 
     // (4) 寫入總表
     try {
@@ -923,7 +979,10 @@ function saveBadge(data) {
     var idx = findRowByReceipt_(rows, receipt);
     if (idx < 0) throw new Error('找不到這張收據對應的作品。');
     var rec = rowToRecord_(rows[idx]);
-    if (!badgeEligible_(kindKey_(rec.kind), rec.score)) throw new Error('這件作品尚未達到 ' + BADGE_THRESHOLD_ + ' 分，無法製作胸章。');
+    var teacherUnlocked = rec.badge === '可製作' || rec.badge === '待審核' || rec.badge === '已發放';
+    if (!badgeEligible_(kindKey_(rec.kind), rec.score, c.badgeThreshold) && !teacherUnlocked) {
+      throw new Error('這件作品尚未達到 ' + c.badgeThreshold + ' 分標準，無法製作胸章。');
+    }
     if (rec.badge === '已駁回') throw new Error('老師已駁回這件作品的胸章，請查看教師評語後重新挑戰。');
 
     var root = DriveApp.getFolderById(c.folder);
@@ -1060,16 +1119,18 @@ function getAdminOverview(data) {
   var pending = submissions.filter(function(r) { return r.badge === '待審核'; });
   return {
     success: true, hasAi: c.hasAi, assignments: c.assignments, badgeApproval: c.badgeApproval,
+    badgeThreshold: c.badgeThreshold, activeModel: c.activeModel,
     galleryPublic: c.galleryPublic, sheetUrl: ss.getUrl(), settingsSheetUrl: settingsSheetUrl,
     submissions: submissions, pendingBadges: pending.length
   };
 }
 
-/** 教師審核：更新審核狀態、教師評語、胸章核准／駁回 */
+/** 教師審核：更新審核狀態、教師評語、導師調整分數、胸章核准／駁回 */
 function reviewSubmission(data) {
   verifyAdmin(data);
   var receipt = String(data.receipt || '').trim();
   if (!UUID_RE_.test(receipt)) throw new Error('收據格式不正確。');
+  var c = config_();
   var sheet = mainSheet_();
   var rows = sheet.getDataRange().getValues();
   var idx = findRowByReceipt_(rows, receipt);
@@ -1080,20 +1141,38 @@ function reviewSubmission(data) {
     if (comment.length > 500) throw new Error('教師評語請在 500 字以內。');
     setCell_(sheet, idx, COL_.teacherComment, sanitizeFormula_(comment));
   }
+  var badge = String(rows[idx][COL_.badge] || '');
+  var currentScore = rows[idx][COL_.score];
+  if (data.teacherScore !== undefined && data.teacherScore !== '' && data.teacherScore !== null) {
+    var ts = Number(data.teacherScore);
+    if (!isFinite(ts) || ts < 0 || ts > 100) throw new Error('導師調整分數請輸入 0 到 100 之間的數字。');
+    currentScore = Math.round(ts);
+    setCell_(sheet, idx, COL_.score, currentScore);
+    if (currentScore >= c.badgeThreshold && (badge === '未達標' || !badge)) {
+      badge = '可製作';
+      setCell_(sheet, idx, COL_.badge, badge);
+    } else if (currentScore < c.badgeThreshold && badge === '可製作') {
+      badge = '未達標';
+      setCell_(sheet, idx, COL_.badge, badge);
+    }
+  }
   var review = String(data.review || '').trim();
   if (review) {
     if (['待教師審查', '已審查核准', '請學生修正'].indexOf(review) < 0) throw new Error('審核狀態不正確。');
     setCell_(sheet, idx, COL_.review, review);
   }
   var decision = String(data.badgeDecision || '').trim();
-  var badge = String(rows[idx][COL_.badge] || '');
   if (decision) {
     if (decision === 'approve') {
-      if (['待審核', '已駁回'].indexOf(badge) < 0) throw new Error('這筆作品目前沒有待審核的胸章。');
-      if (!rows[idx][COL_.badgeFileId]) throw new Error('學生尚未製作胸章。');
-      badge = '已發放';
+      if (['待審核', '已駁回', '可製作', '未達標'].indexOf(badge) < 0) throw new Error('這筆作品目前沒有待審核的胸章。');
+      if (!rows[idx][COL_.badgeFileId]) {
+        if (badge === '待審核' || badge === '已駁回') throw new Error('學生尚未製作胸章。');
+        badge = '可製作';
+      } else {
+        badge = '已發放';
+      }
     } else if (decision === 'reject') {
-      if (['待審核', '已發放'].indexOf(badge) < 0) throw new Error('這筆作品目前沒有可駁回的胸章。');
+      if (['待審核', '已發放', '可製作'].indexOf(badge) < 0) throw new Error('這筆作品目前沒有可駁回的胸章。');
       badge = '已駁回';
     } else {
       throw new Error('胸章審核指令不正確。');
@@ -1101,7 +1180,7 @@ function reviewSubmission(data) {
     setCell_(sheet, idx, COL_.badge, badge);
     setGalleryStatus_(receipt, badge);
   }
-  return { success: true, receipt: receipt, badge: badge };
+  return { success: true, receipt: receipt, badge: badge, score: currentScore };
 }
 
 /** 評審展示：注入含「同一位學生多次成長」的示範資料 */
