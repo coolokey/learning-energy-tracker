@@ -139,9 +139,9 @@
   .preview-meta div:first-child { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pre-crop-box { border: 1.5px solid #24654d; border-radius: 14px; background: #f7f9f2; padding: 12px; text-align: center; }
   .pre-crop-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12.5px; }
-  .pre-crop-view { position: relative; width: 280px; height: 280px; max-width: 100%; margin: 0 auto; overflow: hidden; border-radius: 14px; background: #0f211c; border: 2px solid rgba(36, 101, 77, .5); touch-action: none; user-select: none; cursor: move; }
-  .pre-crop-view img { position: absolute; left: 0; top: 0; max-width: none; transform-origin: center center; pointer-events: none; }
-  .pre-crop-mask { position: absolute; inset: 22px; border-radius: 50%; box-shadow: 0 0 0 240px rgba(15, 33, 28, .84); border: 2.5px solid #34d399; pointer-events: none; }
+  .pre-crop-view { position: relative; box-sizing: content-box; width: 280px; height: 280px; max-width: 100%; margin: 0 auto; overflow: hidden; border-radius: 14px; background: #f3f5ee; border: 2px solid rgba(36, 101, 77, .45); touch-action: none; user-select: none; cursor: move; }
+  .pre-crop-view img { position: absolute; left: 0; top: 0; max-width: none; transform-origin: center center; pointer-events: none; display: block; }
+  .pre-crop-mask { position: absolute; inset: 22px; border-radius: 50%; box-shadow: 0 0 0 240px rgba(23, 62, 53, .52); border: 2.5px solid #34d399; pointer-events: none; }
   .pre-crop-mask::before { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(52, 211, 153, .28); }
   .pre-crop-mask::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(52, 211, 153, .28); }
   .pre-crop-badge-tag { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-family: var(--tech); font-size: 10px; color: #6ee7b7; background: rgba(9, 21, 18, .85); padding: 2px 9px; border-radius: 999px; border: 1px solid rgba(52, 211, 153, .35); pointer-events: none; }
@@ -1164,19 +1164,38 @@ function setPreZoom(val) {
 function renderPreCroppedImage() {
   const img = $('pre-crop-img');
   if (!img || !img.complete || !img.naturalWidth || !state.preCrop.active) return null;
+  const pc = state.preCrop;
+  const box = 280;
+  const initX = (box - pc.baseW) / 2;
+  const initY = (box - pc.baseH) / 2;
+  // 若使用者未縮放也未移動畫面，直接使用原始圖片，不額外裁切
+  if (Math.abs(pc.scale - 1) < 0.01 && Math.abs(pc.x - initX) < 1.5 && Math.abs(pc.y - initY) < 1.5) {
+    return null;
+  }
+
   const S = 900;
   const c = document.createElement('canvas'); c.width = S; c.height = S;
   const ctx = c.getContext('2d');
-  ctx.fillStyle = state.submitMode === 'art' ? '#173e35' : '#fffdf7';
+  // 底色使用柔和紙白與原圖柔焦延伸，絕不產生黑邊或深綠黑框
+  ctx.fillStyle = '#fffdf7';
   ctx.fillRect(0, 0, S, S);
-  const ratio = S / 280;
-  const pc = state.preCrop;
+  try {
+    ctx.save();
+    ctx.filter = 'blur(22px)';
+    ctx.drawImage(img, -40, -40, S + 80, S + 80);
+    ctx.restore();
+  } catch (_) {}
+
+  const isArt = state.submitMode === 'art';
+  const inset = isArt ? 22 : 0;
+  const viewSize = box - inset * 2;
+  const ratio = S / viewSize;
   const w = pc.baseW * pc.scale;
   const h = pc.baseH * pc.scale;
-  const cx = pc.x - (w - pc.baseW) / 2;
-  const cy = pc.y - (h - pc.baseH) / 2;
+  const cx = pc.x - (w - pc.baseW) / 2 - inset;
+  const cy = pc.y - (h - pc.baseH) / 2 - inset;
   ctx.drawImage(img, cx * ratio, cy * ratio, w * ratio, h * ratio);
-  const dataUrl = c.toDataURL('image/jpeg', 0.88);
+  const dataUrl = c.toDataURL('image/jpeg', 0.90);
   const base64 = dataUrl.split(',')[1];
   return { dataUrl, base64, mimeType: 'image/jpeg', size: Math.round(base64.length * 0.75) };
 }
