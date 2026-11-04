@@ -137,6 +137,21 @@
   .preview .pdf-icon { width: 64px; height: 64px; border-radius: 8px; background: #fdecec; color: var(--rose); display: grid; place-items: center; font-weight: 900; font-family: var(--tech); font-size: 13px; }
   .preview-meta { flex: 1; min-width: 0; font-size: 13px; }
   .preview-meta div:first-child { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pre-crop-box { border: 1.5px solid #24654d; border-radius: 14px; background: #f7f9f2; padding: 12px; text-align: center; }
+  .pre-crop-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12.5px; }
+  .pre-crop-view { position: relative; width: 280px; height: 280px; max-width: 100%; margin: 0 auto; overflow: hidden; border-radius: 14px; background: #0f211c; border: 2px solid rgba(36, 101, 77, .5); touch-action: none; user-select: none; cursor: move; }
+  .pre-crop-view img { position: absolute; left: 0; top: 0; max-width: none; transform-origin: center center; pointer-events: none; }
+  .pre-crop-mask { position: absolute; inset: 22px; border-radius: 50%; box-shadow: 0 0 0 240px rgba(15, 33, 28, .84); border: 2.5px solid #34d399; pointer-events: none; }
+  .pre-crop-mask::before { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(52, 211, 153, .28); }
+  .pre-crop-mask::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(52, 211, 153, .28); }
+  .pre-crop-badge-tag { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-family: var(--tech); font-size: 10px; color: #6ee7b7; background: rgba(9, 21, 18, .85); padding: 2px 9px; border-radius: 999px; border: 1px solid rgba(52, 211, 153, .35); pointer-events: none; }
+  .pre-zoom-bar { max-width: 280px; margin: 10px auto 0; }
+  .pre-zoom-labels { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .pre-zoom-labels b { font-family: var(--tech); color: var(--forest); }
+  .pre-zoom-ctrl { display: flex; align-items: center; gap: 6px; }
+  .pre-zoom-ctrl input { flex: 1; accent-color: var(--forest); cursor: pointer; }
+  .pre-zoom-btn { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: #fff; font-weight: 900; font-size: 15px; line-height: 1; color: var(--ink); display: grid; place-items: center; }
+  .pre-zoom-btn:hover { background: #eff3e7; }
   details.art-opt { border: 1px solid var(--line); border-radius: 12px; background: #fcfcf7; margin-bottom: 14px; }
   details.art-opt.art-highlight { border-color: #f5cf95; background: #fffdf8; }
   details.art-opt summary { cursor: pointer; padding: 11px 14px; font-weight: 700; font-size: 13px; list-style: none; display: flex; justify-content: space-between; gap: 8px; }
@@ -376,6 +391,29 @@
                 <div id="preview-pdf" class="pdf-icon hidden">PDF</div>
                 <div class="preview-meta"><div id="preview-name">-</div><div id="preview-size" class="muted small">-</div></div>
                 <button type="button" class="btn btn-sm" id="btn-reselect">更換</button>
+              </div>
+              <!-- 上傳後直接放大縮小與圓形取景（與上一版取景器一致） -->
+              <div id="pre-crop-box" class="pre-crop-box hidden">
+                <div class="pre-crop-head">
+                  <div><strong id="pre-crop-title">58mm 胸章取景與放大縮小</strong><div id="pre-crop-meta" class="small muted">拖曳移動畫面、拉動拉桿或滾輪放大縮小</div></div>
+                  <button type="button" class="btn btn-sm" id="btn-pre-reselect">更換圖檔</button>
+                </div>
+                <div id="pre-crop-view" class="pre-crop-view">
+                  <img id="pre-crop-img" alt="待取景作品">
+                  <div class="pre-crop-mask"><span class="pre-crop-badge-tag">58mm BADGE</span></div>
+                </div>
+                <div class="pre-zoom-bar">
+                  <div class="pre-zoom-labels">
+                    <span>🔍－ 縮小</span>
+                    <b id="pre-zoom-val">100%</b>
+                    <span>放大 ＋🔍</span>
+                  </div>
+                  <div class="pre-zoom-ctrl">
+                    <button type="button" class="pre-zoom-btn" id="btn-zoom-out" aria-label="縮小">－</button>
+                    <input id="pre-zoom" type="range" min="0.4" max="3" step="0.05" value="1">
+                    <button type="button" class="pre-zoom-btn" id="btn-zoom-in" aria-label="放大">＋</button>
+                  </div>
+                </div>
               </div>
             </div>
             <details class="art-opt hidden" id="art-opt">
@@ -746,6 +784,7 @@ const state = {
   current: null,       // { receipt, student, assignment, studentNote, ai, badge, badgeUrl, previewUrl, badgePng }
   overlayMode: 'thirds',
   badgeSrc: 'crop',
+  preCrop: { baseW: 280, baseH: 280, x: 0, y: 0, scale: 1, drag: false, sx: 0, sy: 0, ix: 0, iy: 0, pinch: null, pScale: 1, active: false },
   crop: { baseW: 280, baseH: 280, x: 0, y: 0, scale: 1, drag: false, sx: 0, sy: 0, ix: 0, iy: 0, pinch: null, pScale: 1 },
   adminPwd: '',
   adminOverview: null,
@@ -1365,27 +1404,96 @@ async function compressFile(file) {
   });
 }
 
+function initPreCrop(src) {
+  const img = $('pre-crop-img');
+  img.onload = () => {
+    const box = 280;
+    const r = img.naturalWidth / img.naturalHeight;
+    let bw, bh;
+    if (r >= 1) { bh = box; bw = box * r; }
+    else { bw = box; bh = box / r; }
+    state.preCrop = {
+      baseW: bw, baseH: bh,
+      x: (box - bw) / 2, y: (box - bh) / 2,
+      scale: 1, drag: false, sx: 0, sy: 0, ix: 0, iy: 0, pinch: null, pScale: 1, active: true
+    };
+    $('pre-zoom').value = 1;
+    $('pre-zoom-val').textContent = '100%';
+    applyPreCropTransform();
+  };
+  img.src = src;
+}
+
+function applyPreCropTransform() {
+  const img = $('pre-crop-img');
+  const pc = state.preCrop;
+  const w = pc.baseW * pc.scale;
+  const h = pc.baseH * pc.scale;
+  const cx = pc.x - (w - pc.baseW) / 2;
+  const cy = pc.y - (h - pc.baseH) / 2;
+  img.style.width = w + 'px';
+  img.style.height = h + 'px';
+  img.style.left = cx + 'px';
+  img.style.top = cy + 'px';
+}
+
+function setPreZoom(val) {
+  const next = Math.min(3, Math.max(0.4, Number(Number(val).toFixed(2))));
+  state.preCrop.scale = next;
+  $('pre-zoom').value = next;
+  $('pre-zoom-val').textContent = Math.round(next * 100) + '%';
+  applyPreCropTransform();
+}
+
+function renderPreCroppedImage() {
+  const img = $('pre-crop-img');
+  if (!img || !img.complete || !img.naturalWidth || !state.preCrop.active) return null;
+  const S = 900;
+  const c = document.createElement('canvas'); c.width = S; c.height = S;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = state.submitMode === 'art' ? '#173e35' : '#fffdf7';
+  ctx.fillRect(0, 0, S, S);
+  const ratio = S / 280;
+  const pc = state.preCrop;
+  const w = pc.baseW * pc.scale;
+  const h = pc.baseH * pc.scale;
+  const cx = pc.x - (w - pc.baseW) / 2;
+  const cy = pc.y - (h - pc.baseH) / 2;
+  ctx.drawImage(img, cx * ratio, cy * ratio, w * ratio, h * ratio);
+  const dataUrl = c.toDataURL('image/jpeg', 0.88);
+  const base64 = dataUrl.split(',')[1];
+  return { dataUrl, base64, mimeType: 'image/jpeg', size: Math.round(base64.length * 0.75) };
+}
+
 function showSelectedFile(f) {
   state.file = f;
   $('drop').classList.add('hidden');
-  $('preview').classList.remove('hidden');
-  $('preview-name').textContent = f.name;
-  $('preview-size').textContent = `${Math.max(1, Math.round(f.size / 1024))} KB`;
   if (f.mimeType === 'application/pdf') {
+    state.preCrop.active = false;
+    $('pre-crop-box').classList.add('hidden');
+    $('preview').classList.remove('hidden');
+    $('preview-name').textContent = f.name;
+    $('preview-size').textContent = `${Math.max(1, Math.round(f.size / 1024))} KB`;
     $('preview-img').classList.add('hidden');
     $('preview-pdf').classList.remove('hidden');
   } else {
-    $('preview-pdf').classList.add('hidden');
-    $('preview-img').classList.remove('hidden');
-    $('preview-img').src = f.dataUrl;
+    $('preview').classList.add('hidden');
+    $('pre-crop-box').classList.remove('hidden');
+    const isArt = state.submitMode === 'art';
+    $('pre-crop-title').textContent = isArt ? '58mm 胸章取景與放大縮小' : '作品圖片預覽與放大縮小';
+    $('pre-crop-view').querySelector('.pre-crop-mask').classList.toggle('hidden', !isArt);
+    $('pre-crop-meta').textContent = `${f.name}（${Math.max(1, Math.round(f.size / 1024))} KB）`;
+    initPreCrop(f.dataUrl);
   }
 }
 
 function clearSelectedFile() {
   state.file = null;
   state.demoPreset = null;
+  state.preCrop.active = false;
   $('f-file').value = '';
   $('preview').classList.add('hidden');
+  $('pre-crop-box').classList.add('hidden');
   $('drop').classList.remove('hidden');
 }
 
@@ -1482,14 +1590,23 @@ async function submitForm(e) {
     studentNote = $('f-note').value.trim();
   }
 
+  // 若為圖片且使用者已在預覽框放大縮小或移動取景，將取景後的畫面輸出送審
+  let activeFile = state.file;
+  if (state.file.mimeType !== 'application/pdf' && state.preCrop.active) {
+    const framed = renderPreCroppedImage();
+    if (framed) {
+      activeFile = { ...state.file, ...framed };
+    }
+  }
+
   // 切換到掃描動畫
-  if (state.file.mimeType === 'application/pdf') {
+  if (activeFile.mimeType === 'application/pdf') {
     $('scan-img').classList.add('hidden');
     $('scan-pdf').classList.remove('hidden');
   } else {
     $('scan-pdf').classList.add('hidden');
     $('scan-img').classList.remove('hidden');
-    $('scan-img').src = state.file.dataUrl;
+    $('scan-img').src = activeFile.dataUrl;
   }
   switchView('scan');
 
@@ -1512,8 +1629,8 @@ async function submitForm(e) {
       requestId: reqId,
       className, seat, name, assignment,
       artTheme, studentNote,
-      mimeType: state.file.mimeType,
-      fileData: state.file.base64,
+      mimeType: activeFile.mimeType,
+      fileData: activeFile.base64,
       anonymousDocumentConsent: $('f-consent').checked
     });
     clearInterval(timer);
@@ -1523,7 +1640,7 @@ async function submitForm(e) {
       student: { className, seat: ('0' + Number(seat)).slice(-2), name },
       assignment, studentNote,
       ai: res.ai, badge: res.badge, badgeApproval: res.badgeApproval || state.cfg.badgeApproval,
-      previewUrl: state.file.dataUrl
+      previewUrl: activeFile.dataUrl
     };
     showResult();
   } catch (err) {
@@ -2232,6 +2349,10 @@ function setSubmitMode(mode) {
   $('art-opt').classList.toggle('art-highlight', isArt);
   $('art-opt').open = isArt;
   $('btn-submit').textContent = isArt ? '開始 AI 胸章美感評分' : '送出作品並開始 AI 評分';
+  if ($('pre-crop-title')) {
+    $('pre-crop-title').textContent = isArt ? '58mm 胸章取景與放大縮小' : '作品圖片預覽與放大縮小';
+    $('pre-crop-view').querySelector('.pre-crop-mask').classList.toggle('hidden', !isArt);
+  }
 
   // 自動對應作業項目下拉選單
   const assigns = state.cfg.assignments || [];
@@ -2372,6 +2493,49 @@ $('btn-open-admin').addEventListener('click', openAdmin);
 $('btn-close-admin').addEventListener('click', closeAdmin);
 $('form').addEventListener('submit', submitForm);
 $('btn-reselect').addEventListener('click', clearSelectedFile);
+$('btn-pre-reselect').addEventListener('click', clearSelectedFile);
+$('pre-zoom').addEventListener('input', e => setPreZoom(e.target.value));
+$('btn-zoom-out').addEventListener('click', () => setPreZoom(state.preCrop.scale - 0.1));
+$('btn-zoom-in').addEventListener('click', () => setPreZoom(state.preCrop.scale + 0.1));
+
+const preCropView = $('pre-crop-view');
+function startPreCropDrag(e) {
+  if (e.touches && e.touches.length === 2) {
+    state.preCrop.drag = false;
+    state.preCrop.pinch = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    state.preCrop.pScale = state.preCrop.scale;
+    return;
+  }
+  e.preventDefault();
+  const pt = e.touches ? e.touches[0] : e;
+  state.preCrop.drag = true; state.preCrop.sx = pt.clientX; state.preCrop.sy = pt.clientY;
+  state.preCrop.ix = state.preCrop.x; state.preCrop.iy = state.preCrop.y;
+}
+function movePreCropDrag(e) {
+  if (e.touches && e.touches.length === 2 && state.preCrop.pinch) {
+    e.preventDefault();
+    const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    setPreZoom(state.preCrop.pScale * (d / state.preCrop.pinch));
+    return;
+  }
+  if (!state.preCrop.drag) return;
+  e.preventDefault();
+  const pt = e.touches ? e.touches[0] : e;
+  state.preCrop.x = state.preCrop.ix + (pt.clientX - state.preCrop.sx);
+  state.preCrop.y = state.preCrop.iy + (pt.clientY - state.preCrop.sy);
+  applyPreCropTransform();
+}
+function endPreCropDrag() { state.preCrop.drag = false; state.preCrop.pinch = null; }
+preCropView.addEventListener('mousedown', startPreCropDrag);
+preCropView.addEventListener('touchstart', startPreCropDrag, { passive: false });
+preCropView.addEventListener('wheel', e => {
+  e.preventDefault();
+  setPreZoom(state.preCrop.scale + (e.deltaY < 0 ? 0.08 : -0.08));
+}, { passive: false });
+window.addEventListener('mousemove', movePreCropDrag);
+window.addEventListener('touchmove', movePreCropDrag, { passive: false });
+window.addEventListener('mouseup', endPreCropDrag);
+window.addEventListener('touchend', endPreCropDrag);
 
 $('f-file').addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0];
@@ -2482,6 +2646,14 @@ function moveCropDrag(e) {
 function endCropDrag() { state.crop.drag = false; state.crop.pinch = null; }
 cropBox.addEventListener('mousedown', startCropDrag);
 cropBox.addEventListener('touchstart', startCropDrag, { passive: false });
+cropBox.addEventListener('wheel', e => {
+  e.preventDefault();
+  const next = Math.min(3, Math.max(0.4, Number((state.crop.scale + (e.deltaY < 0 ? 0.08 : -0.08)).toFixed(2))));
+  state.crop.scale = next;
+  $('crop-zoom').value = next;
+  $('crop-zoom-val').textContent = Math.round(next * 100) + '%';
+  applyCropTransform();
+}, { passive: false });
 window.addEventListener('mousemove', moveCropDrag);
 window.addEventListener('touchmove', moveCropDrag, { passive: false });
 window.addEventListener('mouseup', endCropDrag);
