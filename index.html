@@ -426,7 +426,7 @@
               </div>
             </div>
             <details class="art-opt hidden" id="art-opt">
-              <summary id="art-opt-summary">🎨 胸章與藝術創作主題（30 大主題＋創作自述引導）</summary>
+              <summary id="art-opt-summary">🎨 藝術創作主題與自述（38 大主題・含人物肖像＋創作理念引導）</summary>
               <div class="art-body">
                 <p class="small muted" style="margin:0 0 6px">選一個主題，AI 會依主題語意（35%）、結構重心、色彩、光影、筆觸進行五維評分；文不對題會得到 10–30 分。</p>
                 <div id="theme-cats" class="theme-cats" role="group" aria-label="主題分類篩選"></div>
@@ -715,7 +715,8 @@ const isNativeGas = !!(window.google && window.google.script && window.google.sc
 const GAS_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyaGok5hmsET-nITUopgK1W97JTMf0czfVc2KUOA7D2Xrmr24vIPBGLpiNY0L0grspO/exec';
 
 const THEME_CATS = [
-  ['all', '全部主題 (30)'],
+  ['all', '全部主題 (38)'],
+  ['person', '人物與肖像 (8)'],
   ['char', '角色與奇幻'],
   ['world', '風景與科幻'],
   ['local', '大溪在地與文化'],
@@ -724,6 +725,15 @@ const THEME_CATS = [
 ];
 
 const THEMES = [
+  // 人物與肖像
+  ['人物肖像與五官神韻', '五官比例・眼神光影', 'person', '我仔細觀察人物的五官比例、眼鏡或髮絲細節，透過柔和的光影層次表現溫潤神韻與立體感。'],
+  ['自畫像與自我探索', '個人特徵・內心投射', 'person', '透過觀察鏡中的自己，描繪最具代表性的神情、髮型與服裝，傳達我當下的心情與個性。'],
+  ['情緒臉譜與微表情', '喜怒哀樂・眉眼張力', 'person', '聚焦在人物的眼神、眉頭與嘴角變化，用強烈的光影或色彩對比表現深刻的情緒張力。'],
+  ['職人身影與專注瞬間', '手部動作・專業神態', 'person', '描繪投入工作或學習的專注神情與手部動態，展現職人的專業魅力與生命力。'],
+  ['運動員與肢體律動', '肌肉線條・動感瞬間', 'person', '捕捉人物奔跑、跳躍或舞蹈時的身體律動與重心變化，展現力與美的瞬間。'],
+  ['家人師長與溫馨記憶', '互動神態・溫暖色調', 'person', '畫下陪伴我的家人、師長或好朋友，用溫暖的色調記錄彼此最珍貴的相處時刻。'],
+  ['3D立體與數位人像', '立體光感・材質細節', 'person', '運用細膩的明暗漸層與高光反射，塑造出具有 3D 立體感、膚質與五官精緻的人物頭像。'],
+  ['時尚穿搭與人物速寫', '身形比例・衣褶質感', 'person', '觀察全身人體比例與服裝皺褶線條，展現角色獨特的穿搭風格與自信姿態。'],
   // 角色與奇幻
   ['熱血動漫角色', '眼神張力・肢體動態', 'char', '我設計了一位眼神堅定的動漫主角，利用誇張的透視與動感線條呈現爆發力。'],
   ['奇幻生物與幻獸', '羽翼鱗甲・神話氣場', 'char', '我描繪守護森林的神話幻獸，結合發光羽翼與漸層鱗片，營造神祕氣場。'],
@@ -762,11 +772,12 @@ const THEMES = [
 ];
 
 const SELF_NOTE_PROMPTS = [
+  '人物神韻：我特別著重人物的眼神、表情與五官光影，想展現…',
   '主角與動作：我畫的主角是…，正在…',
   '配色巧思：我特別用了…色與…色對比，想表現…',
-  '圓形胸章構圖：為了放進圓形胸章，我把視覺重心放在…',
+  '構圖重心：我把畫面的視覺重心放在…，讓主體更突出',
   '大溪在地連結：這件作品靈感來自大溪的…',
-  '我想傳達的故事：看到這枚胸章的人會感受到…'
+  '我想傳達的故事：看到這幅作品的人會感受到…'
 ];
 
 const NOTE_META = [
@@ -2074,8 +2085,8 @@ function updateArtPurposeUI() {
   }
   if ($('art-opt-summary')) {
     $('art-opt-summary').textContent = isBadge
-      ? '🎨 胸章與藝術創作主題（30 大主題＋創作自述引導）'
-      : '🎨 藝術創作主題與自述（30 大主題＋創作理念引導）';
+      ? '🎨 胸章與藝術創作主題（38 大主題・含人物肖像＋創作自述引導）'
+      : '🎨 藝術創作主題與自述（38 大主題・含人物肖像＋創作理念引導）';
   }
   $('drop').classList.toggle('art-drop', isArt);
   $('art-opt').classList.toggle('hidden', !isArt);
