@@ -1131,6 +1131,7 @@ function getAdminOverview(data) {
     success: true, hasAi: c.hasAi, assignments: c.assignments, badgeApproval: c.badgeApproval,
     badgeThreshold: c.badgeThreshold, activeModel: c.activeModel,
     galleryPublic: c.galleryPublic, sheetUrl: ss.getUrl(), settingsSheetUrl: settingsSheetUrl,
+    folderUrl: 'https://drive.google.com/drive/folders/' + c.folder,
     submissions: submissions, pendingBadges: pending.length
   };
 }
@@ -1175,11 +1176,30 @@ function reviewSubmission(data) {
   if (decision) {
     if (decision === 'approve') {
       badge = '已發放';
-      if (!rows[idx][COL_.badgeUrl] && rows[idx][COL_.fileUrl]) {
-        setCell_(sheet, idx, COL_.badgeUrl, rows[idx][COL_.fileUrl]);
-      }
       var recForGal = rowToRecord_(rows[idx]);
       recForGal.score = currentScore;
+      if (!rows[idx][COL_.badgeFileId]) {
+        try {
+          var root = DriveApp.getFolderById(c.folder);
+          var origFolder = childFolder_(childFolder_(root, recForGal.assignment), recForGal.className);
+          var origIt = origFolder.getFilesByName(String(rows[idx][COL_.fileName] || ''));
+          if (origIt.hasNext()) {
+            var origFile = origIt.next();
+            var badgeFolder = childFolder_(childFolder_(root, '胸章成果庫'), recForGal.assignment || '未分類');
+            var bName = recForGal.className + '_' + recForGal.seat + '_' + recForGal.name + '_' + currentScore + '分_' + receipt.slice(0, 8) + '.jpg';
+            var origBlob = origFile.getBlob();
+            var copied = badgeFolder.createFile(Utilities.newBlob(origBlob.getBytes(), 'image/jpeg', bName));
+            setCell_(sheet, idx, COL_.badgeUrl, copied.getUrl());
+            setCell_(sheet, idx, COL_.badgeFileId, copied.getId());
+          } else if (rows[idx][COL_.fileUrl]) {
+            setCell_(sheet, idx, COL_.badgeUrl, rows[idx][COL_.fileUrl]);
+          }
+        } catch (copyErr) {
+          if (!rows[idx][COL_.badgeUrl] && rows[idx][COL_.fileUrl]) {
+            setCell_(sheet, idx, COL_.badgeUrl, rows[idx][COL_.fileUrl]);
+          }
+        }
+      }
       upsertGallery_(receipt, recForGal, '', '已發放');
     } else if (decision === 'reject') {
       badge = '已駁回';

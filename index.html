@@ -675,6 +675,7 @@
             <p class="small muted" style="margin-top:0">每一筆繳交都會即時寫入「學習能量軌跡AI彙整總表」，所有欄位已自動設定為最適欄寬。</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <a id="a-sheet-link" class="btn btn-sm" href="#" target="_blank" rel="noopener">開啟試算表</a>
+              <a id="a-folder-link" class="btn btn-sm" href="#" target="_blank" rel="noopener">開啟雲端收件與胸章資料夾</a>
               <button type="button" class="btn btn-sm" id="btn-format-sheet">一鍵重整最適欄寬</button>
             </div>
             <div id="sheet-msg" class="msg"></div>
@@ -1915,6 +1916,7 @@ async function loadAdminOverview() {
     fillSel('ex-assign', ov.assignments, '全部作業');
 
     $('a-sheet-link').href = ov.sheetUrl || '#';
+    if ($('a-folder-link')) $('a-folder-link').href = ov.folderUrl || '#';
     if ($('a-settings-sheet-link')) $('a-settings-sheet-link').href = ov.settingsSheetUrl || ov.sheetUrl || '#';
     document.querySelectorAll('input[name="s-approval"]').forEach(r => { r.checked = r.value === ov.badgeApproval; });
     if ($('s-threshold') && ov.badgeThreshold) $('s-threshold').value = ov.badgeThreshold;
@@ -1956,6 +1958,7 @@ function renderAdminSubmissions() {
         <span class="chip ${r.badge === '待審核' ? 'chip-gold' : ''}">胸章：${esc(r.badge)}</span>
         <span class="small muted" style="margin-left:auto">${esc(r.time)}</span>
         ${r.fileUrl && r.fileUrl !== '#demo' ? `<a class="btn btn-sm" href="${esc(r.fileUrl)}" target="_blank" rel="noopener">原始檔</a>` : ''}
+        ${r.badgeUrl && r.badgeUrl !== '#demo-badge' ? `<a class="btn btn-sm btn-gold" href="${esc(r.badgeUrl)}" target="_blank" rel="noopener">胸章檔</a>` : ''}
       </div>
       <div><b>${esc(r.topic)}</b> — <span class="muted">${esc(r.summary)}</span></div>
       <div class="small" style="color:var(--forest);margin-top:3px">AI 評語草稿：${esc(r.feedback)}</div>
