@@ -387,13 +387,40 @@
               <div class="field"><label for="f-seat">座號</label><input id="f-seat" type="number" inputmode="numeric" min="1" max="99" placeholder="3" required></div>
             </div>
             <div class="field"><label for="f-name">姓名</label><input id="f-name" type="text" maxlength="30" placeholder="請填完整姓名" autocomplete="name" required></div>
-            <div class="field"><label for="f-assignment">作業項目</label><select id="f-assignment" required><option value="">請選擇本次作業</option></select></div>
             <div class="field">
-              <span class="label" id="file-label">作品檔案（探究筆記、心智圖或學習單）</span>
+              <label for="f-assignment">作業項目</label>
+              <select id="f-assignment" required><option value="">請選擇本次作業</option></select>
+              <div id="assign-rubric-banner" class="notice warn hidden" style="margin-top:6px;padding:8px 12px;font-size:12.5px"></div>
+            </div>
+            <div id="note-subject-box" class="field">
+              <label for="f-subject">學科領域與 AI 專業評分視角</label>
+              <select id="f-subject">
+                <option value="general">🌟 跨領域自主學習／通用探究（五維探究素養）</option>
+                <option value="chinese">📘 國語文領域（閱讀心得・作文修辭・字音字形與錯別字診斷）</option>
+                <option value="english">🔤 英語文領域（短文寫作・單字句型・拼字與文法 Grammar 診斷）</option>
+                <option value="math">📐 數學領域（解題推理步驟・公式運用・算式正負號與計算診斷）</option>
+                <option value="science">🔬 自然科學領域（實驗假設與變因控制・數據圖表・科學概念診斷）</option>
+                <option value="social">🌏 社會領域（歷史脈絡・地理圖表・公民思辨與大溪在地踏查）</option>
+              </select>
+            </div>
+            <div id="art-medium-box" class="field hidden">
+              <label for="f-medium">視覺藝術創作媒材（AI 會依媒材特性調整評分標準）</label>
+              <select id="f-medium">
+                <option value="">🎨 自動辨識媒材（綜合美感規準）</option>
+                <option value="sketch">✏️ 鉛筆素描／水墨黑白（不扣色彩分，專評黑灰白色階與明暗調子）</option>
+                <option value="watercolor">💧 水彩／水墨渲染（著重水分控制、渲染漸層與留白巧思）</option>
+                <option value="colored_pencil">🖍️ 色鉛筆／粉彩蠟筆（著重疊色細膩度、筆觸方向與寒暖色調）</option>
+                <option value="marker">🖊️ 麥克筆／簽字筆插畫（著重線條俐落度、色塊平塗與對比張力）</option>
+                <option value="digital">💻 數位電繪／3D 與平板繪圖（著重光影氛圍、材質高光與完稿度）</option>
+                <option value="mixed">✂️ 複合媒材／海報拼貼設計（著重異材質結合、字體編排與創意）</option>
+              </select>
+            </div>
+            <div class="field">
+              <span class="label" id="file-label">作品檔案（支援單張或多頁照片自動拼接、PDF）</span>
               <div id="drop" class="drop">
                 <strong id="drop-title">點這裡拍照或選擇檔案上傳評分</strong>
-                <span id="drop-sub" class="small muted">支援 JPG、PNG 或 PDF，最大 10 MB</span>
-                <input id="f-file" type="file" accept="image/jpeg,image/png,application/pdf,.jpg,.jpeg,.png,.pdf" aria-labelledby="file-label">
+                <span id="drop-sub" class="small muted">支援同時選取 1～4 張照片（正反面／多頁學習單自動拼接）或 PDF，最大 10 MB</span>
+                <input id="f-file" type="file" multiple accept="image/jpeg,image/png,application/pdf,.jpg,.jpeg,.png,.pdf" aria-labelledby="file-label">
               </div>
               <div id="preview" class="preview hidden">
                 <img id="preview-img" alt="作品預覽">
@@ -439,6 +466,11 @@
                 </div>
               </div>
             </details>
+            <div class="self-check-box" style="background:#f6f8f3;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12.5px">
+              <div style="font-weight:700;color:var(--forest);margin-bottom:4px">✅ 繳交前自我檢核（勾選確認作品品質）：</div>
+              <label style="display:flex;gap:6px;align-items:center;margin:3px 0;cursor:pointer"><input type="checkbox" id="chk-clear" checked style="accent-color:var(--forest)"><span>畫面對焦清晰、光線充足不反光，文字／算式／畫作細節清楚可辨</span></label>
+              <label style="display:flex;gap:6px;align-items:center;margin:3px 0;cursor:pointer"><input type="checkbox" id="chk-complete" checked style="accent-color:var(--forest)"><span id="chk-complete-text">已完整呈現探究過程／解題步驟（非僅抄寫答案），並符合老師作業要求</span></label>
+            </div>
             <label class="consent"><input id="f-consent" type="checkbox" checked><span>我已移除作品中的姓名、班級、座號、人像等可識別資訊，並同意將作品傳送 Google Gemini 進行 AI 分析。</span></label>
             <p class="privacy">勾選為自願；不勾選仍可繳交，只是不會有 AI 回饋。系統不會自動遮蔽影像中的個資。班級座號姓名只用於校內收件，不會放進 AI 提示詞。</p>
             <button class="btn btn-primary btn-block" id="btn-submit" type="submit" style="padding:12px">送出作品並開始 AI 評分</button>
@@ -502,6 +534,7 @@
         <div class="radar-box"><canvas id="r-radar" width="280" height="250" aria-label="五維雷達圖"></canvas></div>
         <div id="r-bars" class="bars"></div>
         <div class="text-block tb-feedback"><h4>AI 評語草稿（老師確認後才算正式評語）</h4><div id="r-feedback"></div></div>
+        <div id="r-corrections-wrap" class="text-block hidden" style="background:#fff4e0;border-left:3px solid #d97706;border-radius:0 10px 10px 0"><h4>🔍 細節診斷與訂正建議（錯別字／文法／算式步驟／構圖細節）</h4><div id="r-corrections"></div></div>
         <div class="text-block tb-advice"><h4>下一步</h4><div id="r-advice"></div></div>
         <div style="margin-top:12px"><button type="button" class="btn btn-sm" id="btn-card">保存學習歷程卡</button></div>
       </div>
@@ -632,10 +665,10 @@
       </div>
 
       <div data-panel="assign" class="hidden">
-        <p class="small muted" style="margin-top:0">學生端的作業下拉選單會依這裡的順序顯示。</p>
+        <p class="small muted" style="margin-top:0">學生端的作業下拉選單會依這裡的順序顯示。您也可為每個作業設定<b>預設學科視角</b>與<b>作業要求／評分規準（Rubric）</b>，學生選擇該作業時會同步顯示要求，且 AI 會嚴格依您的要求給分與抓錯！</p>
         <div id="assign-list" class="assign-list"></div>
-        <div style="display:flex;gap:8px"><input id="assign-new" type="text" maxlength="60" placeholder="新增作業名稱"><button type="button" class="btn" id="btn-assign-add">新增</button></div>
-        <div style="margin-top:12px"><button type="button" class="btn btn-primary" id="btn-assign-save">儲存作業項目</button></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="assign-new" type="text" maxlength="60" placeholder="新增作業名稱（例如：七年級國文閱讀心得、數學一元一次方程式、水彩靜物寫生）" style="flex:1 1 260px"><button type="button" class="btn" id="btn-assign-add">新增作業</button></div>
+        <div style="margin-top:12px"><button type="button" class="btn btn-primary" id="btn-assign-save">儲存作業項目與評分規準</button></div>
         <div id="assign-msg" class="msg"></div>
       </div>
 
@@ -795,8 +828,17 @@ const ART_META = [
   ['detailScore', '筆觸質感 (15%)']
 ];
 
+const SUBJECT_META = {
+  general: NOTE_META,
+  chinese: [['focus', '立意題旨'], ['depth', '文本分析'], ['structure', '段落結構'], ['insight', '修辭思辨'], ['presentation', '字跡標點']],
+  english: [['focus', '主題切合'], ['depth', '句型文法'], ['structure', '篇章連貫'], ['insight', '詞彙表達'], ['presentation', '書寫版面']],
+  math: [['focus', '題意理解'], ['depth', '公式概念'], ['structure', '推理步驟'], ['insight', '驗算反思'], ['presentation', '算式作圖']],
+  science: [['focus', '假設聚焦'], ['depth', '變因控制'], ['structure', '數據圖表'], ['insight', '證據推論'], ['presentation', '科學繪圖']],
+  social: [['focus', '議題聚焦'], ['depth', '脈絡連結'], ['structure', '因果條理'], ['insight', '多元思辨'], ['presentation', '圖文整合']]
+};
+
 const state = {
-  cfg: { ready: true, assignments: ['自主學習探究', '藝術創作挑戰'], maxBytes: 10485760, aiEnabled: false, badgeApproval: 'auto', badgeThreshold: 85, galleryPublic: true },
+  cfg: { ready: true, assignments: ['自主學習探究', '藝術創作挑戰'], assignmentRules: {}, maxBytes: 10485760, aiEnabled: false, badgeApproval: 'auto', badgeThreshold: 85, galleryPublic: true },
   submitMode: 'note',  // 'note' | 'art'
   artPurpose: 'artwork', // 'artwork' (一般畫作) | 'badge' (58mm 胸章設計)
   themeCat: 'all',
@@ -809,7 +851,8 @@ const state = {
   crop: { baseW: 280, baseH: 280, x: 0, y: 0, scale: 1, drag: false, sx: 0, sy: 0, ix: 0, iy: 0, pinch: null, pScale: 1 },
   adminPwd: '',
   adminOverview: null,
-  adminAssign: []
+  adminAssign: [],
+  adminAssignRules: {}
 };
 
 function uuid() {
@@ -1110,9 +1153,59 @@ function renderOverlayCanvas() {
   img.src = cur.previewUrl;
 }
 
-// ==============================================
-// 檔案挑選、壓縮與三個範例產生器
-// ==============================================
+async function compressFiles(fileList) {
+  const files = Array.from(fileList || []).slice(0, 4);
+  if (!files.length) throw new Error('請選擇檔案。');
+  if (files.length === 1) return compressFile(files[0]);
+  if (files.some(f => f.type === 'application/pdf')) {
+    throw new Error('多頁自動拼接僅支援圖片檔（JPG／PNG）；若為 PDF 請單獨上傳一個檔案。');
+  }
+  const loadImg = f => new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(f);
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('圖片解析失敗：' + f.name)); };
+    img.src = url;
+  });
+  const imgs = await Promise.all(files.map(loadImg));
+  const targetW = 1400;
+  const gap = 16;
+  const scaled = imgs.map(im => {
+    const sc = Math.min(1, targetW / im.width);
+    return { im, w: Math.round(im.width * sc), h: Math.round(im.height * sc) };
+  });
+  const totalW = Math.max(...scaled.map(s => s.w));
+  const totalH = scaled.reduce((s, x) => s + x.h, 0) + gap * (scaled.length - 1);
+  const c = document.createElement('canvas');
+  c.width = totalW;
+  c.height = totalH;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fffdf7';
+  ctx.fillRect(0, 0, totalW, totalH);
+  let y = 0;
+  scaled.forEach((s, idx) => {
+    const x = Math.round((totalW - s.w) / 2);
+    ctx.drawImage(s.im, x, y, s.w, s.h);
+    if (idx < scaled.length - 1) {
+      ctx.strokeStyle = '#d4ded5';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, y + s.h + gap / 2);
+      ctx.lineTo(totalW, y + s.h + gap / 2);
+      ctx.stroke();
+    }
+    y += s.h + gap;
+  });
+  const dataUrl = c.toDataURL('image/jpeg', 0.84);
+  const base64 = dataUrl.split(',')[1];
+  return {
+    name: `${files[0].name} 等 ${files.length} 頁拼接`,
+    size: Math.round(base64.length * 0.75),
+    mimeType: 'image/jpeg',
+    base64,
+    dataUrl
+  };
+}
 async function compressFile(file) {
   if (file.type === 'application/pdf') {
     if (file.size > state.cfg.maxBytes) throw new Error('PDF 檔案超過 10 MB 上限。');
@@ -1187,6 +1280,7 @@ function setPreZoom(val) {
 }
 
 function renderPreCroppedImage() {
+  if (state.file && state.file.pageCount > 1) return null;
   const img = $('pre-crop-img');
   if (!img || !img.complete || !img.naturalWidth || !state.preCrop.active) return null;
   const pc = state.preCrop;
@@ -1269,13 +1363,20 @@ async function submitForm(e) {
   if (!/^\d{1,2}$/.test(seat) || Number(seat) < 1 || Number(seat) > 99) return setStatus('座號請填 1 到 99。', true);
   if (!assignment) return setStatus('請選擇作業項目。', true);
   if (!state.file) return setStatus('請先拍照或選擇作品檔案。', true);
+  if ($('chk-clear') && !$('chk-clear').checked) return setStatus('請先勾選「繳交前自我檢核：畫面清晰、沒有模糊或手震遮擋」。', true);
+  if ($('chk-complete') && !$('chk-complete').checked) return setStatus('請先勾選「繳交前自我檢核：確認已包含老師要求的完整內容」。', true);
 
   let artTheme = '';
   let studentNote = '';
+  let subject = '';
+  let artMedium = '';
   if (state.submitMode === 'art') {
     artTheme = state.selectedTheme;
     if (artTheme === '學生自訂主題') artTheme = $('f-custom-theme').value.trim() || '自由創作';
     studentNote = $('f-note').value.trim();
+    artMedium = $('f-medium') ? $('f-medium').value : '';
+  } else {
+    subject = $('f-subject') ? $('f-subject').value : 'general';
   }
 
   // 若為圖片且使用者已在預覽框放大縮小或移動取景，將取景後的畫面輸出送審
@@ -1317,6 +1418,7 @@ async function submitForm(e) {
       requestId: reqId,
       className, seat, name, assignment,
       artTheme, studentNote,
+      subject, artMedium,
       wantBadge: state.submitMode === 'art' && state.artPurpose === 'badge',
       mimeType: activeFile.mimeType,
       fileData: activeFile.base64,
@@ -1327,7 +1429,7 @@ async function submitForm(e) {
     state.current = {
       receipt: res.receipt,
       student: { className, seat: ('0' + Number(seat)).slice(-2), name },
-      assignment, studentNote,
+      assignment, studentNote, subject, artMedium,
       ai: res.ai, badge: res.badge, badgeApproval: res.badgeApproval || state.cfg.badgeApproval,
       previewUrl: activeFile.dataUrl
     };
@@ -1374,6 +1476,14 @@ function showResult() {
   $('r-summary-label').textContent = ai.kind === 'art' ? '畫面描述' : '歷程摘要';
   $('r-summary').textContent = ai.summary || '—';
   $('r-feedback').textContent = ai.feedback || '—';
+  if ($('r-corrections-wrap')) {
+    if (ai.corrections) {
+      $('r-corrections-wrap').classList.remove('hidden');
+      $('r-corrections').textContent = ai.corrections;
+    } else {
+      $('r-corrections-wrap').classList.add('hidden');
+    }
+  }
   $('r-advice').textContent = ai.advice || '—';
 
   const kwEl = $('r-keywords');
@@ -1424,7 +1534,11 @@ function showResult() {
     $('r-status').style.color = score >= th ? '#24654d' : '#5d7068';
   }
 
-  const meta = ai.kind === 'art' ? ART_META : NOTE_META;
+  const meta = ai.kind === 'art'
+    ? (cur.artMedium === 'sketch'
+        ? [['themeScore', '主題語意 (35%)'], ['compScore', '結構重心 (20%)'], ['colorScore', '色階調子 (15%)'], ['lightScore', '光影明暗 (15%)'], ['detailScore', '筆觸質感 (15%)']]
+        : ART_META)
+    : (SUBJECT_META[cur.subject] || NOTE_META);
   const bars = $('r-bars');
   bars.innerHTML = '';
   meta.forEach(([k, label]) => {
@@ -1826,6 +1940,7 @@ async function lookupTrajectory() {
           <div><span class="chip ${chipCls}">${esc(r.kind)}</span> <span class="chip">${esc(r.assignment)}</span> ${r.tag ? `<span class="chip">${esc(r.tag)}</span>` : ''} <span class="small muted">${esc(r.time)}</span></div>
           <h3>${esc(r.topic)}</h3>
           <div class="small muted">${esc(r.summary)}</div>
+          ${r.corrections ? `<div class="small" style="margin-top:6px;padding:6px 10px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;color:#92400e"><b>🔍 細節診斷與訂正建議：</b>${esc(r.corrections)}</div>` : ''}
           ${r.teacherComment ? `<div class="teacher-comment"><b>老師評語：</b>${esc(r.teacherComment)}</div>` : `<div class="small" style="margin-top:6px;color:var(--forest)"><b>AI 評語草稿：</b>${esc(r.feedback)}（${esc(r.review)}）</div>`}
           ${r.advice ? `<div class="small muted" style="margin-top:4px">下一步：${esc(r.advice)}</div>` : ''}
         </div>
@@ -1924,6 +2039,8 @@ async function loadAdminOverview() {
     const ov = await rpc('getAdminOverview', { password: state.adminPwd });
     state.adminOverview = ov;
     state.adminAssign = [...ov.assignments];
+    state.adminAssignRules = JSON.parse(JSON.stringify(ov.assignmentRules || {}));
+    state.cfg.assignmentRules = ov.assignmentRules || {};
     updateAssignmentsSelect(ov.assignments);
 
     const list = ov.submissions || [];
@@ -1995,6 +2112,7 @@ function renderAdminSubmissions() {
         ${r.badgeUrl && r.badgeUrl !== '#demo-badge' ? `<a class="btn btn-sm btn-gold" href="${esc(r.badgeUrl)}" target="_blank" rel="noopener">胸章檔</a>` : ''}
       </div>
       <div><b>${esc(r.topic)}</b> — <span class="muted">${esc(r.summary)}</span></div>
+      ${r.corrections ? `<div class="small" style="color:#92400e;margin-top:3px">🔍 細節診斷與訂正建議：${esc(r.corrections)}</div>` : ''}
       <div class="small" style="color:var(--forest);margin-top:3px">AI 評語草稿：${esc(r.feedback)}</div>
       <div class="adm-controls">
         <textarea data-comment="${rc}" placeholder="老師正式評語（留空則學生端只看到 AI 草稿）">${esc(r.teacherComment || r.feedback || '')}</textarea>
@@ -2020,13 +2138,28 @@ function renderAdminSubmissions() {
 function renderAdminAssignList() {
   const box = $('assign-list');
   box.innerHTML = '';
+  if (!state.adminAssignRules) state.adminAssignRules = {};
   state.adminAssign.forEach((a, i) => {
+    const rule = state.adminAssignRules[a] || { subject: '', rubric: '' };
     const row = document.createElement('div');
     row.className = 'assign-item';
-    row.innerHTML = `<span>${esc(a)}</span>
+    row.style.flexWrap = 'wrap';
+    row.innerHTML = `<span style="font-weight:700;min-width:160px">${esc(a)}</span>
+      <select data-assign-subj="${esc(a)}" style="width:175px;padding:6px 8px;font-size:13px" title="預設學科評分視角">
+        <option value="" ${!rule.subject ? 'selected' : ''}>🌐 自動／跨領域通用</option>
+        <option value="chinese" ${rule.subject === 'chinese' ? 'selected' : ''}>📖 國語文領域</option>
+        <option value="english" ${rule.subject === 'english' ? 'selected' : ''}>🔤 英語文領域</option>
+        <option value="math" ${rule.subject === 'math' ? 'selected' : ''}>📐 數學領域</option>
+        <option value="science" ${rule.subject === 'science' ? 'selected' : ''}>🔬 自然科學領域</option>
+        <option value="social" ${rule.subject === 'social' ? 'selected' : ''}>🌍 社會領域</option>
+        <option value="art" ${rule.subject === 'art' ? 'selected' : ''}>🎨 視覺藝術創作</option>
+      </select>
       <button type="button" class="btn btn-sm" data-move="-1" data-idx="${i}" ${i === 0 ? 'disabled' : ''}>↑</button>
       <button type="button" class="btn btn-sm" data-move="1" data-idx="${i}" ${i === state.adminAssign.length - 1 ? 'disabled' : ''}>↓</button>
-      <button type="button" class="btn btn-sm btn-danger" data-del="${i}">刪除</button>`;
+      <button type="button" class="btn btn-sm btn-danger" data-del="${i}">刪除</button>
+      <div style="flex-basis:100%;margin-top:6px">
+        <input type="text" data-assign-rubric="${esc(a)}" value="${esc(rule.rubric || '')}" placeholder="選填：老師對本次作業的特別要求與評分規準（例如：須寫出完整算式步驟、心智圖至少 3 個分支、至少 50 字心得…）" style="font-size:12px;padding:6px 10px">
+      </div>`;
     box.appendChild(row);
   });
 }
@@ -2034,12 +2167,39 @@ function renderAdminAssignList() {
 // ==============================================
 // 初始化與事件綁定
 // ==============================================
+function syncAssignmentContext() {
+  const assign = $('f-assignment') ? $('f-assignment').value : '';
+  const rules = (state.cfg && state.cfg.assignmentRules) || {};
+  const rule = (assign && rules[assign]) || {};
+  const banner = $('assign-rubric-banner');
+  if (banner) {
+    if (rule.rubric) {
+      banner.innerHTML = `<b>📌 老師對「${esc(assign)}」的作業要求與評分重點：</b><br>${esc(rule.rubric)}`;
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  }
+  if ($('f-subject') && state.submitMode !== 'art') {
+    if (rule.subject && rule.subject !== 'art' && SUBJECT_META[rule.subject]) {
+      $('f-subject').value = rule.subject;
+    } else if (assign) {
+      if (/國文|語文|作文|閱讀|文言|詩詞|書法/.test(assign)) $('f-subject').value = 'chinese';
+      else if (/英文|英語|English|單字|文法/.test(assign)) $('f-subject').value = 'english';
+      else if (/數學|算式|幾何|代數|方程式|函數/.test(assign)) $('f-subject').value = 'math';
+      else if (/自然|理化|生物|地科|實驗|科學/.test(assign)) $('f-subject').value = 'science';
+      else if (/社會|歷史|地理|公民|大溪|老街|家鄉/.test(assign)) $('f-subject').value = 'social';
+    }
+  }
+}
+
 function updateAssignmentsSelect(items) {
   const sel = $('f-assignment');
   const prev = sel.value;
   sel.innerHTML = '<option value="">請選擇本次作業</option>' + items.map(a => `<option>${esc(a)}</option>`).join('');
   if (items.includes(prev)) sel.value = prev;
   else if (items[0]) sel.value = items[0];
+  syncAssignmentContext();
 }
 
 function setSubmitMode(mode) {
@@ -2058,6 +2218,7 @@ function setSubmitMode(mode) {
     const noteAssign = assigns.find(a => /自主|探究|筆記|學習/.test(a));
     if (noteAssign) $('f-assignment').value = noteAssign;
   }
+  syncAssignmentContext();
 }
 
 function setArtPurpose(purpose) {
@@ -2069,12 +2230,19 @@ function setArtPurpose(purpose) {
 function updateArtPurposeUI() {
   const isArt = state.submitMode === 'art';
   const isBadge = isArt && state.artPurpose === 'badge';
+  if ($('note-subject-box')) $('note-subject-box').classList.toggle('hidden', isArt);
+  if ($('art-medium-box')) $('art-medium-box').classList.toggle('hidden', !isArt);
+  if ($('chk-complete-text')) {
+    $('chk-complete-text').textContent = isArt
+      ? '我已確認畫作構圖完整、光線充足無陰影遮擋，並選好對應的創作媒材'
+      : '我已確認包含老師要求的重點（如：標題、算式步驟、訂正或反思心得）';
+  }
   if (!isArt) {
     $('form-title').textContent = '📘 探究筆記上傳與 AI 素養評分';
-    $('form-subtitle').textContent = '上傳自主學習筆記、心智圖或學習單，AI 自動給五維探究回饋與下一步建議。';
-    $('file-label').textContent = '作品檔案（探究筆記、心智圖或學習單）';
-    $('drop-title').textContent = '點這裡拍照或選擇檔案上傳評分';
-    $('drop-sub').textContent = '支援 JPG、PNG 或 PDF，最大 10 MB';
+    $('form-subtitle').textContent = '上傳各科學習筆記、心智圖、數學算式或學習單，AI 自動給五維學科回饋、細節訂正診斷與下一步建議。';
+    $('file-label').textContent = '作品檔案（支援一次選 1～4 張照片自動拼接，或上傳 PDF）';
+    $('drop-title').textContent = '點這裡拍照或選擇檔案上傳評分（可多選 1～4 張照片）';
+    $('drop-sub').textContent = '支援 JPG、PNG（多頁自動拼接為長圖）或 PDF，最大 10 MB';
     $('btn-submit').textContent = '送出作品並開始 AI 評分';
   } else if (isBadge) {
     $('form-title').textContent = '🏅 58mm 胸章設計上傳與 AI 美感評分';
@@ -2085,10 +2253,10 @@ function updateArtPurposeUI() {
     $('btn-submit').textContent = '開始 AI 胸章美感評分';
   } else {
     $('form-title').textContent = '🎨 一般畫作上傳與 AI 美感評分';
-    $('form-subtitle').textContent = '上傳水彩、素描、插畫或海報等完整畫作，AI 進行五維美感掃描與構圖分析（不強制裁切為胸章）。';
+    $('form-subtitle').textContent = '上傳素描、水彩、色鉛筆、麥克筆或電繪等完整畫作，AI 依媒材進行五維美感掃描（不強制裁切為胸章）。';
     $('file-label').textContent = '畫作／美術作品檔案（支援 JPG、PNG 或 PDF）';
     $('drop-title').textContent = '點這裡拍照或上傳「一般畫作／美術作品」評分';
-    $('drop-sub').textContent = '保持完整畫幅比例進行五維美感評分，支援 JPG、PNG 或 PDF';
+    $('drop-sub').textContent = '保持完整畫幅比例並依媒材進行五維美感評分，支援 JPG、PNG 或 PDF';
     $('btn-submit').textContent = '開始 AI 畫作美感評分';
   }
   if ($('art-opt-summary')) {
@@ -2278,14 +2446,15 @@ window.addEventListener('touchmove', movePreCropDrag, { passive: false });
 window.addEventListener('mouseup', endPreCropDrag);
 window.addEventListener('touchend', endPreCropDrag);
 
+$('f-assignment').addEventListener('change', syncAssignmentContext);
 $('f-file').addEventListener('change', async e => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  setStatus('正在處理檔案…');
+  const files = e.target.files;
+  if (!files || !files.length) return;
+  setStatus(files.length > 1 ? `正在拼接處理 ${Math.min(4, files.length)} 張圖片…` : '正在處理檔案…');
   try {
-    const f = await compressFile(file);
+    const f = await compressFiles(files);
     showSelectedFile(f);
-    setStatus('檔案已就緒，請按「送出作品」。');
+    setStatus(f.pageCount > 1 ? `已自動將 ${f.pageCount} 張圖片拼接為高清長圖，請按「送出作品」。` : '檔案已就緒，請按「送出作品」。');
   } catch (err) {
     setStatus(err.message || '檔案處理失敗', true);
   }
@@ -2463,6 +2632,21 @@ $('adm-list').addEventListener('click', async e => {
   }
 });
 
+$('assign-list').addEventListener('input', e => {
+  const subjEl = e.target.closest('[data-assign-subj]');
+  const rubEl = e.target.closest('[data-assign-rubric]');
+  if (!state.adminAssignRules) state.adminAssignRules = {};
+  if (subjEl) {
+    const k = subjEl.dataset.assignSubj;
+    state.adminAssignRules[k] = state.adminAssignRules[k] || {};
+    state.adminAssignRules[k].subject = subjEl.value;
+  }
+  if (rubEl) {
+    const k = rubEl.dataset.assignRubric;
+    state.adminAssignRules[k] = state.adminAssignRules[k] || {};
+    state.adminAssignRules[k].rubric = rubEl.value;
+  }
+});
 $('assign-list').addEventListener('click', e => {
   const mv = e.target.closest('[data-move]');
   const del = e.target.closest('[data-del]');
@@ -2485,10 +2669,16 @@ $('btn-assign-add').addEventListener('click', () => {
 });
 $('btn-assign-save').addEventListener('click', async () => {
   try {
-    const res = await rpc('updateAssignments', { password: state.adminPwd, assignments: state.adminAssign });
+    const res = await rpc('updateAssignments', {
+      password: state.adminPwd,
+      assignments: state.adminAssign,
+      assignmentRules: state.adminAssignRules || {}
+    });
     state.cfg.assignments = res.assignments;
+    state.cfg.assignmentRules = res.assignmentRules || {};
+    state.adminAssignRules = JSON.parse(JSON.stringify(res.assignmentRules || {}));
     updateAssignmentsSelect(res.assignments);
-    setMsg('assign-msg', '已儲存作業項目');
+    setMsg('assign-msg', '已儲存作業項目、專屬學科與老師評分規準');
   } catch (err) { setMsg('assign-msg', err.message, true); }
 });
 

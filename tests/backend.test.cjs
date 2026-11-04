@@ -474,3 +474,30 @@ test('doPost routes actions and reports errors as JSON', () => {
   const unknown = JSON.parse(s.ctx.doPost({ postData: { contents: JSON.stringify({ action: 'deleteEverything' }) } }).getContent());
   assert.equal(unknown.success, false);
 });
+
+test('cross-subject rubrics, teacher assignment rules, artMedium, and corrections are persisted and injected into AI prompt', () => {
+  const s = setup({}, { ...noteReply(), corrections: '第 2 題移項時 +3 應改為 -3，請訂正後重算。' });
+  const upd = s.ctx.updateAssignments({
+    password: 'admin888',
+    assignments: ['七年級數學一元一次方程式', '素描人物習作'],
+    assignmentRules: {
+      '七年級數學一元一次方程式': { subject: 'math', rubric: '請務必寫出完整等量公理移項步驟與驗算' },
+      '素描人物習作': { subject: 'art', rubric: '注意五官三庭五眼比例' }
+    }
+  });
+  assert.equal(upd.assignmentRules['七年級數學一元一次方程式'].subject, 'math');
+
+  const res = s.ctx.uploadSubmission({
+    ...s.sampleData,
+    assignment: '七年級數學一元一次方程式'
+  });
+  assert.equal(res.ai.subject, 'math');
+  assert.equal(res.ai.corrections, '第 2 題移項時 +3 應改為 -3，請訂正後重算。');
+  const promptSent = JSON.parse(s.urlFetchCalls.at(-1).opts.payload).contents[0].parts[0].text;
+  assert.match(promptSent, /國中數學教師視角/);
+  assert.match(promptSent, /請務必寫出完整等量公理移項步驟與驗算/);
+
+  const traj = s.ctx.getStudentTrajectory({ receipt: s.sampleData.requestId });
+  assert.equal(traj.list[0].corrections, '第 2 題移項時 +3 應改為 -3，請訂正後重算。');
+  assert.equal(traj.list[0].subject, 'math');
+});
