@@ -316,12 +316,36 @@ function updateAssignments(data) {
   cleaned.forEach(function(item) {
     if (item.length > 60 || /[\\/<>\x00-\x1f]/.test(item)) throw new Error('作業名稱「' + item + '」格式不正確。');
   });
+
+  // 整理作業更名對照表 renames: { oldName: newName }
+  var renames = {};
+  if (data.renames && typeof data.renames === 'object') {
+    Object.keys(data.renames).forEach(function(oldK) {
+      var newK = String(data.renames[oldK] || '').trim();
+      var trimmedOld = String(oldK || '').trim();
+      if (trimmedOld && newK && trimmedOld !== newK) {
+        renames[trimmedOld] = newK;
+      }
+    });
+  }
+
+  // 1. 更新「系統設定」工作表的 ASSIGNMENTS
   writeSetting_('ASSIGNMENTS', cleaned.join(','));
+
+  // 2. 整理並更新 ASSIGNMENT_RULES（若作業有更名，規則 key 自動同步遷移）
   var cleanedRules = null;
   if (data.assignmentRules && typeof data.assignmentRules === 'object') {
     cleanedRules = {};
     cleaned.forEach(function(item) {
       var r = data.assignmentRules[item];
+      if (!r) {
+        // 若找不到新名稱的規則，檢查是否有由舊名稱更名而來
+        Object.keys(renames).forEach(function(oldN) {
+          if (renames[oldN] === item && data.assignmentRules[oldN]) {
+            r = data.assignmentRules[oldN];
+          }
+        });
+      }
       if (r && typeof r === 'object') {
         var subj = String(r.subject || '').trim().slice(0, 20).replace(/[<>"`\x00-\x1f]/g, '');
         var rule = String(r.rubric || r.rule || '').trim().slice(0, 200).replace(/[<>"`\x00-\x1f]/g, '');
@@ -332,8 +356,49 @@ function updateAssignments(data) {
     });
     writeSetting_('ASSIGNMENT_RULES', JSON.stringify(cleanedRules));
   }
+
+  // 3. 同時更新「能量軌跡總表」工作表中已有的繳交紀錄（舊作業名稱批次替換為新作業名稱）
+  var renamedRowsCount = 0;
+  if (Object.keys(renames).length > 0) {
+    try {
+      var sheet = mainSheet_();
+      var rows = sheet.getDataRange().getValues();
+      for (var i = 1; i < rows.length; i++) {
+        var currentAssign = String(rows[i][COL_.assignment] || '').trim();
+        if (renames[currentAssign]) {
+          var newAssignName = renames[currentAssign];
+          setCell_(sheet, i, COL_.assignment, sanitizeFormula_(newAssignName));
+          renamedRowsCount++;
+        }
+      }
+    } catch (sheetErr) {
+      console.warn('更新總表作業名稱失敗: ' + sheetErr.message);
+    }
+
+    // 4. 同步將 Google Drive 收件子資料夾名稱改為新作業名稱（若存在）
+    try {
+      var root = rootFolder_();
+      Object.keys(renames).forEach(function(oldN) {
+        var newN = renames[oldN];
+        var folders = root.getFoldersByName(oldN);
+        while (folders.hasNext()) {
+          var f = folders.next();
+          f.setName(newN);
+        }
+      });
+    } catch (driveErr) {
+      console.warn('雲端收件資料夾更名略過: ' + driveErr.message);
+    }
+  }
+
   var c = config_();
-  return { success: true, assignments: cleaned, assignmentRules: c.assignmentRules };
+  return {
+    success: true,
+    assignments: cleaned,
+    assignmentRules: c.assignmentRules,
+    renames: renames,
+    renamedRowsCount: renamedRowsCount
+  };
 }
 
 function updateSettings(data) {

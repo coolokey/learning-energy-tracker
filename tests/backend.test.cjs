@@ -501,3 +501,36 @@ test('cross-subject rubrics, teacher assignment rules, artMedium, and correction
   assert.equal(traj.list[0].corrections, '第 2 題移項時 +3 應改為 -3，請訂正後重算。');
   assert.equal(traj.list[0].subject, 'math');
 });
+
+test('updateAssignments renames assignments and batch-updates existing spreadsheet rows', () => {
+  const s = setup();
+  // 先以舊作業名稱「1151104」新增作業並繳交一件作品
+  s.ctx.updateAssignments({ password: 'admin888', assignments: ['自主學習探究', '1151104'] });
+  const up = s.ctx.uploadSubmission({
+    ...s.sampleData,
+    assignment: '1151104'
+  });
+  assert.equal(up.success, true);
+  const rowBefore = s.sheets['能量軌跡總表'].rows.at(-1);
+  assert.equal(rowBefore[4], '1151104');
+
+  // 老師在後台將「1151104」修改名稱為「大溪老街歷史走讀」
+  const res = s.ctx.updateAssignments({
+    password: 'admin888',
+    assignments: ['自主學習探究', '大溪老街歷史走讀'],
+    assignmentRules: { '大溪老街歷史走讀': { subject: 'social', rubric: '須記錄大漢溪水運脈絡' } },
+    renames: { '1151104': '大溪老街歷史走讀' }
+  });
+  assert.equal(res.success, true);
+  assert.deepEqual([...res.assignments], ['自主學習探究', '大溪老街歷史走讀']);
+  assert.equal(res.renamedRowsCount, 1);
+
+  // 驗證試算表「能量軌跡總表」中的歷史繳交紀錄已同步更新
+  const rowAfter = s.sheets['能量軌跡總表'].rows.at(-1);
+  assert.equal(rowAfter[4], '大溪老街歷史走讀');
+
+  // 驗證公開設定與學生軌跡已呈現新作業名稱
+  assert.deepEqual([...s.ctx.getPublicConfig().assignments], ['自主學習探究', '大溪老街歷史走讀']);
+  const traj = s.ctx.getStudentTrajectory({ receipt: s.sampleData.requestId });
+  assert.equal(traj.list[0].assignment, '大溪老街歷史走讀');
+});

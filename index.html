@@ -671,7 +671,7 @@
       </div>
 
       <div data-panel="assign" class="hidden">
-        <p class="small muted" style="margin-top:0">學生端的作業下拉選單會依這裡的順序顯示。您也可為每個作業設定<b>預設學科視角</b>與<b>作業要求／評分規準（Rubric）</b>，學生選擇該作業時會同步顯示要求，且 AI 會嚴格依您的要求給分與抓錯！</p>
+        <p class="small muted" style="margin-top:0">學生端的作業下拉選單會依這裡的順序顯示。<b>點擊作業名稱欄位可直接修改名稱</b>，儲存時<b>試算表總表的歷史繳交紀錄與雲端資料夾會同步更名</b>！您也可為每個作業設定<b>預設學科視角</b>與<b>老師特別要求／評分規準（Rubric）</b>，AI 會嚴格依要求評分！</p>
         <div id="assign-list" class="assign-list"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="assign-new" type="text" maxlength="60" placeholder="新增作業名稱（例如：七年級國文閱讀心得、數學一元一次方程式、水彩靜物寫生）" style="flex:1 1 260px"><button type="button" class="btn" id="btn-assign-add">新增作業</button></div>
         <div style="margin-top:12px"><button type="button" class="btn btn-primary" id="btn-assign-save">儲存作業項目與評分規準</button></div>
@@ -2177,8 +2177,12 @@ function renderAdminAssignList() {
     const row = document.createElement('div');
     row.className = 'assign-item';
     row.style.flexWrap = 'wrap';
-    row.innerHTML = `<span style="font-weight:700;min-width:160px">${esc(a)}</span>
-      <select data-assign-subj="${esc(a)}" style="width:175px;padding:6px 8px;font-size:13px" title="預設學科評分視角">
+    row.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px;flex:1 1 230px;min-width:180px">
+        <span class="small muted" style="font-weight:700;color:var(--forest);min-width:18px">${i + 1}.</span>
+        <input type="text" data-assign-idx="${i}" data-orig-name="${esc(a)}" value="${esc(a)}" maxlength="60" placeholder="請輸入作業名稱" style="font-weight:700;font-size:14px;padding:6px 10px;border:1.5px solid var(--line);border-radius:6px;width:100%;background:#fff" title="點擊即可直接修改作業名稱">
+      </div>
+      <select data-assign-subj-idx="${i}" style="width:175px;padding:6px 8px;font-size:13px" title="預設學科評分視角">
         <option value="" ${!rule.subject ? 'selected' : ''}>🌐 自動／跨領域通用</option>
         <option value="chinese" ${rule.subject === 'chinese' ? 'selected' : ''}>📖 國語文領域</option>
         <option value="english" ${rule.subject === 'english' ? 'selected' : ''}>🔤 英語文領域</option>
@@ -2187,14 +2191,36 @@ function renderAdminAssignList() {
         <option value="social" ${rule.subject === 'social' ? 'selected' : ''}>🌍 社會領域</option>
         <option value="art" ${rule.subject === 'art' ? 'selected' : ''}>🎨 視覺藝術創作</option>
       </select>
-      <button type="button" class="btn btn-sm" data-move="-1" data-idx="${i}" ${i === 0 ? 'disabled' : ''}>↑</button>
-      <button type="button" class="btn btn-sm" data-move="1" data-idx="${i}" ${i === state.adminAssign.length - 1 ? 'disabled' : ''}>↓</button>
-      <button type="button" class="btn btn-sm btn-danger" data-del="${i}">刪除</button>
+      <button type="button" class="btn btn-sm" data-move="-1" data-idx="${i}" ${i === 0 ? 'disabled' : ''} title="上移">↑</button>
+      <button type="button" class="btn btn-sm" data-move="1" data-idx="${i}" ${i === state.adminAssign.length - 1 ? 'disabled' : ''} title="下移">↓</button>
+      <button type="button" class="btn btn-sm btn-danger" data-del="${i}" title="刪除此作業">刪除</button>
       <div style="flex-basis:100%;margin-top:6px">
-        <input type="text" data-assign-rubric="${esc(a)}" value="${esc(rule.rubric || '')}" placeholder="選填：老師對本次作業的特別要求與評分規準（例如：須寫出完整算式步驟、心智圖至少 3 個分支、至少 50 字心得…）" style="font-size:12px;padding:6px 10px">
+        <input type="text" data-assign-rubric-idx="${i}" value="${esc(rule.rubric || '')}" placeholder="選填：老師對本次作業的特別要求與評分規準（例如：須寫出完整算式步驟、心智圖至少 3 個分支、至少 50 字心得…）" style="font-size:12px;padding:6px 10px">
       </div>`;
     box.appendChild(row);
   });
+}
+
+function syncAssignStateFromDOM() {
+  const rows = document.querySelectorAll('#assign-list .assign-item');
+  if (!rows.length) return { assignments: state.adminAssign || [], rules: state.adminAssignRules || {}, renames: {} };
+  const assignments = [];
+  const rules = {};
+  const renames = {};
+  rows.forEach((r, i) => {
+    const nameEl = r.querySelector('[data-assign-idx]');
+    const subjEl = r.querySelector('[data-assign-subj-idx]');
+    const rubEl = r.querySelector('[data-assign-rubric-idx]');
+    if (!nameEl) return;
+    const orig = nameEl.dataset.origName || '';
+    const cur = nameEl.value.trim() || orig || `作業${i + 1}`;
+    assignments.push(cur);
+    const s = subjEl ? subjEl.value : '';
+    const rub = rubEl ? rubEl.value.trim() : '';
+    if (s || rub) rules[cur] = { subject: s, rubric: rub };
+    if (orig && orig !== cur) renames[orig] = cur;
+  });
+  return { assignments, rules, renames };
 }
 
 // ==============================================
@@ -2667,31 +2693,22 @@ $('adm-list').addEventListener('click', async e => {
   }
 });
 
-$('assign-list').addEventListener('input', e => {
-  const subjEl = e.target.closest('[data-assign-subj]');
-  const rubEl = e.target.closest('[data-assign-rubric]');
-  if (!state.adminAssignRules) state.adminAssignRules = {};
-  if (subjEl) {
-    const k = subjEl.dataset.assignSubj;
-    state.adminAssignRules[k] = state.adminAssignRules[k] || {};
-    state.adminAssignRules[k].subject = subjEl.value;
-  }
-  if (rubEl) {
-    const k = rubEl.dataset.assignRubric;
-    state.adminAssignRules[k] = state.adminAssignRules[k] || {};
-    state.adminAssignRules[k].rubric = rubEl.value;
-  }
-});
 $('assign-list').addEventListener('click', e => {
   const mv = e.target.closest('[data-move]');
   const del = e.target.closest('[data-del]');
   if (mv) {
+    const snapshot = syncAssignStateFromDOM();
+    state.adminAssign = snapshot.assignments;
+    state.adminAssignRules = snapshot.rules;
     const i = Number(mv.dataset.idx), d = Number(mv.dataset.move);
     const tmp = state.adminAssign[i]; state.adminAssign[i] = state.adminAssign[i + d]; state.adminAssign[i + d] = tmp;
     renderAdminAssignList();
   }
   if (del) {
     if (state.adminAssign.length <= 1) return toast('至少要保留一個作業項目');
+    const snapshot = syncAssignStateFromDOM();
+    state.adminAssign = snapshot.assignments;
+    state.adminAssignRules = snapshot.rules;
     state.adminAssign.splice(Number(del.dataset.del), 1);
     renderAdminAssignList();
   }
@@ -2699,21 +2716,63 @@ $('assign-list').addEventListener('click', e => {
 $('btn-assign-add').addEventListener('click', () => {
   const v = $('assign-new').value.trim();
   if (!v) return;
-  state.adminAssign.push(v); $('assign-new').value = '';
+  const snapshot = syncAssignStateFromDOM();
+  state.adminAssign = snapshot.assignments;
+  state.adminAssignRules = snapshot.rules;
+  if (state.adminAssign.includes(v)) return toast('作業名稱已存在，請使用不同名稱');
+  state.adminAssign.push(v);
+  $('assign-new').value = '';
   renderAdminAssignList();
 });
 $('btn-assign-save').addEventListener('click', async () => {
+  const snapshot = syncAssignStateFromDOM();
+  const list = snapshot.assignments;
+  if (!list.length) return setMsg('assign-msg', '至少要保留一個作業項目', true);
+
+  // 檢查是否有空名稱
+  const inputs = document.querySelectorAll('#assign-list [data-assign-idx]');
+  for (let inp of inputs) {
+    if (!inp.value.trim()) {
+      inp.focus();
+      return setMsg('assign-msg', '作業名稱不可為空，請輸入完整名稱後再儲存。', true);
+    }
+  }
+
+  // 檢查名稱是否重複
+  const uniq = new Set(list);
+  if (uniq.size !== list.length) {
+    return setMsg('assign-msg', '作業名稱不能重複，請檢查並修改重複的作業名稱。', true);
+  }
+
+  setMsg('assign-msg', '正在儲存作業項目並同步更新試算表…');
   try {
     const res = await rpc('updateAssignments', {
       password: state.adminPwd,
-      assignments: state.adminAssign,
-      assignmentRules: state.adminAssignRules || {}
+      assignments: list,
+      assignmentRules: snapshot.rules,
+      renames: snapshot.renames
     });
     state.cfg.assignments = res.assignments;
     state.cfg.assignmentRules = res.assignmentRules || {};
+    state.adminAssign = [...res.assignments];
     state.adminAssignRules = JSON.parse(JSON.stringify(res.assignmentRules || {}));
+    renderAdminAssignList();
     updateAssignmentsSelect(res.assignments);
-    setMsg('assign-msg', '已儲存作業項目、專屬學科與老師評分規準');
+
+    // 同步更新後台已載入的繳交紀錄中的作業名稱
+    if (state.adminOverview && state.adminOverview.submissions && Object.keys(snapshot.renames).length) {
+      state.adminOverview.submissions.forEach(rec => {
+        if (snapshot.renames[rec.assignment]) rec.assignment = snapshot.renames[rec.assignment];
+      });
+      renderAdminSubmissions();
+    }
+
+    const renameCount = Object.keys(snapshot.renames).length;
+    const renameInfo = renameCount > 0
+      ? `（已將 ${renameCount} 個作業更名，試算表 ${res.renamedRowsCount || 0} 筆歷史紀錄已同步更名！）`
+      : '';
+    setMsg('assign-msg', `✓ 已儲存作業項目與評分規準${renameInfo}`);
+    toast('作業項目與試算表已同步更新');
   } catch (err) { setMsg('assign-msg', err.message, true); }
 });
 
