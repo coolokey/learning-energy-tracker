@@ -632,7 +632,13 @@
 <div id="admin-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="admin-title">
   <div class="panel modal-card">
     <button type="button" class="modal-close" id="btn-close-admin" aria-label="關閉">×</button>
-    <h2 id="admin-title" style="font-size:22px">教師後台</h2>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding-right:38px;margin-bottom:6px;flex-wrap:wrap;gap:8px">
+      <h2 id="admin-title" style="font-size:22px;margin:0">教師後台</h2>
+      <div id="admin-auth-bar" class="hidden" style="display:flex;align-items:center;gap:10px">
+        <span class="small" style="color:var(--forest);font-weight:700">● 導師已登入</span>
+        <button type="button" class="btn btn-sm btn-danger" id="btn-admin-logout">登出後台</button>
+      </div>
+    </div>
     <div id="admin-login" style="max-width:360px;margin-top:14px">
       <div class="field"><label for="a-pwd">管理密碼</label><input id="a-pwd" type="password" autocomplete="current-password"></div>
       <button type="button" class="btn btn-primary" id="btn-admin-login">登入</button>
@@ -707,6 +713,11 @@
             <div class="field"><label for="s-newpwd">新密碼（至少 4 碼）</label><input id="s-newpwd" type="password" autocomplete="new-password"></div>
             <button type="button" class="btn btn-sm" id="btn-pwd-save">變更密碼</button>
             <div id="pwd-msg" class="msg"></div>
+          </div>
+          <div class="set-box">
+            <h3>登出與安全性</h3>
+            <p class="small muted" style="margin-top:0">若使用公用電腦或與學生共用螢幕，操作完畢後請點擊登出，保護學生評分與後台安全。</p>
+            <button type="button" class="btn btn-sm btn-danger" id="btn-admin-logout-2">登出教師後台</button>
           </div>
         </div>
       </div>
@@ -2014,10 +2025,31 @@ async function loadGallery() {
 // ==============================================
 function openAdmin() {
   $('admin-modal').classList.remove('hidden');
-  if (state.adminPwd) loadAdminOverview();
-  else $('a-pwd').focus();
+  if (state.adminPwd) {
+    if ($('admin-auth-bar')) $('admin-auth-bar').classList.remove('hidden');
+    $('admin-login').classList.add('hidden');
+    $('admin-body').classList.remove('hidden');
+    loadAdminOverview();
+  } else {
+    if ($('admin-auth-bar')) $('admin-auth-bar').classList.add('hidden');
+    $('admin-body').classList.add('hidden');
+    $('admin-login').classList.remove('hidden');
+    $('a-pwd').focus();
+  }
 }
 function closeAdmin() { $('admin-modal').classList.add('hidden'); }
+
+function adminLogout() {
+  state.adminPwd = '';
+  state.adminOverview = null;
+  state.adminAssign = [];
+  $('a-pwd').value = '';
+  setMsg('a-login-msg', '');
+  if ($('admin-auth-bar')) $('admin-auth-bar').classList.add('hidden');
+  $('admin-body').classList.add('hidden');
+  $('admin-login').classList.remove('hidden');
+  toast('已安全登出教師後台');
+}
 
 async function adminLogin() {
   const pwd = $('a-pwd').value;
@@ -2028,6 +2060,7 @@ async function adminLogin() {
     setMsg('a-login-msg', '');
     $('admin-login').classList.add('hidden');
     $('admin-body').classList.remove('hidden');
+    if ($('admin-auth-bar')) $('admin-auth-bar').classList.remove('hidden');
     await loadAdminOverview();
   } catch (err) {
     setMsg('a-login-msg', err.message || '密碼錯誤', true);
@@ -2585,6 +2618,8 @@ $('t-timeline').addEventListener('click', e => {
 // 後台事件
 $('btn-admin-login').addEventListener('click', adminLogin);
 $('a-pwd').addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
+if ($('btn-admin-logout')) $('btn-admin-logout').addEventListener('click', adminLogout);
+if ($('btn-admin-logout-2')) $('btn-admin-logout-2').addEventListener('click', adminLogout);
 document.querySelectorAll('.tabs button[data-tab]').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.tabs button[data-tab]').forEach(x => x.setAttribute('aria-selected', x === b));
   document.querySelectorAll('#admin-body > [data-panel]').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== b.dataset.tab));
