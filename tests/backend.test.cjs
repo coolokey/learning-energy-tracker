@@ -545,3 +545,107 @@ test('updateAssignments renames assignments and batch-updates existing spreadshe
   const traj = s.ctx.getStudentTrajectory({ receipt: s.sampleData.requestId });
   assert.equal(traj.list[0].assignment, '大溪老街歷史走讀');
 });
+
+test('revision loop: previousReceipt injects previous feedback into prompt, calculates growthDelta, and stores prevScore', () => {
+  const s = setup({}, { ...noteReply({ focus: 72, depth: 72, structure: 72, insight: 72, presentation: 72 }), corrections: '第 2 題漏寫單位「公克」，請補充。', feedback: '架構清楚，但計算單位需補齊。' });
+  const first = s.ctx.uploadSubmission(s.sampleData);
+  assert.equal(first.ai.score, 72);
+
+  // 學生根據建議訂正後進行再挑戰上傳
+  s.setReply({ ...noteReply({ focus: 90, depth: 90, structure: 90, insight: 90, presentation: 90 }), summary: '已補齊單位並驗算完畢。' });
+  const secondData = {
+    ...s.sampleData,
+    requestId: uuid(2),
+    previousReceipt: s.sampleData.requestId
+  };
+  const second = s.ctx.uploadSubmission(secondData);
+  assert.equal(second.ai.score, 90);
+  assert.equal(second.ai.prevScore, 72);
+  assert.equal(second.ai.growthDelta, 18);
+
+  // 驗證 Gemini Prompt 中確實包含前次診斷與訂正再挑戰的指示
+  const promptSent = JSON.parse(s.urlFetchCalls.at(-1).opts.payload).contents[0].parts[0].text;
+  assert.match(promptSent, /【重要！訂正再挑戰作品】/);
+  assert.match(promptSent, /第 2 題漏寫單位/);
+
+  // 驗證學生能量軌跡兩筆均可查到，且第二筆顯示成長幅度
+  const traj = s.ctx.getStudentTrajectory({ receipt: secondData.requestId });
+  assert.equal(traj.list.length, 2);
+  assert.equal(traj.list[1].prevScore, 72);
+  assert.equal(traj.list[1].growthDelta, 18);
+
+  // 跨身分防護：若另一個學生盜用此 previousReceipt，系統應忽略不計入成長
+  const otherStudentData = {
+    ...s.sampleData,
+    requestId: uuid(3),
+    seat: 99,
+    name: '另位同學',
+    previousReceipt: s.sampleData.requestId
+  };
+  const hijacked = s.ctx.uploadSubmission(otherStudentData);
+  assert.equal(hijacked.ai.prevScore == null, true);
+  assert.equal(hijacked.ai.growthDelta == null, true);
+});
+
+test('batchReviewSubmissions allows bulk approval of badges and review status', () => {
+  const s = setup();
+  // 建立兩筆待審查的紀錄
+  s.ctx.uploadSubmission({ ...s.sampleData, requestId: uuid(11) });
+  s.ctx.uploadSubmission({ ...s.sampleData, requestId: uuid(12), seat: 8, name: '林小華' });
+
+  // 測試密碼保護
+  assert.throws(() => s.ctx.batchReviewSubmissions({ password: 'wrong', receipts: [uuid(11)], action: 'approve_badge' }), /密碼不正確/);
+
+  // 執行批次核准胸章
+  const res = s.ctx.batchReviewSubmissions({
+    password: 'admin888',
+    receipts: [uuid(11), uuid(12)],
+    action: 'approve_badge'
+  });
+  assert.equal(res.success, true);
+  assert.equal(res.processedCount, 2);
+
+  // 驗證兩筆作品狀態均變為「已發放」與「已審查核准」
+  const ov = s.ctx.getAdminOverview({ password: 'admin888' });
+  const r1 = ov.submissions.find(x => x.receipt === uuid(11));
+  const r2 = ov.submissions.find(x => x.receipt === uuid(12));
+  assert.equal(r1.badge, '已發放');
+  assert.equal(r1.review, '已審查核准');
+  assert.equal(r2.badge, '已發放');
+  assert.equal(r2.review, '已審查核准');
+});
+
+test('getSubmissionAsset verifies admin password and returns imageBase64 and metadata', () => {
+  const s = setup();
+  s.ctx.uploadSubmission(s.sampleData);
+
+  // 非管理者拒絕
+  assert.throws(() => s.ctx.getSubmissionAsset({ password: 'bad', receipt: s.sampleData.requestId }), /密碼不正確/);
+
+  // 管理者成功載入
+  const asset = s.ctx.getSubmissionAsset({ password: 'admin888', receipt: s.sampleData.requestId });
+  assert.equal(asset.success, true);
+  assert.equal(asset.record.receipt, s.sampleData.requestId);
+  assert.equal(asset.mimeType, 'image/jpeg');
+  assert.equal(asset.record.className, '702');
+  assert.equal(asset.record.name, '李小花');
+  assert.ok(asset.imageBase64);
+});
+
+test('getGallery returns enriched fields: praise, tag, and assignment with masked names', () => {
+  const s = setup();
+  s.ctx.uploadSubmission(s.sampleData);
+  s.ctx.saveBadge({
+    receipt: s.sampleData.requestId,
+    imageBase64: PNG,
+    thumbBase64: JPEG
+  });
+
+  const gal = s.ctx.getGallery();
+  assert.equal(gal.enabled, true);
+  assert.ok(gal.list.length >= 1);
+  const item = gal.list[0];
+  assert.equal(item.name, '李○花'); // 個資去識別化
+  assert.equal(item.assignment, '自主學習探究');
+  assert.ok(item.praise);
+});

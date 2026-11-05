@@ -289,6 +289,51 @@
   .msg.err { color: var(--rose); }
   .msg.ok { color: var(--forest); }
 
+  /* ---------- 新增升級：多圖 3D 胸章列、影像增強、訂正橫幅、後台雷達與批次、燈箱、3D 星空 ---------- */
+  .rev-banner { border: 1.5px solid var(--amber); background: linear-gradient(135deg, #fffbeb, #fef3c7); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; font-size: 12.5px; color: #78350f; }
+  .rev-banner-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-weight: 800; color: #92400e; margin-bottom: 4px; }
+  .growth-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 800; background: linear-gradient(90deg, #ecfdf5, #fef3c7); border: 1px solid #34d399; color: #065f46; margin: 6px 0 4px; }
+  .enhance-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .enhance-bar .btn-sm { background: #fff; font-size: 11.5px; padding: 4px 9px; }
+  .badge-batch-panel { margin-top: 12px; padding: 10px; border-radius: 12px; background: #fffdf7; border: 1px solid #f5cf95; text-align: left; }
+  .badge-batch-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 12px; }
+  .badge-batch-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 10px; margin: 8px 0; }
+  .badge-mini-card { position: relative; border: 1.5px solid var(--line); border-radius: 12px; padding: 7px 5px 5px; background: #fff; text-align: center; cursor: pointer; transition: transform .15s, border-color .15s, box-shadow .15s; }
+  .badge-mini-card:hover { transform: translateY(-2px); border-color: var(--amber); }
+  .badge-mini-card.active { border-color: var(--amber); background: #fffbeb; box-shadow: 0 0 0 2px rgba(217, 119, 6, .25); }
+  .badge-3d-mini { position: relative; width: 58px; height: 58px; margin: 0 auto 4px; border-radius: 50%; overflow: hidden; box-shadow: 0 5px 10px rgba(23, 62, 53, .26), inset 0 -3px 6px rgba(0, 0, 0, .28), inset 0 2px 4px rgba(255, 255, 255, .75); border: 2px solid #e5e7eb; background: #fff; }
+  .badge-3d-mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .badge-3d-mini::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.68) 0%, rgba(255,255,255,.12) 36%, rgba(0,0,0,0) 60%, rgba(0,0,0,.18) 100%); pointer-events: none; }
+  .badge-mini-del { position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid #f1c4c4; background: #fff; color: var(--rose); font-size: 12px; line-height: 1; font-weight: 900; display: grid; place-items: center; padding: 0; }
+  .batch-tabs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 14px; margin-bottom: 14px; background: #fffdf7; border: 1px solid #f5cf95; border-radius: 12px; }
+  .batch-tab-btn { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+  .batch-tab-btn[aria-selected="true"] { background: var(--amber); color: #fff; border-color: var(--amber); }
+
+  .adm-analytics { border: 1px solid var(--line); border-radius: 12px; background: #fafbf6; margin-bottom: 12px; padding: 10px 14px; }
+  .adm-analytics summary { cursor: pointer; font-weight: 800; font-size: 13.5px; color: var(--ink); display: flex; align-items: center; justify-content: space-between; list-style: none; }
+  .adm-analytics summary::-webkit-details-marker { display: none; }
+  .adm-analytics-grid { display: grid; grid-template-columns: 280px 1fr; gap: 16px; margin-top: 10px; align-items: start; }
+  .adm-err-list { display: grid; gap: 6px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
+  .adm-err-item { font-size: 12.5px; padding: 7px 10px; border-radius: 8px; background: #fff; border: 1px solid #ecefe6; border-left: 3px solid var(--amber); }
+  .adm-batch-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 12px; border-radius: 10px; background: #eff3e7; border: 1px solid #cad8c3; margin-bottom: 10px; font-size: 12.5px; }
+
+  .lb-stage { position: relative; height: 62vh; min-height: 300px; background: #10201b; border-radius: 12px; overflow: auto; display: grid; place-items: center; padding: 16px; }
+  .lb-stage img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform .18s ease-out; transform-origin: center center; border-radius: 6px; box-shadow: 0 8px 28px rgba(0,0,0,.45); }
+
+  .g-card { cursor: pointer; transition: transform .2s, box-shadow .2s, border-color .2s; position: relative; }
+  .g-card:hover { transform: translateY(-4px); border-color: var(--amber); box-shadow: 0 12px 26px rgba(23, 62, 53, .12); }
+  .g-card-pin { position: relative; width: 100px; height: 100px; margin: 0 auto 8px; border-radius: 50%; overflow: hidden; border: 3px solid var(--amber); box-shadow: 0 6px 14px rgba(23,62,53,.22), inset 0 -4px 8px rgba(0,0,0,.22); }
+  .g-card-pin img { width: 100%; height: 100%; object-fit: cover; border: 0; margin: 0; border-radius: 0; }
+  .g-card-pin::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 30% 24%, rgba(255,255,255,.58) 0%, rgba(255,255,255,0) 52%); pointer-events: none; }
+  .g-3d-stage { perspective: 750px; width: 250px; height: 250px; margin: 8px auto 14px; display: grid; place-items: center; touch-action: none; }
+  .g-3d-badge { position: relative; width: 224px; height: 224px; border-radius: 50%; overflow: hidden; transform-style: preserve-3d; transition: transform .08s ease-out; box-shadow: 0 18px 36px rgba(9, 21, 18, .38), 0 0 0 5px #f59e0b, 0 0 0 9px #fef3c7, inset 0 -8px 16px rgba(0,0,0,.35); background: #173e35; }
+  .g-3d-badge img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+  .g-3d-glare { position: absolute; inset: -20%; background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.72) 0%, rgba(255,255,255,.16) 28%, rgba(255,255,255,0) 58%); pointer-events: none; mix-blend-mode: screen; }
+
+  @media (max-width: 880px) {
+    .adm-analytics-grid { grid-template-columns: 1fr; }
+  }
+
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 14px; z-index: 90; box-shadow: 0 10px 24px rgba(0, 0, 0, .2); }
   .confetti { position: fixed; top: -10px; width: 9px; height: 9px; z-index: 80; pointer-events: none; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(105vh) rotate(720deg); opacity: 0; } }
@@ -382,6 +427,13 @@
         <div id="status" class="status" role="status">正在連線收件空間…</div>
         <form id="form" novalidate>
           <fieldset id="fields" disabled>
+            <div id="revision-banner" class="rev-banner hidden">
+              <div class="rev-banner-head">
+                <span id="rev-banner-title">🔄 訂正再挑戰模式</span>
+                <button type="button" class="btn btn-sm" id="btn-cancel-revision" style="padding:2px 8px;font-size:11px">取消訂正模式</button>
+              </div>
+              <div id="rev-banner-desc" class="small"></div>
+            </div>
             <div class="row2">
               <div class="field"><label for="f-class">班級</label><input id="f-class" type="text" maxlength="20" placeholder="例如 701" autocomplete="off" required></div>
               <div class="field"><label for="f-seat">座號</label><input id="f-seat" type="number" inputmode="numeric" min="1" max="99" placeholder="3" required></div>
@@ -450,6 +502,30 @@
                     <button type="button" class="pre-zoom-btn" id="btn-zoom-in" aria-label="放大">＋</button>
                   </div>
                 </div>
+                <div id="img-enhance-bar" class="enhance-bar">
+                  <button type="button" class="btn btn-sm" id="btn-img-rot" title="手機拍橫了？順時針旋轉 90°">🔄 旋轉 90°</button>
+                  <button type="button" class="btn btn-sm" id="btn-img-clean" title="消除桌面與手機陰影、增白紙面">📄 去陰影增白</button>
+                  <button type="button" class="btn btn-sm" id="btn-img-darken" title="強化淡鉛筆字跡與算式對比度">✏️ 字跡加深</button>
+                  <button type="button" class="btn btn-sm" id="btn-img-reset" title="還原原始照片">↩️ 還原原圖</button>
+                </div>
+                <div id="badge-batch-panel" class="badge-batch-panel hidden">
+                  <div class="badge-batch-top">
+                    <strong style="color:var(--amber-deep)">🏅 多圖 58mm 立體胸章預覽列（<span id="badge-batch-count">1</span> / 6 枚）</strong>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap">
+                      <button type="button" class="btn btn-sm" id="btn-badge-add-more">➕ 再加胸章圖</button>
+                      <input id="f-badge-more" type="file" multiple accept="image/jpeg,image/png,.jpg,.jpeg,.png" class="hidden">
+                    </div>
+                  </div>
+                  <div class="small muted" style="margin-bottom:6px">點選任一枚胸章可單獨拖曳對位與縮放；亦可直接排版成 <b>A4 真實 1:1 六宮格刀模印刷單</b>！</div>
+                  <div id="badge-batch-strip" class="badge-batch-strip"></div>
+                  <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px dashed #f5cf95">
+                    <label class="small" style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="chk-fill-6" style="accent-color:var(--amber)"><span>不足 6 枚時自動複製填滿 6 宮格（省紙張）</span></label>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap">
+                      <button type="button" class="btn btn-sm btn-gold" id="btn-pre-a4-download">📥 下載 A4 六宮格 1:1 圖檔</button>
+                      <button type="button" class="btn btn-sm" id="btn-pre-a4-print">🖨️ 直接列印 A4 原寸</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <details class="art-opt hidden" id="art-opt">
@@ -474,6 +550,7 @@
             <label class="consent"><input id="f-consent" type="checkbox" checked><span>我已移除作品中的姓名、班級、座號、人像等可識別資訊，並同意將作品傳送 Google Gemini 進行 AI 分析。</span></label>
             <p class="privacy">勾選為自願；不勾選仍可繳交，只是不會有 AI 回饋。系統不會自動遮蔽影像中的個資。班級座號姓名只用於校內收件，不會放進 AI 提示詞。</p>
             <button class="btn btn-primary btn-block" id="btn-submit" type="submit" style="padding:12px">送出作品並開始 AI 評分</button>
+            <button class="btn btn-gold btn-block hidden" id="btn-submit-batch" type="button" style="padding:12px;margin-top:8px">🚀 批次送出全部胸章進行 AI 評分</button>
           </fieldset>
         </form>
       </div>
@@ -500,6 +577,7 @@
       </div>
     </div>
     <p class="small muted" style="margin:-6px 0 14px">收據編號是查詢能量軌跡的鑰匙，已自動存在這台裝置；換裝置時請自行記下。</p>
+    <div id="r-batch-tabs" class="batch-tabs hidden" role="tablist" aria-label="多枚胸章評分結果切換"></div>
 
     <div id="r-unavailable" class="panel result-card hidden">
       <h2>作品已收件</h2>
@@ -528,6 +606,7 @@
           <div>
             <div><span id="r-kind" class="chip">-</span> <span id="r-tag" class="chip hidden"></span></div>
             <div id="r-title" class="res-title serif">-</div>
+            <div id="r-growth-banner" class="growth-pill hidden"></div>
             <div id="r-status" class="small" style="font-weight:700"></div>
           </div>
         </div>
@@ -536,7 +615,10 @@
         <div class="text-block tb-feedback"><h4>AI 評語草稿（老師確認後才算正式評語）</h4><div id="r-feedback"></div></div>
         <div id="r-corrections-wrap" class="text-block hidden" style="background:#fff4e0;border-left:3px solid #d97706;border-radius:0 10px 10px 0"><h4>🔍 細節診斷與訂正建議（錯別字／文法／算式步驟／構圖細節）</h4><div id="r-corrections"></div></div>
         <div class="text-block tb-advice"><h4>下一步</h4><div id="r-advice"></div></div>
-        <div style="margin-top:12px"><button type="button" class="btn btn-sm" id="btn-card">保存學習歷程卡</button></div>
+        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px">
+          <button type="button" class="btn btn-sm" id="btn-card">保存學習歷程卡</button>
+          <button type="button" class="btn btn-sm btn-primary" id="btn-revise-retry">✨ 依建議訂正重交（挑戰更高分）</button>
+        </div>
       </div>
     </div>
 
@@ -563,10 +645,12 @@
           </div>
           <div id="badge-msg" class="notice hidden"></div>
           <div id="badge-downloads" class="badge-actions hidden">
-            <button type="button" class="btn btn-gold" id="btn-print">下載 58mm 印刷檔</button>
+            <button type="button" class="btn btn-gold" id="btn-print">下載單枚 58mm 印刷檔</button>
+            <button type="button" class="btn btn-gold" id="btn-a4-sheet">📥 下載 A4 六宮格 1:1 印刷單</button>
+            <button type="button" class="btn" id="btn-a4-print-win">🖨️ 直接列印 A4 原寸</button>
             <button type="button" class="btn btn-gold" id="btn-cert">下載 A4 證書</button>
           </div>
-          <p class="small muted" style="margin-top:14px">印刷檔含 70mm 出血線、58mm 包邊線、50mm 安全線與對位十字規標，300 DPI。</p>
+          <p class="small muted" style="margin-top:14px">印刷檔與 A4 六宮格皆為 300 DPI 真實 1:1 尺寸（含 70mm 裁切出血圓、58mm 成品圓、50mm 安全圓與 50mm 實體比例檢核尺）。</p>
         </div>
       </div>
     </div>
@@ -622,7 +706,7 @@
     <div class="gallery-hero">
       <div class="eyebrow" style="color:#e4edb7">CLASS CONSTELLATION</div>
       <h2>班級成果星空</h2>
-      <p id="gallery-lead" style="margin:6px 0 0;opacity:.85;font-size:14px">每一枚胸章都是一位同學經評分達標或導師核准的優秀作品。為保護隱私，姓名只顯示首尾字。</p>
+      <p id="gallery-lead" style="margin:6px 0 0;opacity:.85;font-size:14px">每一枚胸章都是一位同學經評分達標或導師核准的優秀作品。<b>點擊任一胸章可開啟 3D 立體金屬胸章互動鑑賞與師長亮點讚賞！</b>（姓名遮蔽保護隱私）</p>
     </div>
     <div id="gallery-grid" class="gallery-grid"></div>
   </section>
@@ -660,12 +744,45 @@
           <div class="kpi"><b id="k-badges">0</b><span>胸章已發放</span></div>
           <div class="kpi"><b id="k-pending">0</b><span>胸章待審核</span></div>
         </div>
+        <details id="adm-analytics-box" class="adm-analytics" open>
+          <summary>
+            <span>📊 班級學力五維診斷雷達 ＆ 常見訂正盲點彙整（隨下方篩選即時運算）</span>
+            <span id="adm-analytics-summary" class="small muted">點擊收合／展開</span>
+          </summary>
+          <div class="adm-analytics-grid">
+            <div style="text-align:center">
+              <div style="margin-bottom:4px">
+                <select id="adm-radar-kind" style="width:auto;padding:4px 8px;font-size:12px">
+                  <option value="auto">自動依主要作品類型</option>
+                  <option value="探究筆記">📘 探究筆記五維平均</option>
+                  <option value="藝術創作">🎨 藝術創作五維平均</option>
+                </select>
+              </div>
+              <canvas id="adm-class-radar" width="260" height="225" aria-label="班級五維平均雷達圖"></canvas>
+              <div id="adm-weakest-tip" class="small" style="color:var(--forest);font-weight:700;margin-top:2px"></div>
+            </div>
+            <div>
+              <div class="small" style="font-weight:800;color:#92400e;margin-bottom:6px">🔍 目前篩選學生之常見錯題／細節訂正重點彙整：</div>
+              <div id="adm-common-errors" class="adm-err-list"></div>
+            </div>
+          </div>
+        </details>
         <div class="filters">
           <select id="af-class" aria-label="班級"><option value="">全部班級</option></select>
           <select id="af-kind" aria-label="作品類型"><option value="">全部類型</option><option>探究筆記</option><option>藝術創作</option><option>無法辨識</option><option>未分析</option></select>
           <select id="af-badge" aria-label="胸章狀態"><option value="">全部胸章狀態</option><option>待審核</option><option>已發放</option><option>可製作</option><option>已駁回</option><option>未達標</option><option>不製作胸章</option></select>
           <input id="af-search" type="text" placeholder="搜尋姓名或主題" aria-label="搜尋">
           <button type="button" class="btn btn-sm" id="btn-admin-refresh">重新整理</button>
+        </div>
+        <div id="adm-batch-bar" class="adm-batch-bar">
+          <label style="display:inline-flex;align-items:center;gap:5px;font-weight:700;cursor:pointer">
+            <input type="checkbox" id="adm-check-all" style="accent-color:var(--forest)"> 全選目前列表
+          </label>
+          <span id="adm-sel-count" class="small muted">（已勾選 0 筆）</span>
+          <button type="button" class="btn btn-sm btn-gold" id="btn-batch-approve">🏅 批次核准所選胸章</button>
+          <button type="button" class="btn btn-sm btn-primary" id="btn-batch-review">✓ 批次標記已審查</button>
+          <button type="button" class="btn btn-sm" id="btn-batch-clear">清除勾選</button>
+          <button type="button" class="btn btn-sm" id="btn-admin-a4-badges" style="margin-left:auto">🖨️ 匯出胸章 A4 1:1 六宮格印刷單</button>
         </div>
         <div id="adm-list" class="adm-list"></div>
       </div>
@@ -738,11 +855,61 @@
             <h3>匯出成果冊（Google Docs）</h3>
             <p class="small muted" style="margin-top:0">每位學生一頁：能量軌跡摘要、每次作品的評語與已發放的胸章。</p>
             <div class="row2"><select id="ex-assign" aria-label="作業"><option value="">全部作業</option></select><select id="ex-class" aria-label="班級"><option value="">全部班級</option></select></div>
-            <button type="button" class="btn btn-primary btn-sm" id="btn-export" style="margin-top:10px">匯出成果冊</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-export">匯出成果冊（Google Docs）</button>
+              <button type="button" class="btn btn-gold btn-sm" id="btn-export-a4-badges">🖨️ 匯出已發放胸章 A4 1:1 六宮格印刷單</button>
+            </div>
             <div id="export-msg" class="msg"></div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 教師頁內高清燈箱預覽 ================= -->
+<div id="lightbox-modal" class="modal hidden" style="z-index:75" role="dialog" aria-modal="true" aria-labelledby="lb-title">
+  <div class="panel modal-card" style="max-width:900px">
+    <button type="button" class="modal-close" id="btn-close-lightbox" aria-label="關閉預覽">×</button>
+    <div style="padding-right:34px;margin-bottom:8px">
+      <h3 id="lb-title" style="font-size:18px">作品頁內高清預覽</h3>
+      <div id="lb-meta" class="small muted"></div>
+    </div>
+    <div id="lb-stage" class="lb-stage">
+      <img id="lb-img" alt="學生作品高清預覽" class="hidden">
+      <div id="lb-empty" class="small" style="color:#e4edb7;text-align:center">正在從雲端載入作品影像…</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:10px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <button type="button" class="btn btn-sm" id="lb-zoom-out">－ 縮小</button>
+        <input id="lb-zoom" type="range" min="0.5" max="3" step="0.1" value="1" style="width:120px;accent-color:var(--forest)">
+        <button type="button" class="btn btn-sm" id="lb-zoom-in">＋ 放大</button>
+        <button type="button" class="btn btn-sm" id="lb-rot">🔄 旋轉 90°</button>
+      </div>
+      <a id="lb-open-drive" class="btn btn-sm" href="#" target="_blank" rel="noopener">↗ 開啟雲端原始檔</a>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 成果星空 3D 立體金屬胸章互動展示窗 ================= -->
+<div id="gallery-modal" class="modal hidden" style="z-index:70" role="dialog" aria-modal="true" aria-labelledby="gm-title">
+  <div class="panel modal-card" style="max-width:460px;text-align:center;background:radial-gradient(circle at 50% 0%, #fffdf7 0%, #f7f5ed 100%)">
+    <button type="button" class="modal-close" id="btn-close-gallery-modal" aria-label="關閉">×</button>
+    <div class="eyebrow" style="color:var(--amber-deep)">3D INTERACTIVE PIN BADGE</div>
+    <div class="small muted" style="margin-top:2px">滑動滑鼠或手指傾斜胸章，欣賞立體弧面金屬反光</div>
+    <div id="g-3d-stage" class="g-3d-stage">
+      <div id="g-3d-badge" class="g-3d-badge">
+        <img id="g-3d-img" alt="3D 胸章預覽">
+        <div id="g-3d-glare" class="g-3d-glare"></div>
+      </div>
+    </div>
+    <div><span id="gm-kind" class="chip chip-art"></span> <span id="gm-tag" class="chip hidden"></span></div>
+    <h3 id="gm-title" style="font-size:22px;margin:8px 0 2px"></h3>
+    <div id="gm-author" class="small muted" style="font-weight:700"></div>
+    <div id="gm-score" class="tech" style="font-size:26px;font-weight:900;color:var(--amber);margin:6px 0"></div>
+    <div style="text-align:left;background:#fff;border:1px solid var(--line);border-left:4px solid var(--forest);border-radius:10px;padding:10px 14px;margin-top:8px;font-size:13.5px">
+      <div class="small" style="font-weight:800;color:var(--forest);margin-bottom:3px">✨ 師長與 AI 亮點讚賞</div>
+      <div id="gm-praise"></div>
     </div>
   </div>
 </div>
@@ -854,7 +1021,15 @@ const state = {
   artPurpose: 'artwork', // 'artwork' (一般畫作) | 'badge' (58mm 胸章設計)
   themeCat: 'all',
   selectedTheme: '',
-  file: null,          // { name, size, mimeType, base64, dataUrl }
+  file: null,          // { name, size, mimeType, base64, dataUrl, origDataUrl }
+  badgeBatch: [],      // 多枚胸章批次預覽項目（最多 6 枚）
+  activeBadgeIdx: 0,
+  batchResults: [],    // 批次送審結果陣列
+  activeBatchResIdx: 0,
+  revisionTarget: null,// { receipt, className, seat, name, assignment, kind, topic, score, corrections, feedback, subject }
+  lastTrajectory: null,
+  galleryList: [],
+  lightbox: { scale: 1, rot: 0 },
   current: null,       // { receipt, student, assignment, studentNote, ai, badge, badgeUrl, previewUrl, badgePng }
   overlayMode: 'thirds',
   badgeSrc: 'crop',
@@ -862,6 +1037,7 @@ const state = {
   crop: { baseW: 280, baseH: 280, x: 0, y: 0, scale: 1, drag: false, sx: 0, sy: 0, ix: 0, iy: 0, pinch: null, pScale: 1 },
   adminPwd: '',
   adminOverview: null,
+  adminFiltered: [],
   adminAssign: [],
   adminAssignRules: {}
 };
@@ -1214,7 +1390,9 @@ async function compressFiles(fileList) {
     size: Math.round(base64.length * 0.75),
     mimeType: 'image/jpeg',
     base64,
-    dataUrl
+    dataUrl,
+    origDataUrl: dataUrl,
+    pageCount: files.length
   };
 }
 async function compressFile(file) {
@@ -1222,7 +1400,7 @@ async function compressFile(file) {
     if (file.size > state.cfg.maxBytes) throw new Error('PDF 檔案超過 10 MB 上限。');
     return new Promise((resolve, reject) => {
       const r = new FileReader();
-      r.onload = () => resolve({ name: file.name, size: file.size, mimeType: 'application/pdf', base64: String(r.result).split(',')[1], dataUrl: '' });
+      r.onload = () => resolve({ name: file.name, size: file.size, mimeType: 'application/pdf', base64: String(r.result).split(',')[1], dataUrl: '', origDataUrl: '' });
       r.onerror = () => reject(new Error('無法讀取 PDF 檔案。'));
       r.readAsDataURL(file);
     });
@@ -1242,14 +1420,28 @@ async function compressFile(file) {
       c.getContext('2d').drawImage(img, 0, 0, w, h);
       const dataUrl = c.toDataURL('image/jpeg', 0.84);
       const base64 = dataUrl.split(',')[1];
-      resolve({ name: file.name, size: Math.round(base64.length * 0.75), mimeType: 'image/jpeg', base64, dataUrl });
+      resolve({ name: file.name, size: Math.round(base64.length * 0.75), mimeType: 'image/jpeg', base64, dataUrl, origDataUrl: dataUrl });
     };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('圖片解析失敗，請換一張試試。')); };
     img.src = url;
   });
 }
 
-function initPreCrop(src) {
+async function compressBadgeBatch(fileList) {
+  const files = Array.from(fileList || []).filter(f => f.type !== 'application/pdf').slice(0, 6);
+  if (!files.length) throw new Error('58mm 胸章預覽請選擇 JPG 或 PNG 圖片檔。');
+  const out = [];
+  for (const f of files) {
+    const item = await compressFile(f);
+    item.id = uuid();
+    item.savedCrop = null;
+    item.framedUrl = item.dataUrl;
+    out.push(item);
+  }
+  return out;
+}
+
+function initPreCrop(src, savedCrop) {
   const img = $('pre-crop-img');
   img.onload = () => {
     const box = 280;
@@ -1257,13 +1449,16 @@ function initPreCrop(src) {
     let bw, bh;
     if (r >= 1) { bh = box; bw = box * r; }
     else { bw = box; bh = box / r; }
+    const sc = savedCrop && typeof savedCrop.scale === 'number' ? savedCrop.scale : 1;
+    const sx = savedCrop && typeof savedCrop.x === 'number' ? savedCrop.x : (box - bw) / 2;
+    const sy = savedCrop && typeof savedCrop.y === 'number' ? savedCrop.y : (box - bh) / 2;
     state.preCrop = {
       baseW: bw, baseH: bh,
-      x: (box - bw) / 2, y: (box - bh) / 2,
-      scale: 1, drag: false, sx: 0, sy: 0, ix: 0, iy: 0, pinch: null, pScale: 1, active: true
+      x: sx, y: sy,
+      scale: sc, drag: false, sx: 0, sy: 0, ix: 0, iy: 0, pinch: null, pScale: 1, active: true
     };
-    $('pre-zoom').value = 1;
-    $('pre-zoom-val').textContent = '100%';
+    $('pre-zoom').value = sc;
+    $('pre-zoom-val').textContent = Math.round(sc * 100) + '%';
     applyPreCropTransform();
   };
   img.src = src;
@@ -1280,6 +1475,9 @@ function applyPreCropTransform() {
   img.style.height = h + 'px';
   img.style.left = cx + 'px';
   img.style.top = cy + 'px';
+  if (state.submitMode === 'art' && state.artPurpose === 'badge' && state.badgeBatch[state.activeBadgeIdx]) {
+    state.badgeBatch[state.activeBadgeIdx].savedCrop = { x: pc.x, y: pc.y, scale: pc.scale, baseW: pc.baseW, baseH: pc.baseH };
+  }
 }
 
 function setPreZoom(val) {
@@ -1290,7 +1488,226 @@ function setPreZoom(val) {
   applyPreCropTransform();
 }
 
-function renderPreCroppedImage() {
+// ---------- 影像增強工具列（旋轉 90°／去陰影增白／鉛筆字加深／還原） ----------
+function loadImgElement(src) {
+  return new Promise((resolve, reject) => {
+    const im = new Image();
+    im.onload = () => resolve(im);
+    im.onerror = () => reject(new Error('影像載入失敗'));
+    im.src = src;
+  });
+}
+
+async function applyActiveImageUpdate(newDataUrl, alsoUpdateOrig = false) {
+  if (!state.file || state.file.mimeType === 'application/pdf') return;
+  const base64 = newDataUrl.split(',')[1];
+  const size = Math.round(base64.length * 0.75);
+  state.file.dataUrl = newDataUrl;
+  state.file.base64 = base64;
+  state.file.size = size;
+  if (alsoUpdateOrig || !state.file.origDataUrl) state.file.origDataUrl = newDataUrl;
+  if (state.submitMode === 'art' && state.artPurpose === 'badge' && state.badgeBatch[state.activeBadgeIdx]) {
+    const b = state.badgeBatch[state.activeBadgeIdx];
+    b.dataUrl = newDataUrl;
+    b.base64 = base64;
+    b.size = size;
+    b.framedUrl = newDataUrl;
+    b.savedCrop = null;
+    if (alsoUpdateOrig || !b.origDataUrl) b.origDataUrl = newDataUrl;
+    renderBadgeBatchStrip();
+  }
+  $('pre-crop-meta').textContent = `${state.file.name}（${Math.max(1, Math.round(size / 1024))} KB）`;
+  initPreCrop(newDataUrl);
+}
+
+async function rotateActiveImage() {
+  if (!state.file || !state.file.dataUrl) return;
+  try {
+    const im = await loadImgElement(state.file.dataUrl);
+    const c = document.createElement('canvas');
+    c.width = im.height;
+    c.height = im.width;
+    const ctx = c.getContext('2d');
+    ctx.translate(c.width / 2, c.height / 2);
+    ctx.rotate(Math.PI / 2);
+    ctx.drawImage(im, -im.width / 2, -im.height / 2);
+    if (state.file.origDataUrl && state.file.origDataUrl !== state.file.dataUrl) {
+      const oim = await loadImgElement(state.file.origDataUrl);
+      const oc = document.createElement('canvas');
+      oc.width = oim.height; oc.height = oim.width;
+      const octx = oc.getContext('2d');
+      octx.translate(oc.width / 2, oc.height / 2);
+      octx.rotate(Math.PI / 2);
+      octx.drawImage(oim, -oim.width / 2, -oim.height / 2);
+      state.file.origDataUrl = oc.toDataURL('image/jpeg', 0.86);
+      if (state.badgeBatch[state.activeBadgeIdx]) state.badgeBatch[state.activeBadgeIdx].origDataUrl = state.file.origDataUrl;
+    } else {
+      state.file.origDataUrl = null;
+    }
+    await applyActiveImageUpdate(c.toDataURL('image/jpeg', 0.86), !state.file.origDataUrl);
+    toast('已順時針旋轉 90°');
+  } catch (e) { toast(e.message); }
+}
+
+async function enhanceActiveImage(mode) {
+  if (!state.file || !state.file.dataUrl) return;
+  const orig = state.file.origDataUrl || state.file.dataUrl;
+  if (mode === 'reset') {
+    await applyActiveImageUpdate(orig, false);
+    toast('已還原為原始照片');
+    return;
+  }
+  try {
+    const im = await loadImgElement(orig);
+    const c = document.createElement('canvas');
+    c.width = im.width; c.height = im.height;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(im, 0, 0);
+    const imgData = ctx.getImageData(0, 0, c.width, c.height);
+    const d = imgData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      let r = d[i], g = d[i + 1], b = d[i + 2];
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+      if (mode === 'clean') {
+        // 去陰影增白：將灰暗紙底平滑推向潔白，保留深色筆跡與彩色線條
+        if (lum > 152) {
+          const boost = Math.min(1, (lum - 152) / 72);
+          r = r + (255 - r) * boost * 0.88;
+          g = g + (255 - g) * boost * 0.88;
+          b = b + (255 - b) * boost * 0.88;
+        } else {
+          r = Math.max(0, (r - 128) * 1.15 + 122);
+          g = Math.max(0, (g - 128) * 1.15 + 122);
+          b = Math.max(0, (b - 128) * 1.15 + 122);
+        }
+      } else if (mode === 'darken') {
+        // 鉛筆淡字加深：強化中暗部字跡與算式線條
+        const gamma = 1.48;
+        r = 255 * Math.pow(r / 255, gamma);
+        g = 255 * Math.pow(g / 255, gamma);
+        b = 255 * Math.pow(b / 255, gamma);
+        if (lum > 188) {
+          r = Math.min(255, r * 1.12 + 16);
+          g = Math.min(255, g * 1.12 + 16);
+          b = Math.min(255, b * 1.12 + 16);
+        }
+      }
+      d[i] = r; d[i + 1] = g; d[i + 2] = b;
+    }
+    ctx.putImageData(imgData, 0, 0);
+    await applyActiveImageUpdate(c.toDataURL('image/jpeg', 0.88), false);
+    toast(mode === 'clean' ? '已完成紙面去陰影增白！' : '已強化鉛筆與手寫字跡清晰度！');
+  } catch (e) { toast(e.message); }
+}
+
+// ---------- 多枚 58mm 胸章立體預覽與個別取景輸出 ----------
+async function frameSingleBadgeItem(item) {
+  const im = await loadImgElement(item.dataUrl);
+  const box = 280, inset = 22, S = 900;
+  const r = im.naturalWidth / im.naturalHeight;
+  const baseW = r >= 1 ? box * r : box;
+  const baseH = r >= 1 ? box : box / r;
+  const sc = item.savedCrop ? item.savedCrop.scale : 1;
+  const px = item.savedCrop ? item.savedCrop.x : (box - baseW) / 2;
+  const py = item.savedCrop ? item.savedCrop.y : (box - baseH) / 2;
+
+  const c = document.createElement('canvas'); c.width = S; c.height = S;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fffdf7';
+  ctx.fillRect(0, 0, S, S);
+  try {
+    ctx.save(); ctx.filter = 'blur(22px)';
+    ctx.drawImage(im, -40, -40, S + 80, S + 80);
+    ctx.restore();
+  } catch (_) {}
+  const ratio = S / (box - inset * 2);
+  const w = baseW * sc, h = baseH * sc;
+  const cx = px - (w - baseW) / 2 - inset;
+  const cy = py - (h - baseH) / 2 - inset;
+  ctx.drawImage(im, cx * ratio, cy * ratio, w * ratio, h * ratio);
+  const dataUrl = c.toDataURL('image/jpeg', 0.90);
+  const base64 = dataUrl.split(',')[1];
+  return { dataUrl, base64, mimeType: 'image/jpeg', size: Math.round(base64.length * 0.75) };
+}
+
+function saveCurrentBadgeCropThumb() {
+  if (!(state.submitMode === 'art' && state.artPurpose === 'badge')) return;
+  const curItem = state.badgeBatch[state.activeBadgeIdx];
+  if (!curItem) return;
+  const pc = state.preCrop;
+  if (pc && pc.active) {
+    curItem.savedCrop = { x: pc.x, y: pc.y, scale: pc.scale, baseW: pc.baseW, baseH: pc.baseH };
+    const framed = renderPreCroppedImage(true);
+    if (framed) curItem.framedUrl = framed.dataUrl;
+  }
+}
+
+function syncBadgeBatchUI() {
+  const isBadge = state.submitMode === 'art' && state.artPurpose === 'badge';
+  const hasBatch = isBadge && state.badgeBatch.length >= 1;
+  if ($('badge-batch-panel')) $('badge-batch-panel').classList.toggle('hidden', !hasBatch);
+  if ($('badge-batch-count')) $('badge-batch-count').textContent = String(state.badgeBatch.length);
+  if ($('chk-fill-6') && state.badgeBatch.length === 1 && !$('chk-fill-6').dataset.touched) {
+    $('chk-fill-6').checked = true;
+  } else if ($('chk-fill-6') && state.badgeBatch.length > 1 && !$('chk-fill-6').dataset.touched) {
+    $('chk-fill-6').checked = false;
+  }
+  const batchBtn = $('btn-submit-batch');
+  if (batchBtn) {
+    if (isBadge && state.badgeBatch.length > 1) {
+      batchBtn.classList.remove('hidden');
+      batchBtn.textContent = `🚀 批次送出全部 ${state.badgeBatch.length} 枚胸章進行 AI 評分`;
+      $('btn-submit').textContent = `僅送出目前選取的第 ${state.activeBadgeIdx + 1} 枚胸章評分`;
+    } else {
+      batchBtn.classList.add('hidden');
+      if (isBadge) $('btn-submit').textContent = '開始 AI 胸章美感評分';
+    }
+  }
+}
+
+function renderBadgeBatchStrip() {
+  const strip = $('badge-batch-strip');
+  if (!strip) return;
+  strip.innerHTML = '';
+  state.badgeBatch.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'badge-mini-card' + (idx === state.activeBadgeIdx ? ' active' : '');
+    card.innerHTML = `
+      ${state.badgeBatch.length > 1 ? `<button type="button" class="badge-mini-del" data-del-badge="${idx}" title="移除此枚">×</button>` : ''}
+      <div class="badge-3d-mini"><img src="${item.framedUrl || item.dataUrl}" alt="胸章 ${idx + 1}"></div>
+      <div class="small" style="font-weight:800;font-size:11px;color:var(--ink)">#${idx + 1} 胸章</div>`;
+    card.addEventListener('click', ev => {
+      if (ev.target.closest('[data-del-badge]')) return;
+      selectBadgeBatchItem(idx);
+    });
+    strip.appendChild(card);
+  });
+  syncBadgeBatchUI();
+}
+
+function selectBadgeBatchItem(idx) {
+  if (idx < 0 || idx >= state.badgeBatch.length) return;
+  saveCurrentBadgeCropThumb();
+  state.activeBadgeIdx = idx;
+  const item = state.badgeBatch[idx];
+  state.file = item;
+  $('pre-crop-meta').textContent = `第 ${idx + 1}/${state.badgeBatch.length} 枚：${item.name}（${Math.max(1, Math.round(item.size / 1024))} KB）`;
+  initPreCrop(item.dataUrl, item.savedCrop);
+  renderBadgeBatchStrip();
+}
+
+function removeBadgeBatchItem(idx) {
+  if (state.badgeBatch.length <= 1) return clearSelectedFile();
+  saveCurrentBadgeCropThumb();
+  state.badgeBatch.splice(idx, 1);
+  if (state.activeBadgeIdx >= state.badgeBatch.length) state.activeBadgeIdx = state.badgeBatch.length - 1;
+  const next = state.badgeBatch[state.activeBadgeIdx];
+  state.file = next;
+  initPreCrop(next.dataUrl, next.savedCrop);
+  renderBadgeBatchStrip();
+}
+
+function renderPreCroppedImage(forceBadgeFrame = false) {
   if (state.file && state.file.pageCount > 1) return null;
   const img = $('pre-crop-img');
   if (!img || !img.complete || !img.naturalWidth || !state.preCrop.active) return null;
@@ -1298,15 +1715,14 @@ function renderPreCroppedImage() {
   const box = 280;
   const initX = (box - pc.baseW) / 2;
   const initY = (box - pc.baseH) / 2;
-  // 若使用者未縮放也未移動畫面，直接使用原始圖片，不額外裁切
-  if (Math.abs(pc.scale - 1) < 0.01 && Math.abs(pc.x - initX) < 1.5 && Math.abs(pc.y - initY) < 1.5) {
+  // 若使用者未縮放也未移動畫面，且非強制輸出圓章框，直接使用原始圖片
+  if (!forceBadgeFrame && Math.abs(pc.scale - 1) < 0.01 && Math.abs(pc.x - initX) < 1.5 && Math.abs(pc.y - initY) < 1.5) {
     return null;
   }
 
   const S = 900;
   const c = document.createElement('canvas'); c.width = S; c.height = S;
   const ctx = c.getContext('2d');
-  // 底色使用柔和紙白與原圖柔焦延伸，絕不產生黑邊或深綠黑框
   ctx.fillStyle = '#fffdf7';
   ctx.fillRect(0, 0, S, S);
   try {
@@ -1316,7 +1732,7 @@ function renderPreCroppedImage() {
     ctx.restore();
   } catch (_) {}
 
-  const isBadgeCrop = state.submitMode === 'art' && state.artPurpose === 'badge';
+  const isBadgeCrop = forceBadgeFrame || (state.submitMode === 'art' && state.artPurpose === 'badge');
   const inset = isBadgeCrop ? 22 : 0;
   const viewSize = box - inset * 2;
   const ratio = S / viewSize;
@@ -1348,39 +1764,94 @@ function showSelectedFile(f) {
     $('pre-crop-title').textContent = isBadgeCrop ? '58mm 胸章取景與放大縮小' : '作品圖片預覽與放大縮小';
     $('pre-crop-view').querySelector('.pre-crop-mask').classList.toggle('hidden', !isBadgeCrop);
     $('pre-crop-meta').textContent = `${f.name}（${Math.max(1, Math.round(f.size / 1024))} KB）`;
-    initPreCrop(f.dataUrl);
+    initPreCrop(f.dataUrl, f.savedCrop);
+    renderBadgeBatchStrip();
   }
 }
 
 function clearSelectedFile() {
   state.file = null;
+  state.badgeBatch = [];
+  state.activeBadgeIdx = 0;
   state.preCrop.active = false;
   $('f-file').value = '';
+  if ($('f-badge-more')) $('f-badge-more').value = '';
   $('preview').classList.add('hidden');
   $('pre-crop-box').classList.add('hidden');
   $('drop').classList.remove('hidden');
+  syncBadgeBatchUI();
+}
+
+// ---------- 訂正再挑戰模式（前後分數成長閉環） ----------
+function startRevisionChallenge(rec, studentInfo) {
+  if (!rec || !rec.receipt) return;
+  const st = studentInfo || rec.student || { className: rec.className, seat: rec.seat, name: rec.name };
+  const ai = rec.ai || {};
+  state.revisionTarget = {
+    receipt: rec.receipt,
+    className: st.className || '',
+    seat: st.seat || '',
+    name: st.name || '',
+    assignment: rec.assignment || '',
+    kind: rec.kind || (ai.kind === 'art' ? '藝術創作' : '探究筆記'),
+    topic: ai.topic || rec.topic || '',
+    score: typeof ai.score === 'number' ? ai.score : rec.score,
+    corrections: ai.corrections || rec.corrections || '',
+    feedback: rec.teacherComment || ai.feedback || rec.feedback || '',
+    subject: rec.subject || ''
+  };
+  clearSelectedFile();
+  const isArt = rec.kind === '藝術創作' || rec.kind === 'art';
+  setSubmitMode(isArt ? 'art' : 'note');
+  if (st.className) $('f-class').value = st.className;
+  if (st.seat) $('f-seat').value = Number(st.seat) || st.seat;
+  if (st.name) $('f-name').value = st.name;
+  if (rec.assignment && Array.from($('f-assignment').options).some(o => o.value === rec.assignment)) {
+    $('f-assignment').value = rec.assignment;
+    syncAssignmentContext();
+  }
+  if (!isArt && rec.subject && $('f-subject')) $('f-subject').value = rec.subject;
+
+  const banner = $('revision-banner');
+  if (banner) {
+    $('rev-banner-title').textContent = `🔄 訂正再挑戰模式｜目標超越上次「${rec.topic || rec.assignment}」（${rec.score ?? '—'} 分）`;
+    const tip = rec.corrections || rec.teacherComment || rec.feedback || '請參考前次建議補強內容後重新拍照上傳';
+    $('rev-banner-desc').innerHTML = `<b>📌 前次診斷重點：</b>${esc(tip)}`;
+    banner.classList.remove('hidden');
+  }
+  switchView('submit');
+  setStatus('已帶入訂正再挑戰資訊！請上傳修正後的新作品，AI 將比對前後進步幅度。');
+}
+
+function cancelRevisionMode() {
+  state.revisionTarget = null;
+  if ($('revision-banner')) $('revision-banner').classList.add('hidden');
+}
+
+function formatGrowthText(prevScore, curScore) {
+  if (typeof prevScore !== 'number' || typeof curScore !== 'number') return '';
+  const d = curScore - prevScore;
+  if (d > 0) return `🚀 訂正大進步：上次 ${prevScore} 分 ➔ 本次 ${curScore} 分（成長 +${d} 分！）`;
+  if (d === 0) return `🔄 訂正重交：上次 ${prevScore} 分 ➔ 本次 ${curScore} 分（分數持平，持續精進！）`;
+  return `🔄 訂正重交：上次 ${prevScore} 分 ➔ 本次 ${curScore} 分（${d} 分）`;
 }
 
 // ==============================================
-// 送出作品與結果頁呈現
+// 送出作品與結果頁呈現（含單筆與多枚胸章批次送審）
 // ==============================================
-async function submitForm(e) {
-  e.preventDefault();
+function validateFormCommon() {
   const className = $('f-class').value.trim();
   const seat = $('f-seat').value.trim();
   const name = $('f-name').value.trim();
   const assignment = $('f-assignment').value;
-  if (!className || !seat || !name) return setStatus('請填寫班級、座號與姓名。', true);
-  if (!/^\d{1,2}$/.test(seat) || Number(seat) < 1 || Number(seat) > 99) return setStatus('座號請填 1 到 99。', true);
-  if (!assignment) return setStatus('請選擇作業項目。', true);
-  if (!state.file) return setStatus('請先拍照或選擇作品檔案。', true);
-  if ($('chk-clear') && !$('chk-clear').checked) return setStatus('請先勾選「繳交前自我檢核：畫面清晰、沒有模糊或手震遮擋」。', true);
-  if ($('chk-complete') && !$('chk-complete').checked) return setStatus('請先勾選「繳交前自我檢核：確認已包含老師要求的完整內容」。', true);
+  if (!className || !seat || !name) { setStatus('請填寫班級、座號與姓名。', true); return null; }
+  if (!/^\d{1,2}$/.test(seat) || Number(seat) < 1 || Number(seat) > 99) { setStatus('座號請填 1 到 99。', true); return null; }
+  if (!assignment) { setStatus('請選擇作業項目。', true); return null; }
+  if (!state.file) { setStatus('請先拍照或選擇作品檔案。', true); return null; }
+  if ($('chk-clear') && !$('chk-clear').checked) { setStatus('請先勾選「繳交前自我檢核：畫面清晰、沒有模糊或手震遮擋」。', true); return null; }
+  if ($('chk-complete') && !$('chk-complete').checked) { setStatus('請先勾選「繳交前自我檢核：確認已包含老師要求的完整內容」。', true); return null; }
 
-  let artTheme = '';
-  let studentNote = '';
-  let subject = '';
-  let artMedium = '';
+  let artTheme = '', studentNote = '', subject = '', artMedium = '';
   if (state.submitMode === 'art') {
     artTheme = state.selectedTheme;
     if (artTheme === '學生自訂主題') artTheme = $('f-custom-theme').value.trim() || '自由創作';
@@ -1389,17 +1860,21 @@ async function submitForm(e) {
   } else {
     subject = $('f-subject') ? $('f-subject').value : 'general';
   }
+  return { className, seat, name, assignment, artTheme, studentNote, subject, artMedium };
+}
 
-  // 若為圖片且使用者已在預覽框放大縮小或移動取景，將取景後的畫面輸出送審
+async function submitForm(e) {
+  e.preventDefault();
+  const v = validateFormCommon();
+  if (!v) return;
+  const { className, seat, name, assignment, artTheme, studentNote, subject, artMedium } = v;
+
   let activeFile = state.file;
   if (state.file.mimeType !== 'application/pdf' && state.preCrop.active) {
     const framed = renderPreCroppedImage();
-    if (framed) {
-      activeFile = { ...state.file, ...framed };
-    }
+    if (framed) activeFile = { ...state.file, ...framed };
   }
 
-  // 切換到掃描動畫
   if (activeFile.mimeType === 'application/pdf') {
     $('scan-img').classList.add('hidden');
     $('scan-pdf').classList.remove('hidden');
@@ -1425,18 +1900,23 @@ async function submitForm(e) {
 
   try {
     const reqId = uuid();
+    const previousReceipt = state.revisionTarget ? state.revisionTarget.receipt : '';
     const res = await rpc('uploadSubmission', {
       requestId: reqId,
       className, seat, name, assignment,
       artTheme, studentNote,
       subject, artMedium,
+      previousReceipt,
       wantBadge: state.submitMode === 'art' && state.artPurpose === 'badge',
       mimeType: activeFile.mimeType,
       fileData: activeFile.base64,
       anonymousDocumentConsent: $('f-consent').checked
     });
     clearInterval(timer);
+    cancelRevisionMode();
     rememberReceipt(res.receipt, `${className} ${name}・${ res.ai?.topic || assignment }`);
+    state.batchResults = [];
+    state.activeBatchResIdx = 0;
     state.current = {
       receipt: res.receipt,
       student: { className, seat: ('0' + Number(seat)).slice(-2), name },
@@ -1452,11 +1932,94 @@ async function submitForm(e) {
   }
 }
 
+async function submitBadgeBatch() {
+  const v = validateFormCommon();
+  if (!v || state.badgeBatch.length < 2) return;
+  saveCurrentBadgeCropThumb();
+  const { className, seat, name, assignment, artTheme, studentNote, subject, artMedium } = v;
+  const total = state.badgeBatch.length;
+  $('scan-pdf').classList.add('hidden');
+  $('scan-img').classList.remove('hidden');
+  switchView('scan');
+
+  const results = [];
+  try {
+    for (let i = 0; i < total; i++) {
+      const item = state.badgeBatch[i];
+      const framed = await frameSingleBadgeItem(item);
+      $('scan-img').src = framed.dataUrl;
+      $('scan-stage').textContent = `正在批次掃描第 ${i + 1} / ${total} 枚胸章作品…`;
+      $('scan-sub').textContent = `檔名：${item.name}（完成後可一鍵輸出 A4 六宮格印刷單）`;
+      const res = await rpc('uploadSubmission', {
+        requestId: uuid(),
+        className, seat, name, assignment,
+        artTheme, studentNote, subject, artMedium,
+        wantBadge: true,
+        mimeType: framed.mimeType,
+        fileData: framed.base64,
+        anonymousDocumentConsent: $('f-consent').checked
+      });
+      rememberReceipt(res.receipt, `${className} ${name}・${ res.ai?.topic || `胸章#${i + 1}` }`);
+      results.push({
+        receipt: res.receipt,
+        student: { className, seat: ('0' + Number(seat)).slice(-2), name },
+        assignment, studentNote, subject, artMedium,
+        ai: res.ai, badge: res.badge, badgeApproval: res.badgeApproval || state.cfg.badgeApproval,
+        previewUrl: framed.dataUrl,
+        badgePng: null
+      });
+    }
+    cancelRevisionMode();
+    state.batchResults = results;
+    state.activeBatchResIdx = 0;
+    state.current = results[0];
+    showResult();
+    toast(`✓ 已完成全部 ${total} 枚胸章 AI 評分！`);
+  } catch (err) {
+    if (results.length) {
+      state.batchResults = results;
+      state.activeBatchResIdx = 0;
+      state.current = results[0];
+      showResult();
+      toast(`已完成 ${results.length} 枚，後續中斷：${err.message}`);
+    } else {
+      switchView('submit');
+      setStatus(err.message || '批次送出失敗，請稍後再試。', true);
+    }
+  }
+}
+
+function renderBatchResultTabs() {
+  const bar = $('r-batch-tabs');
+  if (!bar) return;
+  if (!state.batchResults || state.batchResults.length <= 1) {
+    bar.classList.add('hidden');
+    bar.innerHTML = '';
+    return;
+  }
+  bar.classList.remove('hidden');
+  let html = `<strong class="small" style="color:var(--amber-deep)">🏅 批次評分結果（共 ${state.batchResults.length} 枚）：</strong>`;
+  state.batchResults.forEach((item, i) => {
+    const sc = item.ai && typeof item.ai.score === 'number' ? `${item.ai.score}分` : '已收件';
+    html += `<button type="button" class="batch-tab-btn" data-batch-idx="${i}" aria-selected="${i === state.activeBatchResIdx}">#${i + 1} ${esc((item.ai?.topic || '胸章').slice(0, 6))} (${sc})</button>`;
+  });
+  html += `<button type="button" class="btn btn-sm btn-gold" id="btn-batch-res-a4" style="margin-left:auto">🖨️ 全部排入 A4 六宮格 1:1 印刷單</button>`;
+  bar.innerHTML = html;
+}
+
 function showResult() {
   const cur = state.current;
   const ai = cur.ai || {};
   switchView('result');
   $('r-receipt').textContent = cur.receipt;
+  renderBatchResultTabs();
+
+  const growthEl = $('r-growth-banner');
+  if (growthEl) {
+    const gTxt = formatGrowthText(ai.prevScore, ai.score);
+    if (gTxt) { growthEl.textContent = gTxt; growthEl.classList.remove('hidden'); }
+    else growthEl.classList.add('hidden');
+  }
 
   if (ai.status === 'unavailable' || ai.kind === 'unavailable' || typeof ai.score !== 'number') {
     $('r-unavailable').classList.remove('hidden');
@@ -1573,9 +2136,17 @@ function showResult() {
   } else if (eligible) {
     $('badge-panel').classList.remove('hidden');
     $('badge-locked').classList.add('hidden');
-    $('badge-msg').classList.add('hidden');
-    $('badge-downloads').classList.add('hidden');
-    $('btn-save-badge').disabled = false;
+    if (cur.badgePng) {
+      $('btn-save-badge').disabled = true;
+      $('btn-save-badge').textContent = '已儲存胸章';
+      $('badge-msg').classList.remove('hidden');
+      $('badge-downloads').classList.toggle('hidden', cur.badge !== '已發放');
+    } else {
+      $('badge-msg').classList.add('hidden');
+      $('badge-downloads').classList.add('hidden');
+      $('btn-save-badge').disabled = false;
+      $('btn-save-badge').textContent = '儲存胸章';
+    }
     setupBadgeStudio();
     fireConfetti();
   } else {
@@ -1889,6 +2460,213 @@ function saveCanvasPng(canvas, filename) {
   }, 'image/png');
 }
 
+// ---------- A4 300DPI「1:1 真實尺寸六宮格（6枚裝）」58mm 胸章刀模拼版系統 ----------
+async function buildA4BadgePagesDataUrls(rawItems, fillSix = false, sheetSubtitle = '') {
+  if (!rawItems || !rawItems.length) throw new Error('沒有可排版的胸章圖檔。');
+  try { await document.fonts.load('bold 26px "Noto Serif TC"'); } catch (_) {}
+
+  const work = rawItems.slice();
+  if (fillSix && work.length < 6) {
+    const baseLen = work.length;
+    while (work.length < 6) work.push({ ...work[work.length % baseLen] });
+  }
+  const pages = [];
+  for (let p = 0; p < work.length; p += 6) pages.push(work.slice(p, p + 6));
+
+  // A4 @ 300 DPI: 210mm x 297mm = 2480 x 3508 px (11.811 px/mm)
+  // Ø70mm bleed = 827px (R=413) | Ø58mm live = 685px (R=343) | Ø50mm safe = 590px (R=295)
+  const W = 2480, H = 3508;
+  const cols = [700, 1780], rows = [725, 1740, 2755];
+  const bleedR = 413, liveR = 343;
+  const outUrls = [];
+
+  for (let pIdx = 0; pIdx < pages.length; pIdx++) {
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+
+    // 頁首標示
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#173e35';
+    ctx.font = '900 40px "Noto Serif TC", serif';
+    ctx.fillText(`桃園市立大溪國民中學・58mm 實體胸章 A4（1:1 原寸六宮格）刀模印刷單`, W / 2, 112);
+    ctx.fillStyle = '#485952';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.fillText(`${sheetSubtitle ? sheetSubtitle + ' ｜ ' : ''}第 ${pIdx + 1} / ${pages.length} 頁 ｜ 外圈虛線 Ø70mm 裁紙圓（包邊折入背蓋，正面成品 Ø58mm 無輔助線干擾）`, W / 2, 162);
+
+    const chunk = pages[pIdx];
+    for (let i = 0; i < chunk.length; i++) {
+      const slot = chunk[i];
+      const cx = cols[i % 2], cy = rows[Math.floor(i / 2)];
+      const im = await loadImgElement(slot.imgSrc);
+
+      // 1) Ø70mm 出血包邊延伸底圖（柔焦同色系包邊，壓製胸章折邊絕不露白邊）
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, bleedR, 0, Math.PI * 2); ctx.clip();
+      ctx.fillStyle = '#fffdf7';
+      ctx.fillRect(cx - bleedR, cy - bleedR, bleedR * 2, bleedR * 2);
+      try {
+        ctx.save(); ctx.filter = 'blur(16px)';
+        ctx.drawImage(im, cx - bleedR - 24, cy - bleedR - 24, (bleedR + 24) * 2, (bleedR + 24) * 2);
+        ctx.restore();
+      } catch (_) {}
+      // 2) 主畫面精準對應 Ø58mm 成品圓並微幅延伸至包邊區（正面完全不壓任何格線！）
+      const drawR = slot.isFullBleed ? bleedR : Math.round(liveR * 1.07);
+      ctx.drawImage(im, cx - drawR, cy - drawR, drawR * 2, drawR * 2);
+      ctx.restore();
+
+      // 3) Ø70mm 外圈裁紙刀模虛線（供圓形裁刀或剪刀裁切）
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2.6;
+      ctx.setLineDash([14, 10]);
+      ctx.beginPath(); ctx.arc(cx, cy, bleedR, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 4) 四向對位十字規標（位於 70mm 裁切線外圍，與胸章機模具精準置中對齊）
+      ctx.strokeStyle = '#173e35';
+      ctx.lineWidth = 2;
+      const off = bleedR + 28, len = 22;
+      [[cx, cy - off], [cx, cy + off], [cx - off, cy], [cx + off, cy]].forEach(([gx, gy]) => {
+        ctx.beginPath();
+        ctx.moveTo(gx - len, gy); ctx.lineTo(gx + len, gy);
+        ctx.moveTo(gx, gy - len); ctx.lineTo(gx, gy + len);
+        ctx.stroke();
+      });
+
+      // 5) 下方學生與作品標記（裁切後留於廢紙邊，方便發放辨識）
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#173e35';
+      ctx.font = 'bold 24px "Noto Serif TC", sans-serif';
+      ctx.fillText(String(slot.title || `胸章 #${pIdx * 6 + i + 1}`).slice(0, 26), cx, cy + bleedR + 62);
+      if (slot.sub) {
+        ctx.fillStyle = '#5d7068';
+        ctx.font = '20px sans-serif';
+        ctx.fillText(String(slot.sub).slice(0, 32), cx, cy + bleedR + 94);
+      }
+    }
+
+    // 頁尾 50mm（5.0 公分 = 591 px @ 300 DPI）實體比例檢核尺
+    const rulerW = Math.round(50 * (300 / 25.4)); // 591 px
+    const rx = 180, ry = H - 105;
+    ctx.strokeStyle = '#173e35';
+    ctx.fillStyle = '#173e35';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(rx, ry); ctx.lineTo(rx + rulerW, ry);
+    for (let mm = 0; mm <= 50; mm += 10) {
+      const tx = rx + Math.round(mm * (300 / 25.4));
+      ctx.moveTo(tx, ry - 16); ctx.lineTo(tx, ry + 8);
+    }
+    ctx.stroke();
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.fillText('0mm', rx - 6, ry - 24);
+    ctx.fillText('50mm (5.0cm 實體檢核尺)', rx + rulerW - 140, ry - 24);
+    ctx.fillStyle = '#b45309';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.fillText('⚠️ 列印設定請務必選「實際大小 / 縮放 100%」，切勿選「符合紙張大小」，即可完美對應 58mm 胸章機！', rx + rulerW + 60, ry - 2);
+
+    outUrls.push(c.toDataURL('image/png'));
+  }
+  return outUrls;
+}
+
+async function exportA4BadgeSheet(rawItems, opts = {}) {
+  const { mode = 'download', fillSix = false, filePrefix = '58mm胸章A4六宮格', subtitle = '' } = opts;
+  toast('正在排版 300 DPI A4 1:1 胸章印刷單…');
+  const urls = await buildA4BadgePagesDataUrls(rawItems, fillSix, subtitle);
+
+  if (mode === 'print') {
+    const win = window.open('', '_blank');
+    if (!win) {
+      toast('瀏覽器阻擋了彈出視窗，已自動改為下載高清 PNG 印刷檔！');
+    } else {
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(filePrefix)} (A4 1:1 原寸列印)</title>
+        <style>
+          @page { size: A4 portrait; margin: 0; }
+          html, body { margin: 0; padding: 0; background: #525659; }
+          .bar { position: sticky; top: 0; background: #173e35; color: #fff; padding: 10px 18px; font-family: sans-serif; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+          .bar button { background: #d97706; color: #fff; border: 0; padding: 8px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; }
+          .sheet { width: 210mm; height: 297mm; display: block; margin: 12px auto; background: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.35); page-break-after: always; }
+          @media print {
+            html, body { background: #fff; }
+            .bar { display: none !important; }
+            .sheet { margin: 0; box-shadow: none; width: 210mm; height: 297mm; }
+          }
+        </style></head><body>
+        <div class="bar">
+          <span>🖨️ <b>A4 1:1 原寸胸章刀模印刷預覽</b>（共 ${urls.length} 頁｜列印時請確認「縮放：100% / 實際大小」）</span>
+          <button onclick="window.print()">立即列印 A4 (1:1)</button>
+        </div>
+        ${urls.map((u, idx) => `<img class="sheet" src="${u}" alt="第 ${idx + 1} 頁">`).join('')}
+        <script>window.onload = () => setTimeout(() => window.print(), 350);<\/script>
+      </body></html>`);
+      win.document.close();
+      return;
+    }
+  }
+
+  urls.forEach((u, idx) => {
+    const a = document.createElement('a');
+    a.href = u;
+    a.download = urls.length > 1 ? `${filePrefix}_第${idx + 1}頁.png` : `${filePrefix}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+  toast(`✓ 已匯出 ${urls.length} 頁 A4 1:1 六宮格胸章印刷單！`);
+}
+
+async function exportPreUploadA4Badges(mode) {
+  if (!state.badgeBatch.length) return toast('請先上傳至少 1 張胸章圖片');
+  saveCurrentBadgeCropThumb();
+  const cls = $('f-class').value.trim();
+  const seat = $('f-seat').value.trim();
+  const name = $('f-name').value.trim();
+  const who = [cls, seat ? seat + '號' : '', name].filter(Boolean).join(' ') || '學生創作預覽';
+  const items = [];
+  for (let i = 0; i < state.badgeBatch.length; i++) {
+    const b = state.badgeBatch[i];
+    const framed = await frameSingleBadgeItem(b);
+    items.push({
+      imgSrc: framed.dataUrl,
+      title: `${who}｜#${i + 1}`,
+      sub: b.name
+    });
+  }
+  const fillSix = $('chk-fill-6') ? $('chk-fill-6').checked : (items.length === 1);
+  await exportA4BadgeSheet(items, { mode, fillSix, filePrefix: `58mm胸章A4六宮格_${cls || '預覽'}_${name || '創作'}`, subtitle: who });
+}
+
+async function exportResultA4Badges(mode) {
+  const cur = state.current;
+  if (!cur) return;
+  let items = [];
+  if (state.batchResults && state.batchResults.length > 1) {
+    items = state.batchResults.map((r, i) => ({
+      imgSrc: r.badgePng || r.previewUrl || makeEmblemDataUrl(r.ai?.topic, r.ai?.score, r.ai?.kind, `${r.student.className} ${maskNameClient(r.student.name)}`),
+      title: `${r.student.className} ${r.student.seat}號 ${r.student.name}`,
+      sub: `#${i + 1} ${r.ai?.topic || ''}（${r.ai?.score ?? '—'} 分）`
+    }));
+  } else {
+    const png = cur.badgePng || renderCroppedBadgePng();
+    items = [{
+      imgSrc: png,
+      isFullBleed: true,
+      title: `${cur.student.className} ${cur.student.seat}號 ${cur.student.name}`,
+      sub: `${cur.ai?.topic || ''}（${cur.ai?.score ?? '—'} 分）`
+    }];
+  }
+  await exportA4BadgeSheet(items, {
+    mode,
+    fillSix: items.length === 1,
+    filePrefix: `58mm胸章A4六宮格_${cur.student.className}_${cur.student.name}`,
+    subtitle: `${cur.student.className} ${cur.student.name}｜${cur.assignment}`
+  });
+}
+
 // ==============================================
 // 我的能量軌跡頁
 // ==============================================
@@ -1940,20 +2718,28 @@ async function lookupTrajectory() {
     // 時間軸
     const tl = $('t-timeline');
     tl.innerHTML = '';
+    state.lastTrajectory = res;
     res.list.slice().reverse().forEach(r => {
       const item = document.createElement('div');
       item.className = 'panel tl-item';
       const chipCls = r.kind === '藝術創作' ? 'chip-art' : (r.kind === '探究筆記' ? 'chip-note' : 'chip-invalid');
       const canDownload = r.badge === '已發放';
+      const growthPill = (typeof r.prevScore === 'number' && typeof r.score === 'number')
+        ? `<div class="growth-pill" style="font-size:11.5px;padding:2px 9px;margin:3px 0">${esc(formatGrowthText(r.prevScore, r.score))}</div>`
+        : '';
       item.innerHTML = `
         <div class="tl-score" style="color:${(r.score || 0) >= th ? 'var(--amber)' : 'var(--ink)'}">${r.score ?? '—'}<small>PTS</small></div>
         <div class="tl-body">
           <div><span class="chip ${chipCls}">${esc(r.kind)}</span> <span class="chip">${esc(r.assignment)}</span> ${r.tag ? `<span class="chip">${esc(r.tag)}</span>` : ''} <span class="small muted">${esc(r.time)}</span></div>
           <h3>${esc(r.topic)}</h3>
+          ${growthPill}
           <div class="small muted">${esc(r.summary)}</div>
           ${r.corrections ? `<div class="small" style="margin-top:6px;padding:6px 10px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;color:#92400e"><b>🔍 細節診斷與訂正建議：</b>${esc(r.corrections)}</div>` : ''}
           ${r.teacherComment ? `<div class="teacher-comment"><b>老師評語：</b>${esc(r.teacherComment)}</div>` : `<div class="small" style="margin-top:6px;color:var(--forest)"><b>AI 評語草稿：</b>${esc(r.feedback)}（${esc(r.review)}）</div>`}
           ${r.advice ? `<div class="small muted" style="margin-top:4px">下一步：${esc(r.advice)}</div>` : ''}
+          <div style="margin-top:8px">
+            <button type="button" class="btn btn-sm btn-primary" data-revise-rc="${esc(r.receipt)}">✨ 依建議訂正重交（挑戰更高分）</button>
+          </div>
         </div>
         <div style="text-align:right">
           <span class="chip ${r.badge === '已發放' ? 'chip-gold' : ''}">胸章：${esc(r.badge)}</span>
@@ -1984,7 +2770,7 @@ async function downloadFromTrajectory(receipt, type) {
 }
 
 // ==============================================
-// 班級成果星空
+// 班級成果星空（3D 立體金屬胸章互動展示 ＋ 亮點讚賞）
 // ==============================================
 async function loadGallery() {
   const grid = $('gallery-grid');
@@ -2000,23 +2786,77 @@ async function loadGallery() {
       grid.innerHTML = `<div class="empty" style="grid-column:1/-1">還沒有已發放的胸章，快去挑戰 ${th} 分成為第一顆星！</div>`;
       return;
     }
+    state.galleryList = res.list;
     grid.innerHTML = '';
-    res.list.forEach(item => {
+    res.list.forEach((item, idx) => {
       const card = document.createElement('div');
       card.className = 'panel g-card';
+      card.dataset.gIdx = idx;
       const src = item.thumb ? `data:image/jpeg;base64,${item.thumb}` : makeEmblemDataUrl(item.title, item.score, item.kind, item.name);
       card.innerHTML = `
-        <img src="${src}" alt="${esc(item.title)}">
+        <div class="g-card-pin"><img src="${src}" alt="${esc(item.title)}"></div>
         <b>${esc(item.title)}</b>
         <div class="small muted">${esc(item.className)} ${esc(item.name)}</div>
-        <div style="margin-top:6px;display:flex;justify-content:space-between;font-size:11px;border-top:1px solid var(--line);padding-top:6px">
+        <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid var(--line);padding-top:6px">
           <span>${esc(item.kind)}</span>
           <span class="tech" style="color:var(--amber);font-weight:800">${Number(item.score)}分</span>
         </div>`;
+      card.addEventListener('click', () => openGalleryModal(idx));
       grid.appendChild(card);
     });
   } catch (err) {
     grid.innerHTML = `<div class="empty" style="grid-column:1/-1">${esc(err.message)}</div>`;
+  }
+}
+
+function openGalleryModal(idx) {
+  const item = state.galleryList && state.galleryList[idx];
+  if (!item) return;
+  const modal = $('gallery-modal');
+  $('gm-title').textContent = item.title || '榮譽胸章';
+  $('gm-author').textContent = `${item.className} 班 ${item.name}`;
+  $('gm-score').textContent = `${Number(item.score || 0)} PTS`;
+  $('gm-kind').textContent = item.kind || '自主學習成果';
+  const tagEl = $('gm-tag');
+  if (item.tag) { tagEl.textContent = item.tag; tagEl.classList.remove('hidden'); }
+  else tagEl.classList.add('hidden');
+  const src = item.thumb ? `data:image/jpeg;base64,${item.thumb}` : makeEmblemDataUrl(item.title, item.score, item.kind, item.name);
+  $('g-3d-img').src = src;
+  const praise = item.praise || `在「${item.assignment || '學習任務'}」中展現優異能量，獲得 ${item.score} 高分並成功鑄造實體能量胸章！`;
+  $('gm-praise').textContent = praise;
+  reset3DBadgeTilt();
+  modal.classList.remove('hidden');
+}
+
+function closeGalleryModal() {
+  $('gallery-modal').classList.add('hidden');
+}
+
+function reset3DBadgeTilt() {
+  const b = $('g-3d-badge');
+  const gl = $('g-3d-glare');
+  if (b) b.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  if (gl) gl.style.background = 'radial-gradient(circle at 35% 28%, rgba(255,255,255,.72) 0%, rgba(255,255,255,.16) 28%, rgba(255,255,255,0) 58%)';
+}
+
+function handle3DBadgeTilt(e) {
+  const stage = $('g-3d-stage');
+  const badge = $('g-3d-badge');
+  const glare = $('g-3d-glare');
+  if (!stage || !badge) return;
+  const rect = stage.getBoundingClientRect();
+  const pt = e.touches ? e.touches[0] : e;
+  const x = Math.max(0, Math.min(rect.width, pt.clientX - rect.left));
+  const y = Math.max(0, Math.min(rect.height, pt.clientY - rect.top));
+  const nx = (x / rect.width) * 2 - 1; // -1 ~ 1
+  const ny = (y / rect.height) * 2 - 1;
+  const rotX = (-ny * 22).toFixed(1);
+  const rotY = (nx * 22).toFixed(1);
+  badge.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.03)`;
+  if (glare) {
+    const gx = Math.round((nx * 0.35 + 0.5) * 100);
+    const gy = Math.round((ny * 0.35 + 0.5) * 100);
+    glare.style.background = `radial-gradient(circle at ${gx}% ${gy}%, rgba(255,255,255,.82) 0%, rgba(255,255,255,.22) 28%, rgba(255,255,255,0) 62%)`;
   }
 }
 
@@ -2123,7 +2963,16 @@ function renderAdminSubmissions() {
     if (q && !(r.name.includes(q) || r.topic.includes(q) || r.seat.includes(q))) return false;
     return true;
   });
+  state.adminFiltered = filtered;
+  if (!state.adminSelected) state.adminSelected = new Set();
+  // 清理不存在於當前列表的已勾選收據
+  const validRcs = new Set(filtered.map(r => r.receipt));
+  Array.from(state.adminSelected).forEach(rc => { if (!validRcs.has(rc)) state.adminSelected.delete(rc); });
+
   const box = $('adm-list');
+  renderAdminAnalytics(filtered);
+  updateAdminBatchUI();
+
   if (!filtered.length) {
     box.innerHTML = '<div class="empty">沒有符合篩選條件的繳交紀錄。</div>';
     return;
@@ -2133,14 +2982,23 @@ function renderAdminSubmissions() {
     const el = document.createElement('div');
     el.className = 'adm-item' + (r.badge === '待審核' ? ' pending' : '');
     const rc = esc(r.receipt);
+    const isChecked = state.adminSelected.has(r.receipt);
+    const growthTag = (typeof r.prevScore === 'number' && typeof r.score === 'number')
+      ? `<span class="growth-pill" style="font-size:11px;padding:1px 7px;margin-left:4px">${esc(formatGrowthText(r.prevScore, r.score))}</span>`
+      : '';
     el.innerHTML = `
       <div class="adm-head">
+        <label style="display:inline-flex;align-items:center;cursor:pointer">
+          <input type="checkbox" class="adm-row-check" data-check-rc="${rc}" ${isChecked ? 'checked' : ''} style="margin-right:6px;width:17px;height:17px;accent-color:var(--forest)">
+        </label>
         <span class="who">${esc(r.className)} 班 ${esc(r.seat)} 號 ${esc(r.name)}</span>
         <span class="chip">${esc(r.assignment)}</span>
         <span class="chip">${esc(r.kind)}</span>
         ${r.score !== null ? `<span class="chip tech" style="font-weight:800">${r.score} 分</span>` : ''}
+        ${growthTag}
         <span class="chip ${r.badge === '待審核' ? 'chip-gold' : ''}">胸章：${esc(r.badge)}</span>
         <span class="small muted" style="margin-left:auto">${esc(r.time)}</span>
+        <button type="button" class="btn btn-sm" data-preview-rc="${rc}">🔍 頁內預覽</button>
         ${r.fileUrl && r.fileUrl !== '#demo' ? `<a class="btn btn-sm" href="${esc(r.fileUrl)}" target="_blank" rel="noopener">原始檔</a>` : ''}
         ${r.badgeUrl && r.badgeUrl !== '#demo-badge' ? `<a class="btn btn-sm btn-gold" href="${esc(r.badgeUrl)}" target="_blank" rel="noopener">胸章檔</a>` : ''}
       </div>
@@ -2165,6 +3023,189 @@ function renderAdminSubmissions() {
         </div>
       </div>`;
     box.appendChild(el);
+  });
+}
+
+function updateAdminBatchUI() {
+  const count = state.adminSelected ? state.adminSelected.size : 0;
+  if ($('adm-sel-count')) $('adm-sel-count').textContent = `（已勾選 ${count} 筆）`;
+  const allBox = $('adm-check-all');
+  if (allBox && state.adminFiltered) {
+    allBox.checked = state.adminFiltered.length > 0 && state.adminSelected.size === state.adminFiltered.length;
+  }
+}
+
+// ---------- 教師後台：班級五維學力診斷雷達 ＆ 常見訂正盲點彙整 ----------
+function renderAdminAnalytics(filtered) {
+  const radarCanvas = $('adm-class-radar');
+  const errBox = $('adm-common-errors');
+  const tipEl = $('adm-weakest-tip');
+  if (!radarCanvas || !errBox) return;
+
+  const choice = $('adm-radar-kind') ? $('adm-radar-kind').value : 'auto';
+  let targetKind = choice;
+  if (targetKind === 'auto') {
+    const noteCount = filtered.filter(r => r.kind === '探究筆記').length;
+    const artCount = filtered.filter(r => r.kind === '藝術創作').length;
+    targetKind = artCount > noteCount ? '藝術創作' : '探究筆記';
+  }
+
+  const isArt = targetKind === '藝術創作';
+  const meta = isArt ? ART_META : NOTE_META;
+  const withDims = filtered.filter(r => r.kind === targetKind && r.dims);
+
+  if (!withDims.length) {
+    const ctx = radarCanvas.getContext('2d');
+    ctx.clearRect(0, 0, radarCanvas.width, radarCanvas.height);
+    ctx.fillStyle = '#5d7068';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`目前篩選無【${targetKind}】五維數據`, radarCanvas.width / 2, radarCanvas.height / 2);
+    if (tipEl) tipEl.textContent = '請切換篩選條件以檢視五維學力雷達';
+  } else {
+    const sums = meta.map(() => 0);
+    withDims.forEach(r => {
+      meta.forEach(([k], i) => {
+        const v = typeof r.dims[k] === 'number' ? r.dims[k] : 0;
+        sums[i] += v;
+      });
+    });
+    const avgs = sums.map(s => Math.round(s / withDims.length));
+    const normalized = avgs.map(a => a / 100);
+
+    drawRadar(radarCanvas, [{
+      values: normalized,
+      fill: isArt ? 'rgba(217,119,6,.28)' : 'rgba(36,101,77,.28)',
+      stroke: isArt ? '#d97706' : '#24654d',
+      dot: '#d97706',
+      width: 2.4
+    }], meta.map(m => m[1].replace(/\s*\(.+\)/, '')));
+
+    let minIdx = 0;
+    avgs.forEach((v, i) => { if (v < avgs[minIdx]) minIdx = i; });
+    const weakLabel = meta[minIdx][1].replace(/\s*\(.+\)/, '');
+    if (tipEl) {
+      tipEl.innerHTML = `💡 <b>全班向度診斷</b>：【${weakLabel}】平均 <b>${avgs[minIdx]}</b> 分（相對較弱），建議優先於課堂引導！`;
+    }
+  }
+
+  // 常見訂正盲點彙整
+  errBox.innerHTML = '';
+  const errItems = filtered
+    .filter(r => r.corrections && r.corrections.trim())
+    .map(r => ({ who: `${r.className} ${r.name}`, text: r.corrections.trim() }));
+  if (!errItems.length) {
+    errBox.innerHTML = '<div class="small muted" style="padding:10px;text-align:center">目前篩選的作品尚無細節診斷紀錄。</div>';
+  } else {
+    errItems.slice(0, 18).forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'adm-err-item';
+      row.innerHTML = `<span style="font-weight:700;color:var(--forest)">${esc(item.who)}：</span>${esc(item.text)}`;
+      errBox.appendChild(row);
+    });
+  }
+}
+
+// ---------- 教師後台：頁內高清燈箱預覽 ----------
+async function openAdminLightbox(receipt) {
+  const modal = $('lightbox-modal');
+  const imgEl = $('lb-img');
+  const emptyEl = $('lb-empty');
+  const titleEl = $('lb-title');
+  const metaEl = $('lb-meta');
+  const openDrive = $('lb-open-drive');
+
+  modal.classList.remove('hidden');
+  imgEl.classList.add('hidden');
+  emptyEl.classList.remove('hidden');
+  emptyEl.textContent = '正在從雲端載入作品影像…';
+  state.lightbox = { scale: 1, rot: 0 };
+  applyLightboxTransform();
+
+  try {
+    const res = await rpc('getSubmissionAsset', { password: state.adminPwd, receipt, preferBadge: false });
+    const r = res.record;
+    titleEl.textContent = `${r.className} 班 ${r.seat} 號 ${r.name} ｜ ${r.topic || r.assignment}`;
+    metaEl.textContent = `${r.kind} ｜ 分數：${r.score ?? '—'} 分 ｜ 繳交時間：${r.time}`;
+    openDrive.href = r.fileUrl || '#';
+
+    if (res.imageBase64) {
+      imgEl.src = `data:${res.mimeType || 'image/jpeg'};base64,${res.imageBase64}`;
+      imgEl.classList.remove('hidden');
+      emptyEl.classList.add('hidden');
+    } else if (res.isPdf) {
+      emptyEl.innerHTML = `📄 <b>PDF 格式作品</b><br><br><a class="btn btn-sm btn-primary" href="${esc(r.fileUrl)}" target="_blank" rel="noopener">在新分頁開啟 PDF 原始檔案</a>`;
+    } else if (r.fileUrl) {
+      emptyEl.innerHTML = `📎 作品已收錄於雲端資料夾：<br><br><a class="btn btn-sm btn-primary" href="${esc(r.fileUrl)}" target="_blank" rel="noopener">開啟雲端檔案</a>`;
+    } else {
+      emptyEl.textContent = '未找到影像檔，請確認雲端硬碟權限。';
+    }
+  } catch (err) {
+    emptyEl.textContent = '載入作品失敗：' + err.message;
+  }
+}
+
+function closeAdminLightbox() {
+  $('lightbox-modal').classList.add('hidden');
+  $('lb-img').src = '';
+}
+
+function applyLightboxTransform() {
+  const im = $('lb-img');
+  if (im) im.style.transform = `scale(${state.lightbox.scale}) rotate(${state.lightbox.rot}deg)`;
+  if ($('lb-zoom')) $('lb-zoom').value = state.lightbox.scale;
+}
+
+// ---------- 教師後台：批次核准／批次審查／一鍵匯出全班 A4 六宮格印刷單 ----------
+async function handleBatchAdminAction(action) {
+  const receipts = Array.from(state.adminSelected || []);
+  if (!receipts.length) return toast('請先在左側勾選至少一筆作品！');
+  const label = action === 'approve_badge' ? '批次核准所選胸章' : '批次標記已審查核准';
+  if (!confirm(`確定要將已選取的 ${receipts.length} 筆作品進行【${label}】嗎？`)) return;
+
+  toast(`正在執行 ${label}…`);
+  try {
+    const res = await rpc('batchReviewSubmissions', { password: state.adminPwd, receipts, batchAction: action });
+    toast(`✓ 已成功完成 ${res.updatedCount} 筆作品審查！`);
+    state.adminSelected.clear();
+    await loadAdminOverview();
+  } catch (err) {
+    toast(err.message || '批次操作失敗');
+  }
+}
+
+async function exportAdminApprovedBadges(mode = 'download') {
+  const list = (state.adminOverview && state.adminOverview.submissions) || [];
+  const targetClass = $('af-class') ? $('af-class').value : '';
+  const targetAssign = $('af-kind') ? '' : '';
+  const approved = list.filter(r => r.badge === '已發放' && (!targetClass || r.className === targetClass));
+  if (!approved.length) return toast(targetClass ? `目前【${targetClass} 班】尚無已發放胸章。` : '目前尚無已發放的胸章紀錄。');
+
+  toast(`正在排版 ${approved.length} 枚已發放胸章之 A4 六宮格 1:1 印刷單…`);
+  const items = [];
+  for (let i = 0; i < approved.length; i++) {
+    const r = approved[i];
+    let imgSrc = '';
+    try {
+      const asset = await rpc('getSubmissionAsset', { password: state.adminPwd, receipt: r.receipt, preferBadge: true });
+      if (asset && asset.imageBase64) imgSrc = `data:${asset.mimeType || 'image/png'};base64,${asset.imageBase64}`;
+    } catch (_) {}
+    if (!imgSrc) {
+      imgSrc = makeEmblemDataUrl(r.topic, r.score, r.kind, `${r.className} ${maskNameClient(r.name)}`);
+    }
+    items.push({
+      imgSrc,
+      isFullBleed: true,
+      title: `${r.className} 班 ${r.seat} 號 ${r.name}`,
+      sub: `${r.topic || r.assignment}（${r.score ?? '—'} 分）`
+    });
+  }
+  const prefix = `全班胸章A4六宮格印刷單_${targetClass || '大溪國中'}`;
+  await exportA4BadgeSheet(items, {
+    mode,
+    fillSix: false,
+    filePrefix: prefix,
+    subtitle: `${targetClass ? targetClass + ' 班 ｜ ' : ''}共 ${approved.length} 枚胸章`
   });
 }
 
@@ -2506,9 +3547,53 @@ window.addEventListener('mouseup', endPreCropDrag);
 window.addEventListener('touchend', endPreCropDrag);
 
 $('f-assignment').addEventListener('change', syncAssignmentContext);
+$('btn-cancel-revision')?.addEventListener('click', cancelRevisionMode);
+
+// 影像增強工具列事件
+$('btn-img-rot')?.addEventListener('click', rotateActiveImage);
+$('btn-img-clean')?.addEventListener('click', () => enhanceActiveImage('clean'));
+$('btn-img-darken')?.addEventListener('click', () => enhanceActiveImage('darken'));
+$('btn-img-reset')?.addEventListener('click', () => enhanceActiveImage('reset'));
+
+// 多圖胸章工作坊事件
+$('btn-badge-add-more')?.addEventListener('click', () => $('f-badge-more')?.click());
+$('f-badge-more')?.addEventListener('change', async e => {
+  const files = e.target.files;
+  if (!files || !files.length) return;
+  try {
+    const more = await compressBadgeBatch(files);
+    state.badgeBatch = [...state.badgeBatch, ...more].slice(0, 6);
+    renderBadgeBatchStrip();
+    syncBadgeBatchUI();
+    toast(`已更新為 ${state.badgeBatch.length} 枚胸章（單次上限 6 枚）`);
+  } catch (err) {
+    toast(err.message || '加入圖片失敗');
+  }
+});
+$('btn-pre-a4-download')?.addEventListener('click', () => exportPreUploadA4Badges('download'));
+$('btn-pre-a4-print')?.addEventListener('click', () => exportPreUploadA4Badges('print'));
+$('btn-submit-batch')?.addEventListener('click', submitBadgeBatch);
+
 $('f-file').addEventListener('change', async e => {
   const files = e.target.files;
   if (!files || !files.length) return;
+  const isBadge = state.submitMode === 'art' && state.artPurpose === 'badge';
+  if (isBadge) {
+    setStatus(files.length > 1 ? `正在載入 ${Math.min(6, files.length)} 張胸章作品…` : '正在載入胸章圖片…');
+    try {
+      const batch = await compressBadgeBatch(files);
+      state.badgeBatch = batch;
+      state.activeBadgeIdx = 0;
+      showSelectedFile(batch[0]);
+      syncBadgeBatchUI();
+      setStatus(batch.length > 1
+        ? `已就緒 ${batch.length} 枚胸章！點選縮圖可切換取景，或直接「🚀 批次送出全部評分」。`
+        : '胸章底圖已就緒，可調整圓形取景與使用上方工具修圖，完成後請按「送出作品」。');
+    } catch (err) {
+      setStatus(err.message || '檔案處理失敗', true);
+    }
+    return;
+  }
   setStatus(files.length > 1 ? `正在拼接處理 ${Math.min(4, files.length)} 張圖片…` : '正在處理檔案…');
   try {
     const f = await compressFiles(files);
@@ -2522,6 +3607,7 @@ $('f-file').addEventListener('change', async e => {
 // 結果頁事件
 $('btn-again').addEventListener('click', () => { clearSelectedFile(); switchView('submit'); });
 $('btn-retry').addEventListener('click', () => { clearSelectedFile(); switchView('submit'); });
+$('btn-revise-retry')?.addEventListener('click', () => { if (state.current) startRevisionChallenge(state.current); });
 $('btn-copy-receipt').addEventListener('click', () => {
   if (!state.current) return;
   navigator.clipboard?.writeText(state.current.receipt);
@@ -2531,6 +3617,21 @@ $('btn-to-traj').addEventListener('click', () => {
   if (state.current) $('t-receipt').value = state.current.receipt;
   switchView('trajectory');
   lookupTrajectory();
+});
+$('r-batch-tabs')?.addEventListener('click', e => {
+  const tab = e.target.closest('[data-batch-idx]');
+  if (tab) {
+    const idx = Number(tab.dataset.batchIdx);
+    if (state.batchResults && state.batchResults[idx]) {
+      state.activeBatchResIdx = idx;
+      state.current = state.batchResults[idx];
+      showResult();
+    }
+    return;
+  }
+  if (e.target.closest('#btn-batch-res-a4')) {
+    exportResultA4Badges('download');
+  }
 });
 document.querySelectorAll('#r-overlay-modes button').forEach(b => b.addEventListener('click', () => {
   state.overlayMode = b.dataset.overlay;
@@ -2563,6 +3664,8 @@ $('btn-print').addEventListener('click', () => {
     topic: cur.ai.topic, score: cur.ai.score
   });
 });
+$('btn-a4-sheet')?.addEventListener('click', () => exportResultA4Badges('download'));
+$('btn-a4-print-win')?.addEventListener('click', () => exportResultA4Badges('print'));
 $('btn-cert').addEventListener('click', () => {
   const cur = state.current;
   downloadCertificate(cur.badgePng || renderCroppedBadgePng(), {
@@ -2637,9 +3740,26 @@ $('btn-forget').addEventListener('click', () => {
 $('t-timeline').addEventListener('click', e => {
   const p = e.target.closest('[data-dl-print]');
   const c = e.target.closest('[data-dl-cert]');
+  const r = e.target.closest('[data-revise-rc]');
   if (p) downloadFromTrajectory(p.dataset.dlPrint, 'print');
   if (c) downloadFromTrajectory(c.dataset.dlCert, 'cert');
+  if (r) {
+    const rc = r.dataset.reviseRc;
+    const rec = (state.lastTrajectory?.list || []).find(x => x.receipt === rc);
+    if (rec) startRevisionChallenge(rec, state.lastTrajectory.student);
+  }
 });
+
+// 成果星空事件
+$('btn-close-gallery-modal')?.addEventListener('click', closeGalleryModal);
+$('gallery-modal')?.addEventListener('click', e => { if (e.target === $('gallery-modal')) closeGalleryModal(); });
+const gStage = $('g-3d-stage');
+if (gStage) {
+  gStage.addEventListener('mousemove', handle3DBadgeTilt);
+  gStage.addEventListener('touchmove', handle3DBadgeTilt, { passive: true });
+  gStage.addEventListener('mouseleave', reset3DBadgeTilt);
+  gStage.addEventListener('touchend', reset3DBadgeTilt);
+}
 
 // 後台事件
 $('btn-admin-login').addEventListener('click', adminLogin);
@@ -2653,7 +3773,53 @@ document.querySelectorAll('.tabs button[data-tab]').forEach(b => b.addEventListe
 ['af-class', 'af-kind', 'af-badge', 'af-search'].forEach(id => $(id).addEventListener('input', renderAdminSubmissions));
 $('btn-admin-refresh').addEventListener('click', loadAdminOverview);
 
+// 後台雷達圖切換向度視角
+$('adm-radar-kind')?.addEventListener('change', () => renderAdminAnalytics(state.adminFiltered || []));
+
+// 後台批次核准／審查／匯出 A4 印刷單
+$('adm-check-all')?.addEventListener('change', e => {
+  const checked = e.target.checked;
+  (state.adminFiltered || []).forEach(r => {
+    if (checked) state.adminSelected.add(r.receipt);
+    else state.adminSelected.delete(r.receipt);
+  });
+  document.querySelectorAll('.adm-row-check').forEach(c => { c.checked = checked; });
+  updateAdminBatchUI();
+});
+$('btn-batch-approve')?.addEventListener('click', () => handleBatchAdminAction('approve_badge'));
+$('btn-batch-review')?.addEventListener('click', () => handleBatchAdminAction('mark_reviewed'));
+$('btn-batch-clear')?.addEventListener('click', () => {
+  state.adminSelected.clear();
+  document.querySelectorAll('.adm-row-check').forEach(c => { c.checked = false; });
+  updateAdminBatchUI();
+});
+$('btn-admin-a4-badges')?.addEventListener('click', () => exportAdminApprovedBadges('print'));
+$('btn-export-a4-badges')?.addEventListener('click', () => exportAdminApprovedBadges('download'));
+
+// 後台高清燈箱事件
+$('btn-close-lightbox')?.addEventListener('click', closeAdminLightbox);
+$('lightbox-modal')?.addEventListener('click', e => { if (e.target === $('lightbox-modal')) closeAdminLightbox(); });
+$('lb-zoom')?.addEventListener('input', e => { state.lightbox.scale = parseFloat(e.target.value); applyLightboxTransform(); });
+$('lb-zoom-in')?.addEventListener('click', () => { state.lightbox.scale = Math.min(3, +(state.lightbox.scale + 0.2).toFixed(1)); applyLightboxTransform(); });
+$('lb-zoom-out')?.addEventListener('click', () => { state.lightbox.scale = Math.max(0.4, +(state.lightbox.scale - 0.2).toFixed(1)); applyLightboxTransform(); });
+$('lb-rot')?.addEventListener('click', () => { state.lightbox.rot = (state.lightbox.rot + 90) % 360; applyLightboxTransform(); });
+
+$('adm-list').addEventListener('change', e => {
+  const chk = e.target.closest('.adm-row-check');
+  if (chk) {
+    const rc = chk.dataset.checkRc;
+    if (chk.checked) state.adminSelected.add(rc);
+    else state.adminSelected.delete(rc);
+    updateAdminBatchUI();
+  }
+});
+
 $('adm-list').addEventListener('click', async e => {
+  const previewBtn = e.target.closest('[data-preview-rc]');
+  if (previewBtn) {
+    openAdminLightbox(previewBtn.dataset.previewRc);
+    return;
+  }
   const saveBtn = e.target.closest('[data-save-review]');
   const badgeBtn = e.target.closest('[data-badge-act]');
   if (saveBtn) {
