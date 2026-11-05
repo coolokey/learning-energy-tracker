@@ -611,7 +611,23 @@ function applyColumnWidths_(sheet, widths) {
     }
     var lastRow = typeof sheet.getLastRow === 'function' ? Math.max(sheet.getLastRow(), 2) : 2;
     var range = sheet.getRange(1, 1, lastRow, widths.length);
-    if (range && typeof range.setVerticalAlignment === 'function') range.setVerticalAlignment('middle');
+    if (range) {
+      if (typeof range.setVerticalAlignment === 'function') range.setVerticalAlignment('middle');
+      if (typeof range.setWrap === 'function') range.setWrap(true);
+      if (typeof range.setWrapStrategy === 'function' && typeof SpreadsheetApp !== 'undefined' && SpreadsheetApp.WrapStrategy) {
+        range.setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+      }
+    }
+    // 將工作表整體已使用範圍一併啟用自動換列
+    if (typeof sheet.getDataRange === 'function') {
+      var dr = sheet.getDataRange();
+      if (dr) {
+        if (typeof dr.setWrap === 'function') dr.setWrap(true);
+        if (typeof dr.setWrapStrategy === 'function' && typeof SpreadsheetApp !== 'undefined' && SpreadsheetApp.WrapStrategy) {
+          dr.setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+        }
+      }
+    }
     var header = sheet.getRange(1, 1, 1, widths.length);
     if (header && typeof header.setBackground === 'function') {
       header.setBackground('#173e35').setFontColor('#ffffff').setFontWeight('bold');
@@ -621,7 +637,7 @@ function applyColumnWidths_(sheet, widths) {
   }
 }
 
-/** 一鍵將試算表內所有工作表（能量軌跡總表、系統設定、星空藝廊）的每一欄調整為適當欄寬 */
+/** 一鍵將試算表內所有工作表（能量軌跡總表、系統設定、星空藝廊）設定自動換列與最適欄寬 */
 function formatAllSheets(data) {
   if (data && data.password !== undefined) verifyAdmin(data);
   var ss = getSpreadsheet_();
@@ -663,7 +679,7 @@ function formatAllSheets(data) {
   applyColumnWidths_(mainSh, MAIN_COL_WIDTHS_);
   applyColumnWidths_(setSh, SETTINGS_COL_WIDTHS_);
   applyColumnWidths_(galSh, GALLERY_COL_WIDTHS_);
-  props_().setProperty('SHEET_COLS_FORMATTED', 'v1');
+  props_().setProperty('SHEET_COLS_FORMATTED', 'v2');
   return {
     success: true,
     sheetUrl: ss.getUrl(),
@@ -702,13 +718,13 @@ function getSpreadsheet_() {
     p.setProperty('SPREADSHEET_ID', ss.getId());
   }
   var setSh = settingsSheet_(ss);
-  if (p.getProperty('SHEET_COLS_FORMATTED') !== 'v1') {
+  if (p.getProperty('SHEET_COLS_FORMATTED') !== 'v2') {
     var mainSh = ss.getSheetByName(SHEET_NAME_) || ss.getActiveSheet();
     applyColumnWidths_(mainSh, MAIN_COL_WIDTHS_);
     applyColumnWidths_(setSh, SETTINGS_COL_WIDTHS_);
     var galSh = ss.getSheetByName(GALLERY_SHEET_NAME_);
     if (galSh) applyColumnWidths_(galSh, GALLERY_COL_WIDTHS_);
-    p.setProperty('SHEET_COLS_FORMATTED', 'v1');
+    p.setProperty('SHEET_COLS_FORMATTED', 'v2');
   }
   return ss;
 }
@@ -1083,6 +1099,15 @@ function uploadSubmission(data) {
         }),
         data.requestId, '待教師審查', badge, '', '', ''
       ]);
+      var ms = mainSheet_();
+      var newR = typeof ms.getLastRow === 'function' ? ms.getLastRow() : 0;
+      if (newR >= 2 && typeof ms.getRange === 'function') {
+        var rowR = ms.getRange(newR, 1, 1, HEADERS_.length);
+        if (rowR) {
+          if (typeof rowR.setWrap === 'function') rowR.setWrap(true);
+          if (typeof rowR.setVerticalAlignment === 'function') rowR.setVerticalAlignment('middle');
+        }
+      }
     } catch (sheetErr) {
       console.warn('Sheet recording failed: ' + sheetErr.message);
     }

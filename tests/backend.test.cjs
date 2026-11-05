@@ -26,9 +26,12 @@ function artReply(over = {}) {
 function makeSheet(name) {
   const rows = [];
   const colWidths = {};
+  let wrapped = false;
   return {
     rows,
     colWidths,
+    get wrapped() { return wrapped; },
+    set wrapped(v) { wrapped = v; },
     getName: () => name,
     setName: () => {},
     appendRow: row => rows.push([...row]),
@@ -41,13 +44,19 @@ function makeSheet(name) {
           setBackground: () => chain,
           setFontColor: () => chain,
           setFontWeight: () => chain,
-          setVerticalAlignment: () => chain
+          setVerticalAlignment: () => chain,
+          setWrap: () => { wrapped = true; return chain; },
+          setWrapStrategy: () => { wrapped = true; return chain; }
         };
         return chain;
       }
       return { setValue: v => { while (rows[r - 1].length < c) rows[r - 1].push(''); rows[r - 1][c - 1] = v; } };
     },
-    getDataRange: () => ({ getValues: () => rows.map(r => [...r]) })
+    getDataRange: () => ({
+      getValues: () => rows.map(r => [...r]),
+      setWrap: () => { wrapped = true; },
+      setWrapStrategy: () => { wrapped = true; }
+    })
   };
 }
 
@@ -455,12 +464,14 @@ test('spreadsheet settings sheet stores and reads GEMINI_API_KEY and settings di
   s.ctx.setGeminiApiKey({ password: 'admin888', apiKey: 'updated-from-ui-key' });
   assert.equal(setSheet.rows[keyRowIdx][1], 'updated-from-ui-key');
 
-  // Verify column widths are automatically formatted across all sheets
+  // Verify column widths and text wrap are automatically formatted across all sheets
   const fmt = s.ctx.formatAllSheets({ password: 'admin888' });
   assert.equal(fmt.success, true);
   assert.equal(Object.keys(s.sheets['能量軌跡總表'].colWidths).length, 22);
   assert.equal(Object.keys(s.sheets['系統設定'].colWidths).length, 3);
   assert.equal(Object.keys(s.sheets['星空藝廊'].colWidths).length, 9);
+  assert.equal(s.sheets['能量軌跡總表'].wrapped, true);
+  assert.equal(s.sheets['系統設定'].wrapped, true);
 });
 
 test('doPost routes actions and reports errors as JSON', () => {
