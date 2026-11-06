@@ -1350,8 +1350,8 @@ function getGallery() {
     if (String(rows[i][8]) !== '已發放') continue;
     var scoreNum = Number(rows[i][6] || 0);
     var kindStr = String(rows[i][4] || '');
-    // 嚴格過濾：未達胸章門檻或無法辨識之作品，絕不出現在公開成果星空
-    if (kindStr === '無法辨識' || kindStr === 'invalid' || scoreNum < c.badgeThreshold) continue;
+    // 嚴格過濾：無法辨識或未分析之無效作品，不出現在公開成果星空
+    if (kindStr === '無法辨識' || kindStr === 'invalid') continue;
 
     var rcKey = String(rows[i][1] || '').trim().toLowerCase();
     var linked = rcKey ? byReceipt[rcKey] : null;
@@ -1594,21 +1594,23 @@ function batchReviewSubmissions(data) {
     setCell_(sheet, idx, COL_.review, '已審查核准');
     rows[idx][COL_.review] = '已審查核准';
 
-    // 智慧核准胸章發放條件：
-    // 1. 若 action === 'approve_badge'：必須分數達標且非無法辨識
-    // 2. 若 action === 'approve_review' 或 'mark_reviewed'：若胸章為待審核或分數達標且未選擇不製作胸章且未駁回
+    // 智慧核准胸章發放條件（教師手動審查具最高決策權）：
+    // 1. 若 action === 'approve_badge'：教師強制核發胸章（非無法辨識即全數放行）
+    // 2. 若 action === 'approve_review' 或 'mark_reviewed'：審查通過並核發胸章（非無法辨識且未標記不製作胸章）
     var shouldApproveBadge = false;
     if (action === 'approve_badge') {
-      shouldApproveBadge = isValidKind && isScoreEligible;
+      shouldApproveBadge = isValidKind;
     } else {
-      if (isValidKind && isScoreEligible && currentBadge !== '不製作胸章' && currentBadge !== '已駁回') {
+      if (isValidKind && currentBadge !== '不製作胸章' && currentBadge !== '已駁回') {
         shouldApproveBadge = true;
       }
     }
 
-    if (shouldApproveBadge && currentBadge !== '已發放') {
-      setCell_(sheet, idx, COL_.badge, '已發放');
-      rows[idx][COL_.badge] = '已發放';
+    if (shouldApproveBadge) {
+      if (currentBadge !== '已發放') {
+        setCell_(sheet, idx, COL_.badge, '已發放');
+        rows[idx][COL_.badge] = '已發放';
+      }
 
       var recForGal = rowToRecord_(rows[idx]);
       recForGal.score = currentScore;
@@ -1678,10 +1680,9 @@ function cleanAndRepairGallery(data) {
     var rcKey = String(gRows[i][1] || '').trim().toLowerCase();
     var score = Number(gRows[i][6] || 0);
     var kind = String(gRows[i][4] || '').trim();
-    var isInvalid = kind === '無法辨識' || kind === 'invalid';
-    var isBelow = score < c.badgeThreshold;
+    var isInvalid = kind === '無法辨識' || kind === 'invalid' || score < 30;
 
-    if (isInvalid || isBelow) {
+    if (isInvalid) {
       gs.deleteRow(i + 1);
       removedCount++;
       if (byReceipt[rcKey]) {
@@ -1713,12 +1714,12 @@ function cleanAndRepairGallery(data) {
     }
   }
 
-  // 2. 檢查能量軌跡總表：若有小於門檻卻標記為「已發放」者，修正為「未達標」
+  // 2. 檢查能量軌跡總表：若有無法辨識卻標記為「已發放」者，修正為「未達標」
   for (var k = 1; k < mRows.length; k++) {
     var mScore = mRows[k][COL_.score];
     var mBadge = String(mRows[k][COL_.badge] || '').trim();
     var mKind = String(mRows[k][COL_.kind] || '').trim();
-    if (mBadge === '已發放' && (mKind === '無法辨識' || (typeof mScore === 'number' && mScore < c.badgeThreshold))) {
+    if (mBadge === '已發放' && (mKind === '無法辨識' || mKind === 'invalid' || (typeof mScore === 'number' && mScore < 30))) {
       setCell_(ms, k, COL_.badge, '未達標');
     }
   }
