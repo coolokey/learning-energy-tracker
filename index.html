@@ -358,6 +358,77 @@
     .traj-path.draw { stroke-dashoffset: 0; }
     .traj-node { opacity: 1; }
   }
+
+  /* ---------- 教師使用手冊專區 ---------- */
+  .teacher-manual-panel {
+    margin-top: 36px; padding: 28px 24px;
+    background: #ffffff; border: 1.5px solid #c7d8cb; border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(23,62,53,.06);
+  }
+  .tm-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 16px; flex-wrap: wrap; border-bottom: 2px solid var(--paper); padding-bottom: 18px;
+    margin-bottom: 22px;
+  }
+  .tm-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #eef5ea; color: var(--forest); border: 1px solid #b7cfac;
+    padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 800;
+  }
+  .tm-title { font-size: 22px; font-weight: 900; margin: 8px 0 6px; color: var(--ink); }
+  .tm-desc { font-size: 14px; color: var(--muted); margin: 0; max-width: 48em; line-height: 1.6; }
+  .tm-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  .tm-nav {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px;
+    background: #f8faf6; padding: 6px; border-radius: 12px; border: 1px solid #e3ebe1;
+  }
+  .tm-tab-btn {
+    border: 1px solid transparent; background: transparent; padding: 8px 14px;
+    border-radius: 8px; font-size: 13px; font-weight: 700; color: #496357;
+    transition: all .15s; cursor: pointer;
+  }
+  .tm-tab-btn:hover { background: #eef3eb; color: var(--ink); }
+  .tm-tab-btn[aria-selected="true"] {
+    background: var(--forest); color: #fff; box-shadow: 0 2px 6px rgba(36,101,77,.25);
+  }
+
+  .tm-chapter { display: none; }
+  .tm-chapter.active { display: block; animation: fadeIn .2s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .tm-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 14px 0; }
+  .tm-card {
+    background: #fcfdfa; border: 1px solid #dce5da; border-radius: 12px; padding: 16px;
+  }
+  .tm-card-title {
+    font-weight: 800; font-size: 15px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .tm-step {
+    display: flex; gap: 14px; margin-bottom: 16px; align-items: flex-start;
+  }
+  .tm-step-num {
+    background: var(--ink); color: #fff; width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 900; font-family: var(--tech); font-size: 13px; flex-shrink: 0;
+  }
+  .tm-step-content { flex: 1; font-size: 13.5px; }
+  .tm-step-content strong { color: var(--forest); }
+  .tm-alert {
+    background: #fff8eb; border-left: 4px solid var(--amber); border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; color: #78350f; margin: 12px 0;
+  }
+  .tm-faq-q {
+    font-weight: 800; font-size: 14.5px; color: var(--ink); margin-top: 14px; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tm-faq-a { font-size: 13.5px; color: #374151; margin-bottom: 12px; line-height: 1.6; }
+
+  @media print {
+    .topbar, .submit-layout, .hero-guide-card, #btn-hero-guide, .tm-nav, .tm-actions, .toast { display: none !important; }
+    .teacher-manual-panel { box-shadow: none; border: 0; margin: 0; padding: 0; }
+    .tm-chapter { display: block !important; margin-bottom: 24px; page-break-inside: avoid; }
+    body { background: #fff; color: #000; font-size: 12pt; }
+  }
 </style>
 </head>
 <body>
@@ -376,6 +447,7 @@
       <button type="button" data-view="submit" aria-current="page">繳交作品</button>
       <button type="button" data-view="trajectory">我的能量軌跡</button>
       <button type="button" data-view="gallery">成果星空</button>
+      <button type="button" class="nav-guide" id="btn-open-guide" style="border:1px solid #b7cfac;background:#eff3e7;color:var(--forest);font-weight:800">📖 教師手冊</button>
       <button type="button" class="nav-admin" id="btn-open-admin">教師後台</button>
     </nav>
   </div>
@@ -398,6 +470,13 @@
           <div><b>01</b><span>填班級座號姓名，免登入。拍照或上傳 JPG、PNG、PDF。</span></div>
           <div><b>02</b><span>AI 判斷是筆記還是畫作，給五維雷達、評語與下一步建議。</span></div>
           <div><b>03</b><span>保留收據編號，隨時查看自己的能量軌跡與老師評語。</span></div>
+        <div class="panel hero-guide-card" style="margin-top:14px;padding:12px 14px;background:#f2f7f4;border:1px solid #b7cfac;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <div style="font-weight:800;font-size:13.5px;color:var(--forest)">📖 教師使用手冊與教學指引</div>
+            <div class="small muted" style="margin-top:2px">課堂三步流程、自訂規準、批次審核、A4 胸章列印教學</div>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary" id="btn-scroll-manual" style="white-space:nowrap">閱讀手冊 ↓</button>
+        </div>
         </div>
       </div>
 
@@ -554,6 +633,206 @@
           </fieldset>
         </form>
       </div>
+    </div>
+  
+    <!-- ================= 教師使用手冊專區（首頁專屬） ================= -->
+    <div class="panel teacher-manual-panel" id="home-teacher-manual">
+      <div class="tm-header">
+        <div>
+          <div class="tm-badge">📖 大溪國中・教學輔導專區</div>
+          <h2 class="tm-title">學習能量軌跡系統・教師使用手冊與教學指引</h2>
+          <p class="tm-desc">本系統結合 AI 多模態（Gemini 2.5 Pro）五維素養評量、58mm 實體能量胸章激勵機制、教師自訂規準 (Rubrics)、智慧批次審查與 Google Docs 成果冊。以下提供課堂實施與後台操作完整指南。</p>
+        </div>
+        <div class="tm-actions">
+          <button type="button" class="btn btn-sm btn-gold" id="btn-tm-to-admin">前往教師後台 →</button>
+          <button type="button" class="btn btn-sm" id="btn-tm-print">🖨️ 列印教師手冊</button>
+          <button type="button" class="btn btn-sm" id="btn-tm-toggle-all">展開全部章節</button>
+        </div>
+      </div>
+
+      <nav class="tm-nav" aria-label="手冊章節切換">
+        <button type="button" class="tm-tab-btn" data-tm-tab="phil" aria-selected="true">🎓 一、理念與五維指標</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="workflow" aria-selected="false">🚀 二、課堂實施三步走</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="rubric" aria-selected="false">📝 三、作業項目與評分規準</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="review" aria-selected="false">🔍 四、作業審核、調分與批次</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="badge" aria-selected="false">🖨️ 五、胸章印刷與成果冊匯出</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="faq" aria-selected="false">❓ 六、常見問題 FAQ</button>
+      </nav>
+
+      <!-- 第一章：核心理念與五維評析指標 -->
+      <section id="tm-ch-phil" class="tm-chapter active">
+        <h3 style="font-size:18px;margin-bottom:12px;color:var(--forest)">🎓 第一章：核心理念與雙軌五維評量指標</h3>
+        <p style="margin-top:0">大溪國中「學習能量軌跡」以「自主學習 ╳ 藝術能量」為核心，打破傳統只有單一成績的打分方式。系統導入 Gemini 2.5 Pro 深度推理模型，依照學生上傳的作品類型啟動專屬的「五維雷達素養評量」：</p>
+        
+        <div class="tm-grid-2">
+          <div class="tm-card" style="border-top:4px solid var(--forest)">
+            <div class="tm-card-title" style="color:var(--forest)">📘 探究筆記／自主學習單（滿分 100 分）</div>
+            <ul style="margin:0;padding-left:20px;font-size:13.5px;line-height:1.7">
+              <li><b>1. 主題聚焦性 (Focus, 20%)</b>：核心問題意識明確、探究動機具體，不離題。</li>
+              <li><b>2. 探究深入度 (Depth, 20%)</b>：蒐集多方資料、因果論證嚴謹、具多角度分析。</li>
+              <li><b>3. 脈絡結構性 (Structure, 20%)</b>：邏輯段落分明，善用條列、心智圖、表格歸納。</li>
+              <li><b>4. 批判省思與洞見 (Insight, 20%)</b>：提出個人觀點與反思，連結生活情境或跨領域知識。</li>
+              <li><b>5. 視覺傳達與整潔 (Presentation, 20%)</b>：字跡清晰端正、圖文配置恰當、筆記整潔好讀。</li>
+            </ul>
+          </div>
+          <div class="tm-card" style="border-top:4px solid var(--amber)">
+            <div class="tm-card-title" style="color:var(--amber-deep)">🎨 藝術創作／美感評析（滿分 100 分）</div>
+            <ul style="margin:0;padding-left:20px;font-size:13.5px;line-height:1.7">
+              <li><b>1. 構圖與造型表現 (Composition, 20%)</b>：黃金分割／三分法、主體與留白配比、視覺動線。</li>
+              <li><b>2. 色彩美感與調和 (Color Harmony, 20%)</b>：冷暖色調搭配、色彩對比度、情感氛圍一致性。</li>
+              <li><b>3. 媒材與技法熟練 (Technique, 20%)</b>：筆觸流暢、明暗光影漸層、材質肌理掌控力。</li>
+              <li><b>4. 主題詮釋與原創 (Originality, 20%)</b>：原創巧思、打破公式化套版、展現獨特觀察。</li>
+              <li><b>5. 情感張力與意境 (Emotional Resonance, 20%)</b>：畫面故事感、意境營造、引發觀者共鳴。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tm-alert">
+          💡 <b>歷程成長理念</b>：每次作業上傳並非「終結性評分」，而是「形成性評量」。系統藉由比對同位學生的前次收據，動態計算「成長差值（如 +12 分）」並繪製能量軌跡折線圖，引導學生體驗每一次修正帶來的進步！
+        </div>
+      </section>
+
+      <!-- 第二章：課堂實施三步走 -->
+      <section id="tm-ch-workflow" class="tm-chapter">
+        <h3 style="font-size:18px;margin-bottom:12px;color:var(--forest)">🚀 第二章：課堂實施三步走（學生端指引）</h3>
+        <p style="margin-top:0">全系統免帳號、免登入，學生只要拿起平板或手機掃描 QR Code 即可於 2 分鐘內完成繳交：</p>
+
+        <div class="tm-step">
+          <div class="tm-step-num">1</div>
+          <div class="tm-step-content">
+            <strong>【步驟一・填寫資訊與拍照上傳】</strong>
+            <p style="margin:4px 0 6px">學生在首頁選擇「班級」（例如 701）、「座號」、「姓名」，並從下拉選單選取老師本次派發的作業項目。支援直接用手機拍照或選取圖檔（JPG、PNG）與 PDF，<strong>支援同時選取 1～4 張照片自動高解析度拼接</strong>（例如正反兩面學習單），單一作品上限 10MB。</p>
+          </div>
+        </div>
+
+        <div class="tm-step">
+          <div class="tm-step-num">2</div>
+          <div class="tm-step-content">
+            <strong>【步驟二・AI 即時多模態分析與訂正建議（3～5 秒）】</strong>
+            <p style="margin:4px 0 6px">送出後，系統自動依據作業類型與學科視角給出五維學力雷達圖、摘要、正向優勢讚賞、錯題細節診斷與改進建議。每位學生會取得唯一的專屬「收據編號」，點擊「複製」保存後，日後可在「我的能量軌跡」隨時查詢老師的正式評語與個人歷史進步曲線。</p>
+          </div>
+        </div>
+
+        <div class="tm-step">
+          <div class="tm-step-num">3</div>
+          <div class="tm-step-content">
+            <strong>【步驟三・58mm 實體能量胸章解鎖與鑄造】</strong>
+            <p style="margin:4px 0 6px">若分數達到胸章達標標準（預設 85 分）或經老師確認核准，系統會亮起金黃色通知並解鎖「58mm 胸章工作室」。學生可在頁面中旋轉圖片、調整圓形取景、預覽 3D 金屬立體光澤，並下載實體尺寸印刷圖。老師亦可在後台一鍵匯出全班 1:1 六宮格印刷單以供胸章機製作！</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 第三章：作業項目管理與自訂評分規準 -->
+      <section id="tm-ch-rubric" class="tm-chapter">
+        <h3 style="font-size:18px;margin-bottom:12px;color:var(--forest)">📝 第三章：作業項目管理與自訂評分規準 (Rubrics)</h3>
+        <p style="margin-top:0">點擊網頁右上角「教師後台」➔ 輸入管理者密碼（預設 <code>admin888</code>）➔ 切換至「作業項目」分頁：</p>
+
+        <div class="tm-grid-2">
+          <div class="tm-card">
+            <div class="tm-card-title">✏️ 點選作業名稱直接更名（自動雙向同步）</div>
+            <p style="font-size:13px;line-height:1.6;margin:0 0 6px">直接點選任一作業名稱即可編輯修改（例如將舊名稱修改為「八年級理化浮力實驗」）。點擊「儲存作業項目與評分規準」後，系統會自動在後端掃描試算表總表與 Google 雲端資料夾，同步完成歷史紀錄與資料夾的批次更名！</p>
+          </div>
+          <div class="tm-card">
+            <div class="tm-card-title">🎯 自訂 6 大學科專業評分視角</div>
+            <p style="font-size:13px;line-height:1.6;margin:0 0 6px">可為每個作業指定預設學科視角：跨領域自主學習、國語文（作文修辭・錯別字）、英語文（短文・Grammar 診斷）、數學（計算步驟・正負號）、自然科學（實驗變因・數據圖表）、社會（公民思辨・在地踏查）。</p>
+          </div>
+        </div>
+
+        <div class="tm-card" style="margin-top:12px">
+          <div class="tm-card-title">📋 設定「老師特別要求與評分規準」（Rubrics）</div>
+          <p style="font-size:13px;line-height:1.6;margin:0 0 6px">在作業規準欄位填寫老師對該次作業的要求，AI 評審時會將此視為最高權重標準。例如：</p>
+          <div style="background:#f1f5f9;border-left:3px solid #64748b;padding:8px 12px;font-size:12.5px;color:#334155;border-radius:4px;font-family:monospace">
+            • 國文心得規準：全文須達 300 字以上、須明確指出書中一句佳句並說明觸動點、至少列出兩項個人省思。<br>
+            • 數學解題規準：必須寫出完整的移項運算步驟與最後驗算，若直接寫出答案而無推導過程則該向度不得超過 70 分。
+          </div>
+        </div>
+      </section>
+
+      <!-- 第四章：作業審核、調分與智慧批次處理 -->
+      <section id="tm-ch-review" class="tm-chapter">
+        <h3 style="font-size:18px;margin-bottom:12px;color:var(--forest)">🔍 第四章：作業審核、調分與智慧批次處理</h3>
+        <p style="margin-top:0">在後台「繳交與審核」面板，老師擁有完整的作業批閱與調整主導權：</p>
+
+        <div class="tm-step">
+          <div class="tm-step-num">A</div>
+          <div class="tm-step-content">
+            <strong>【頁內高清燈箱（In-Page Lightbox）】</strong>
+            <p style="margin:4px 0 6px">點擊每筆卡片右上角的「🔍 頁內預覽」，無需另開瀏覽器分頁。支援即時滾輪放大至 300%、旋轉角度與平移拖曳，即便是手寫微小算式或細微鉛筆素描筆觸都能清楚檢閱。</p>
+          </div>
+        </div>
+
+        <div class="tm-step">
+          <div class="tm-step-num">B</div>
+          <div class="tm-step-content">
+            <strong>【導師調分與正式評語】</strong>
+            <p style="margin:4px 0 6px">AI 產生的分數與評語為初稿參考。老師可隨時在「導師調分」欄修改為心目中的分數，並在文字框輸入正式評語。一旦儲存，學生在前端「我的能量軌跡」將優先看到老師親手給予的溫暖勉勵！</p>
+          </div>
+        </div>
+
+        <div class="tm-step">
+          <div class="tm-step-num">C</div>
+          <div class="tm-step-content">
+            <strong>【審查狀態篩選 ＆ 智慧批次審查】</strong>
+            <p style="margin:4px 0 6px">提供「待教師審查」、「已審查核准」、「請學生修正」三向度快速篩選。可勾選多位學生點選：</p>
+            <ul style="margin:0;padding-left:20px;font-size:13px;line-height:1.7">
+              <li><b>✓ 批次審查通過（達標核發胸章）</b>：智慧判斷每筆作品，達標者（≥85分）自動核發胸章、收錄星空與建立雲端備份；未達標者（<85分）僅標記審查完成，絕不亂發胸章！</li>
+              <li><b>🏅 僅核准胸章發放</b>：直接對勾選之優良作品開放送出實體胸章。</li>
+              <li><b>↩️ 批次請學生修正</b>：一鍵批次退回請學生重新訂正。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 第五章：胸章印刷與成果冊匯出 -->
+      <section id="tm-ch-badge" class="tm-chapter">
+        <h3 style="font-size:18px;margin-bottom:12px;color:var(--forest)">🖨️ 第五章：A4 胸章 1:1 列印與 Google Docs 成果冊</h3>
+        <p style="margin-top:0">學期末或作業結束後，老師可透過一鍵匯出將數位學習成果轉化為實體榮譽與評量檔案：</p>
+
+        <div class="tm-grid-2">
+          <div class="tm-card">
+            <div class="tm-card-title" style="color:var(--amber-deep)">🖨️ 匯出胸章 A4 1:1 六宮格印刷單</div>
+            <p style="font-size:13px;line-height:1.6;margin:0 0 6px">點擊「🖨️ 匯出胸章 A4 1:1 六宮格印刷單」，系統將全班已發放之胸章自動排版為標準 A4 6 模高解析度列印單：</p>
+            <ul style="margin:0;padding-left:18px;font-size:12.5px;color:#475569;line-height:1.6">
+              <li><b>三層精密同心圓</b>：外圈 70mm（壓模出血包邊）、內圈 64mm（裁切線）、內核心 54mm（正面可視區）。</li>
+              <li><b>學生姓名座號標籤</b>：每枚胸章下方自動加註班級、座號、姓名與得分，裁剪時不會搞混。</li>
+              <li><b>列印要訣</b>：列印比例請務必選「<b>實際大小（100%）</b>」，用紙建議 120g～160g 雪銅紙或相片紙，搭配 58mm 實體胸章機即可直接壓製！</li>
+            </ul>
+          </div>
+          <div class="tm-card">
+            <div class="tm-card-title" style="color:var(--forest)">📄 匯出全班成果冊（Google Docs）</div>
+            <p style="font-size:13px;line-height:1.6;margin:0 0 6px">在後台「總表與成果冊」點擊「匯出成果冊」，系統自動產生精緻的 Google Docs 文件：</p>
+            <ul style="margin:0;padding-left:18px;font-size:12.5px;color:#475569;line-height:1.6">
+              <li><b>一人一頁自動分頁</b>：整齊排版學生姓名座號、學習能量軌跡摘要。</li>
+              <li><b>圖文並茂完整記錄</b>：完整收錄歷次作業原始照片、AI 與導師雙軌評語、實體胸章作品圖檔。</li>
+              <li><b>用途多元</b>：可直接列印成冊作為家長日展示、期末學習檔案評量或班級自主學習特刊。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tm-alert" style="margin-top:14px">
+          🧹 <b>試算表維護小撇步</b>：在後台「總表與成果冊」提供「<b>一鍵設定自動換列與最適欄寬</b>」讓試算表不縮小遮蔽文字；若星空榜需同步，點擊「<b>🧹 一鍵修復星空縮圖 ＆ 清理未達標胸章</b>」即可全自動校準資料。
+        </div>
+      </section>
+
+      <!-- 第六章：常見問題 FAQ -->
+      <section id="tm-ch-faq" class="tm-chapter">
+        <h3 style="font-size:18px;margin-bottom:12px;color:var(--forest)">❓ 第六章：常見問題與教學實務 FAQ</h3>
+        
+        <div class="tm-faq-q">Q1：學生忘記保存收據編號（UUID），如何查看評語與胸章？</div>
+        <div class="tm-faq-a">老師可登入後台，在「繳交與審核」清單中搜尋該學生的姓名或座號。每筆卡片上方均有專屬收據，老師可直接複製收據給學生；學生也可以在首頁輸入自己的班級座號姓名，再次查詢自己的能量軌跡。</div>
+
+        <div class="tm-faq-q">Q2：學生傳錯照片或作業不滿意想要訂正，該如何操作？</div>
+        <div class="tm-faq-a">學生只要在評分結果頁面點擊「🔄 訂正再挑戰」，系統會自動帶入前次評語並啟動訂正模式，重新上傳後將直接形成進步差值與成長柱狀圖。若已關閉頁面，直接在首頁重新繳交一份即可，系統會依學生姓名座號自動串接為同一條學習軌跡。</div>
+
+        <div class="tm-faq-q">Q3：如何防止公用電腦造成學生個資外洩或互相覆蓋？</div>
+        <div class="tm-faq-a">本系統為純無狀態設計，學生端無需登入、不使用 Cookie 儲存隱私。學生繳交後刷新頁面即回歸空白表單。若老師在教室電腦登入後台，離開時請務必點擊右上角「登出教師後台」以確保管理安全性。</div>
+
+        <div class="tm-faq-q">Q4：公開的「成果星空」會不會洩漏學生個人隱私？</div>
+        <div class="tm-faq-a">成果星空具備自動隱私保護機制，學生姓名會強制遮蔽中間字（例如：李○明、陳○華）；且只有經過審查核准且達標的胸章才會上架星空。老師亦可在後台「系統設定」隨時關閉成果星空的公開展示。</div>
+
+        <div class="tm-faq-q">Q5：A4 胸章列印時，印表機該如何設定才能剛好符合 58mm 胸章機？</div>
+        <div class="tm-faq-a">在瀏覽器跳出列印對話框時：1. 頁面尺寸務必選 <b>A4</b>；2. 邊界選 <b>無（None）</b> 或 <b>最小</b>；3. 比例（縮放）務必設定為 <b>實際大小（100%）</b>，切勿勾選「符合紙張大小」或「配合頁面」，這樣印出來的同心圓直徑才會百分之百精確符合 58mm 胸章裁切刀與壓模模具。</div>
+      </section>
     </div>
   </section>
 
@@ -3508,7 +3787,65 @@ function fireConfetti() {
   }
 }
 
+
+// ==============================================
+// 教師使用手冊（首頁專屬互動與分頁切換）
+// ==============================================
+function initTeacherManual() {
+  const tabs = document.querySelectorAll('.tm-tab-btn');
+  const chapters = document.querySelectorAll('.tm-chapter');
+  let isAllExpanded = false;
+
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.dataset.tmTab;
+      tabs.forEach(b => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
+      chapters.forEach(ch => {
+        ch.classList.toggle('active', ch.id === ('tm-ch-' + tabId));
+      });
+      isAllExpanded = false;
+      const toggleBtn = $('btn-tm-toggle-all');
+      if (toggleBtn) toggleBtn.textContent = '展開全部章節';
+    });
+  });
+
+  $('btn-tm-toggle-all')?.addEventListener('click', () => {
+    isAllExpanded = !isAllExpanded;
+    chapters.forEach(ch => {
+      ch.classList.toggle('active', isAllExpanded);
+    });
+    if (!isAllExpanded) {
+      const currentTab = document.querySelector('.tm-tab-btn[aria-selected="true"]')?.dataset.tmTab || 'phil';
+      $('tm-ch-' + currentTab)?.classList.add('active');
+    }
+    const toggleBtn = $('btn-tm-toggle-all');
+    if (toggleBtn) toggleBtn.textContent = isAllExpanded ? '收合為分頁瀏覽' : '展開全部章節';
+  });
+
+  $('btn-tm-print')?.addEventListener('click', () => {
+    window.print();
+  });
+
+  $('btn-tm-to-admin')?.addEventListener('click', () => {
+    openAdmin();
+  });
+
+  $('btn-scroll-manual')?.addEventListener('click', scrollToTeacherManual);
+  $('btn-open-guide')?.addEventListener('click', scrollToTeacherManual);
+}
+
+function scrollToTeacherManual() {
+  switchView('submit');
+  const manual = $('home-teacher-manual');
+  if (manual) {
+    manual.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    manual.style.outline = '3px solid var(--forest)';
+    setTimeout(() => { manual.style.outline = ''; }, 2000);
+  }
+}
+
 async function init() {
+  initTeacherManual();
   renderThemeCats();
   renderThemeChips();
   renderPromptChips();
