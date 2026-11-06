@@ -102,8 +102,8 @@
   @keyframes drawPath { to { stroke-dashoffset: 0; } }
   @keyframes nodeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   .how { display: grid; gap: 10px; margin-top: 18px; }
-  .how div { display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: 13px; color: #33524a; }
-  .how b { font-family: var(--tech); color: var(--amber); font-size: 13px; padding-top: 1px; }
+  .how > div { display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: 13px; color: #33524a; }
+  .how > div > b { font-family: var(--tech); color: var(--amber); font-size: 13px; padding-top: 1px; }
 
   .form-panel { padding: 22px; }
   .form-panel h2 { font-size: 22px; margin-bottom: 4px; }
@@ -470,13 +470,17 @@
           <div><b>01</b><span>填班級座號姓名，免登入。拍照或上傳 JPG、PNG、PDF。</span></div>
           <div><b>02</b><span>AI 判斷是筆記還是畫作，給五維雷達、評語與下一步建議。</span></div>
           <div><b>03</b><span>保留收據編號，隨時查看自己的能量軌跡與老師評語。</span></div>
-        <div class="panel hero-guide-card" style="margin-top:14px;padding:12px 14px;background:#f2f7f4;border:1px solid #b7cfac;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-          <div>
-            <div style="font-weight:800;font-size:13.5px;color:var(--forest)">📖 教師使用手冊與教學指引</div>
-            <div class="small muted" style="margin-top:2px">課堂三步流程、自訂規準、批次審核、A4 胸章列印教學</div>
-          </div>
-          <button type="button" class="btn btn-sm btn-primary" id="btn-scroll-manual" style="white-space:nowrap">閱讀手冊 ↓</button>
+        
         </div>
+        <div class="panel hero-guide-card" style="margin-top:16px;padding:14px 16px;background:#f2f7f4;border:1px solid #b7cfac;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:14px">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:800;font-size:14px;color:var(--forest);display:flex;align-items:center;gap:6px">
+              <span style="font-size:16px">📖</span>
+              <span>教師使用手冊與教學指引</span>
+            </div>
+            <div class="small muted" style="margin-top:3px;line-height:1.4">課堂三步流程、自訂規準、批次審核、A4 胸章列印教學</div>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary" id="btn-scroll-manual" style="white-space:nowrap;flex-shrink:0">閱讀手冊 ↓</button>
         </div>
       </div>
 
