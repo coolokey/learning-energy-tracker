@@ -1081,6 +1081,11 @@ function uploadSubmission(data) {
     }
 
     var file = classFolder.createFile(Utilities.newBlob(v.bytes, data.mimeType, filename));
+    try {
+      if (typeof file.setSharing === 'function' && typeof DriveApp.Access !== 'undefined') {
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      }
+    } catch (_) {}
 
     // (3) AI 分析（無鎖平行）＋訂正重交前後成長比對
     var prevScore = null;
@@ -1223,6 +1228,11 @@ function saveBadge(data) {
     var fileName = rec.className + '_' + rec.seat + '_' + rec.name + '_' + rec.score + '分_' + receipt.slice(0, 8) + '.png';
     var saved = folder.createFile(Utilities.newBlob(bytes, 'image/png', fileName));
     try { saved.setDescription('學習能量軌跡胸章｜' + rec.topic + '｜' + rec.score + ' 分'); } catch (e) {}
+    try {
+      if (typeof saved.setSharing === 'function' && typeof DriveApp.Access !== 'undefined') {
+        saved.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      }
+    } catch (_) {}
 
     var status = c.badgeApproval === 'teacher' ? '待審核' : '已發放';
     setCell_(sheet, idx, COL_.badge, status);
@@ -1457,6 +1467,11 @@ function reviewSubmission(data) {
           var origIt = origFolder.getFilesByName(String(rows[idx][COL_.fileName] || ''));
           if (origIt.hasNext()) {
             var origFile = origIt.next();
+            try {
+              if (typeof origFile.setSharing === 'function' && typeof DriveApp.Access !== 'undefined') {
+                origFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+              }
+            } catch (_) {}
             var badgeFolder = childFolder_(childFolder_(root, '胸章成果庫'), recForGal.assignment || '未分類');
             var origBlob = origFile.getBlob();
             var origMime = origBlob.getContentType() || 'image/jpeg';
@@ -1464,11 +1479,16 @@ function reviewSubmission(data) {
               var ext = origMime === 'image/png' ? '.png' : '.jpg';
               var bName = recForGal.className + '_' + recForGal.seat + '_' + recForGal.name + '_' + currentScore + '分_' + receipt.slice(0, 8) + ext;
               var copied = badgeFolder.createFile(Utilities.newBlob(origBlob.getBytes(), origMime, bName));
+            try {
+              if (typeof copied.setSharing === 'function' && typeof DriveApp.Access !== 'undefined') {
+                copied.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+              }
+            } catch (_) {}
               setCell_(sheet, idx, COL_.badgeUrl, copied.getUrl());
               setCell_(sheet, idx, COL_.badgeFileId, copied.getId());
               recForGal.badgeFileId = copied.getId();
               recForGal.badgeUrl = copied.getUrl();
-              if (origBlob.getBytes().length < 800000) {
+              if (origBlob.getBytes().length < 35000) {
                 thumbB64 = Utilities.base64Encode(origBlob.getBytes());
               }
             } else if (rows[idx][COL_.fileUrl]) {
@@ -1556,7 +1576,7 @@ function batchReviewSubmissions(data) {
   verifyAdmin(data);
   var rawList = Array.isArray(data && data.receipts) ? data.receipts : [];
   var action = String((data && (data.batchAction || data.action)) || 'approve_review').trim();
-  var allowed = ['approve_review', 'approve_badge', 'mark_reviewed', 'request_revision'];
+  var allowed = ['approve_review', 'approve_badge', 'mark_reviewed', 'request_revision', 'revoke_badge'];
   if (allowed.indexOf(action) < 0) throw new Error('批次操作指令不正確。');
   if (!rawList.length) throw new Error('請至少勾選一筆作品紀錄。');
 
@@ -1586,6 +1606,14 @@ function batchReviewSubmissions(data) {
     if (action === 'request_revision') {
       setCell_(sheet, idx, COL_.review, '請學生修正');
       rows[idx][COL_.review] = '請學生修正';
+      updatedCount++;
+      continue;
+    }
+
+    if (action === 'revoke_badge') {
+      setCell_(sheet, idx, COL_.badge, '待審核');
+      rows[idx][COL_.badge] = '待審核';
+      setGalleryStatus_(rc, '待審核');
       updatedCount++;
       continue;
     }
@@ -1621,6 +1649,11 @@ function batchReviewSubmissions(data) {
         var origIt = origFolder.getFilesByName(String(rows[idx][COL_.fileName] || ''));
         if (origIt.hasNext()) {
           var origFile = origIt.next();
+            try {
+              if (typeof origFile.setSharing === 'function' && typeof DriveApp.Access !== 'undefined') {
+                origFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+              }
+            } catch (_) {}
           var badgeFolder = childFolder_(childFolder_(root, '胸章成果庫'), recForGal.assignment || '未分類');
           var origBlob = origFile.getBlob();
           var origMime = origBlob.getContentType() || 'image/jpeg';
@@ -1628,13 +1661,18 @@ function batchReviewSubmissions(data) {
             var ext = origMime === 'image/png' ? '.png' : '.jpg';
             var bName = recForGal.className + '_' + recForGal.seat + '_' + recForGal.name + '_' + currentScore + '分_' + rc.slice(0, 8) + ext;
             var copied = badgeFolder.createFile(Utilities.newBlob(origBlob.getBytes(), origMime, bName));
+            try {
+              if (typeof copied.setSharing === 'function' && typeof DriveApp.Access !== 'undefined') {
+                copied.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+              }
+            } catch (_) {}
             setCell_(sheet, idx, COL_.badgeUrl, copied.getUrl());
             setCell_(sheet, idx, COL_.badgeFileId, copied.getId());
             rows[idx][COL_.badgeUrl] = copied.getUrl();
             rows[idx][COL_.badgeFileId] = copied.getId();
             recForGal.badgeFileId = copied.getId();
             recForGal.badgeUrl = copied.getUrl();
-            if (origBlob.getBytes().length < 800000) {
+            if (origBlob.getBytes().length < 35000) {
               thumbB64 = Utilities.base64Encode(origBlob.getBytes());
             }
           }
@@ -1702,9 +1740,15 @@ function cleanAndRepairGallery(data) {
       }
       if (fid) {
         try {
-          var fBlob = DriveApp.getFileById(fid).getBlob();
+          var fFile = DriveApp.getFileById(fid);
+          try {
+            if (typeof fFile.setSharing === 'function' && typeof DriveApp.Access !== 'undefined') {
+              fFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+            }
+          } catch (_) {}
+          var fBlob = fFile.getBlob();
           var fMime = fBlob.getContentType() || '';
-          if (fMime.indexOf('image/') === 0 && fBlob.getBytes().length < 800000) {
+          if (fMime.indexOf('image/') === 0 && fBlob.getBytes().length < 35000) {
             var b64 = Utilities.base64Encode(fBlob.getBytes());
             gs.getRange(i + 1, 8).setValue(b64);
             repairedCount++;

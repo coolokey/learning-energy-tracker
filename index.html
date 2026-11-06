@@ -498,6 +498,17 @@
     box-shadow: 0 8px 20px rgba(36, 101, 77, .13);
     border-color: var(--forest) !important;
   }
+  .hero-guide-card .hero-guide-title {
+    white-space: nowrap;
+    word-break: keep-all;
+  }
+  @media (max-width: 540px) {
+    .hero-guide-card {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 10px !important;
+    }
+  }
 
   /* 成果星空微引導 */
   .g-card-hint {
@@ -588,7 +599,7 @@
         </div>
         <div class="panel hero-guide-card" style="margin-top:16px;padding:14px 16px;background:#f2f7f4;border:1px solid #b7cfac;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:14px">
           <div style="flex:1;min-width:0">
-            <div style="font-weight:800;font-size:14px;color:var(--forest);display:flex;align-items:center;gap:6px">
+            <div class="hero-guide-title" style="font-weight:800;font-size:14px;color:var(--forest);display:flex;align-items:center;gap:6px">
               <span style="font-size:16px">📖</span>
               <span>教師使用手冊與教學指引</span>
             </div>
@@ -1146,7 +1157,39 @@
       <h2>班級成果星空</h2>
       <p id="gallery-lead" style="margin:6px 0 0;opacity:.85;font-size:14px">每一枚胸章都是一位同學經評分達標或導師核准的優秀作品。<b>點擊任一胸章可開啟 3D 立體金屬胸章互動鑑賞與師長亮點讚賞！</b>（姓名遮蔽保護隱私）</p>
     </div>
+    <!-- 成果星空整理與多維篩選工具列 -->
+    <div id="gallery-filter-bar" class="panel gallery-filter-bar" style="margin-bottom:18px;padding:14px 16px;background:#ffffff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 16px rgba(23,62,53,.04)">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+        <select id="gf-class" aria-label="依班級篩選" style="width:auto;flex:1 1 120px;padding:7px 10px;font-size:13px;border-radius:8px">
+          <option value="">🏫 全部班級</option>
+        </select>
+        <select id="gf-assign" aria-label="依作業篩選" style="width:auto;flex:1 1 150px;padding:7px 10px;font-size:13px;border-radius:8px">
+          <option value="">📚 全部作業項目</option>
+        </select>
+        <div class="seg" id="gf-kind-seg" role="group" aria-label="依作品類型篩選" style="margin:0">
+          <button type="button" data-gkind="" aria-pressed="true" style="padding:6px 12px;font-size:12.5px">全部</button>
+          <button type="button" data-gkind="藝術創作" aria-pressed="false" style="padding:6px 12px;font-size:12.5px">🎨 藝術</button>
+          <button type="button" data-gkind="探究筆記" aria-pressed="false" style="padding:6px 12px;font-size:12.5px">📘 筆記</button>
+        </div>
+        <select id="gf-sort" aria-label="排序方式" style="width:auto;flex:1 1 130px;padding:7px 10px;font-size:13px;border-radius:8px">
+          <option value="time-desc">⏱️ 最新上架優先</option>
+          <option value="score-desc">🏆 分數由高至低</option>
+          <option value="score-asc">🌱 成長潛力優先</option>
+          <option value="class-asc">🏫 依班級排序</option>
+        </select>
+        <input id="gf-search" type="search" placeholder="🔍 搜尋主題、學生或亮點評語…" aria-label="搜尋星空作品" style="flex:2 1 200px;min-width:170px;padding:7px 12px;font-size:13px;border-radius:8px">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed #e2e8f0;font-size:12px;flex-wrap:wrap;gap:6px">
+        <div id="gf-count" class="muted" style="font-weight:700;color:var(--forest)">正在統計星空作品…</div>
+        <div style="display:flex;gap:6px">
+          <button type="button" class="btn btn-sm" id="btn-gf-reset" style="padding:3px 10px;font-size:11.5px">↩️ 重設所有篩選</button>
+        </div>
+      </div>
+    </div>
     <div id="gallery-grid" class="gallery-grid"></div>
+    <div id="gallery-more-box" style="text-align:center;margin-top:22px" class="hidden">
+      <button type="button" class="btn btn-gold" id="btn-gallery-more" style="padding:10px 24px;font-size:14px;box-shadow:0 4px 14px rgba(217,119,6,.2)">載入更多星空胸章 ↓</button>
+    </div>
   </section>
 </main>
 
@@ -1220,6 +1263,7 @@
           <span id="adm-sel-count" class="small muted">（已勾選 0 筆）</span>
           <button type="button" class="btn btn-sm btn-primary" id="btn-batch-review">✓ 批次審查通過（達標核發胸章）</button>
           <button type="button" class="btn btn-sm btn-gold" id="btn-batch-approve">🏅 僅核准胸章發放</button>
+          <button type="button" class="btn btn-sm" id="btn-batch-revoke" style="color:#c2410c;border-color:#fed7aa" title="將勾選作品從公開成果星空下架，恢復為待審核">🚫 批次下架星空</button>
           <button type="button" class="btn btn-sm" id="btn-batch-revise" style="color:#b91c1c;border-color:#fca5a5">↩️ 批次請學生修正</button>
           <button type="button" class="btn btn-sm" id="btn-batch-clear">清除勾選</button>
           <button type="button" class="btn btn-sm" id="btn-admin-a4-badges" style="margin-left:auto">🖨️ 匯出胸章 A4 1:1 六宮格印刷單</button>
@@ -3340,6 +3384,15 @@ function resolveGalleryThumbSrc(item) {
   return makeEmblemDataUrl(item ? item.title : '', item ? item.score : 0, item ? item.kind : '', item ? item.name : '');
 }
 
+state.galleryFilter = {
+  class: '',
+  assign: '',
+  kind: '',
+  sort: 'time-desc',
+  search: '',
+  limit: 24
+};
+
 async function loadGallery() {
   const grid = $('gallery-grid');
   grid.innerHTML = '<div class="empty" style="grid-column:1/-1">正在載入成果星空…</div>';
@@ -3347,37 +3400,138 @@ async function loadGallery() {
     const res = await rpc('getGallery');
     if (!res.enabled) {
       grid.innerHTML = '<div class="empty" style="grid-column:1/-1">老師目前關閉了公開成果星空。</div>';
+      if ($('gallery-filter-bar')) $('gallery-filter-bar').classList.add('hidden');
+      if ($('gallery-more-box')) $('gallery-more-box').classList.add('hidden');
       return;
     }
+    if ($('gallery-filter-bar')) $('gallery-filter-bar').classList.remove('hidden');
     if (!res.list.length) {
-      const th = (state.cfg && state.cfg.badgeThreshold) || 85;
+      const th = (state.cfg && state.cfg.badgeThreshold) || 80;
       grid.innerHTML = `<div class="empty" style="grid-column:1/-1">還沒有已發放的胸章，快去挑戰 ${th} 分成為第一顆星！</div>`;
+      if ($('gf-count')) $('gf-count').textContent = '星空目前尚無作品';
+      if ($('gallery-more-box')) $('gallery-more-box').classList.add('hidden');
       return;
     }
     state.galleryList = res.list;
-    grid.innerHTML = '';
-    res.list.forEach((item, idx) => {
-      const card = document.createElement('div');
-      card.className = 'panel g-card';
-      card.dataset.gIdx = idx;
-      const src = resolveGalleryThumbSrc(item);
-      const safeTitle = esc(item.title || '');
-      const safeKind = esc(item.kind || '');
-      const safeName = esc(item.name || '');
-      card.innerHTML = `
-        <div class="g-card-pin"><img src="${src}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.src=makeEmblemDataUrl('${safeTitle}', ${Number(item.score || 0)}, '${safeKind}', '${safeName}')"></div>
-        <b>${safeTitle}</b>
-        <div class="small muted">${esc(item.className)} ${safeName}</div>
-        <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid var(--line);padding-top:6px">
-          <span>${safeKind}</span>
-          <span class="tech" style="color:var(--amber);font-weight:800">${Number(item.score)}分</span>
-        </div>
-        <div class="g-card-hint small" style="font-size:10.5px;color:var(--forest);font-weight:700;margin-top:4px">🔍 點擊 3D 鑑賞</div>`;
-      card.addEventListener('click', () => openGalleryModal(idx));
-      grid.appendChild(card);
-    });
+    populateGalleryFilterOptions(res.list);
+    renderGalleryView(true);
   } catch (err) {
     grid.innerHTML = `<div class="empty" style="grid-column:1/-1">${esc(err.message)}</div>`;
+  }
+}
+
+function populateGalleryFilterOptions(list) {
+  const classSel = $('gf-class');
+  const assignSel = $('gf-assign');
+  if (classSel) {
+    const prev = classSel.value;
+    const classes = Array.from(new Set(list.map(x => String(x.className || '').trim()).filter(Boolean))).sort();
+    classSel.innerHTML = '<option value="">🏫 全部班級</option>' + classes.map(c => `<option value="${esc(c)}">${esc(c)} 班</option>`).join('');
+    if (classes.includes(prev)) classSel.value = prev;
+  }
+  if (assignSel) {
+    const prev = assignSel.value;
+    const assigns = Array.from(new Set(list.map(x => String(x.assignment || '').trim()).filter(Boolean))).sort();
+    assignSel.innerHTML = '<option value="">📚 全部作業項目</option>' + assigns.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('');
+    if (assigns.includes(prev)) assignSel.value = prev;
+  }
+}
+
+function renderGalleryView(resetLimit = false) {
+  const grid = $('gallery-grid');
+  if (!grid || !state.galleryList) return;
+  if (resetLimit) state.galleryFilter.limit = 24;
+
+  const gf = state.galleryFilter;
+  let filtered = state.galleryList.slice();
+
+  // 1. 班級篩選
+  if (gf.class) {
+    filtered = filtered.filter(x => String(x.className || '').trim() === gf.class);
+  }
+  // 2. 作業項目篩選
+  if (gf.assign) {
+    filtered = filtered.filter(x => String(x.assignment || '').trim() === gf.assign);
+  }
+  // 3. 作品類型篩選
+  if (gf.kind) {
+    filtered = filtered.filter(x => String(x.kind || '').includes(gf.kind));
+  }
+  // 4. 關鍵字搜尋
+  if (gf.search) {
+    const q = gf.search.toLowerCase();
+    filtered = filtered.filter(x =>
+      String(x.title || '').toLowerCase().includes(q) ||
+      String(x.name || '').toLowerCase().includes(q) ||
+      String(x.className || '').toLowerCase().includes(q) ||
+      String(x.praise || '').toLowerCase().includes(q) ||
+      String(x.tag || '').toLowerCase().includes(q)
+    );
+  }
+
+  // 5. 排序方式
+  if (gf.sort === 'score-desc') {
+    filtered.sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
+  } else if (gf.sort === 'score-asc') {
+    filtered.sort((a, b) => Number(a.score || 0) - Number(b.score || 0));
+  } else if (gf.sort === 'class-asc') {
+    filtered.sort((a, b) => String(a.className || '').localeCompare(String(b.className || '')) || String(a.name || '').localeCompare(String(b.name || '')));
+  }
+
+  // 6. 更新統計文字
+  if ($('gf-count')) {
+    const total = state.galleryList.length;
+    const matchCount = filtered.length;
+    $('gf-count').textContent = (matchCount === total)
+      ? `🌟 成果星空共收錄 ${total} 枚胸章`
+      : `🌟 篩選顯示 ${matchCount} 枚（星空總計 ${total} 枚）`;
+  }
+
+  // 7. 渲染卡片
+  grid.innerHTML = '';
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1">沒有符合目前篩選條件的星空胸章，請調整篩選項目或重設。</div>';
+    if ($('gallery-more-box')) $('gallery-more-box').classList.add('hidden');
+    return;
+  }
+
+  const visible = filtered.slice(0, gf.limit);
+  visible.forEach((item) => {
+    // 找出原陣列 index 供 modal 開啟
+    const origIdx = state.galleryList.indexOf(item);
+    const card = document.createElement('div');
+    card.className = 'panel g-card';
+    card.dataset.gIdx = String(origIdx >= 0 ? origIdx : 0);
+    const src = resolveGalleryThumbSrc(item);
+    const safeTitle = esc(item.title || '');
+    const safeKind = esc(item.kind || '');
+    const safeName = esc(item.name || '');
+    const safeAssign = esc(item.assignment || '');
+    card.innerHTML = `
+      <div class="g-card-pin"><img src="${src}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.src=makeEmblemDataUrl('${safeTitle}', ${Number(item.score || 0)}, '${safeKind}', '${safeName}')"></div>
+      <b>${safeTitle}</b>
+      <div class="small muted">${esc(item.className)} 班 ${safeName}</div>
+      ${safeAssign ? `<div class="small" style="font-size:10px;color:var(--amber-deep);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${safeAssign}</div>` : ''}
+      <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid var(--line);padding-top:6px">
+        <span>${safeKind}</span>
+        <span class="tech" style="color:var(--amber);font-weight:800">${Number(item.score)}分</span>
+      </div>
+      <div class="g-card-hint small" style="font-size:10.5px;color:var(--forest);font-weight:700;margin-top:4px">🔍 點擊 3D 鑑賞</div>`;
+    card.addEventListener('click', () => openGalleryModal(origIdx >= 0 ? origIdx : 0));
+    grid.appendChild(card);
+  });
+
+  // 8. 載入更多按鈕
+  const moreBox = $('gallery-more-box');
+  const moreBtn = $('btn-gallery-more');
+  if (moreBox && moreBtn) {
+    const remaining = filtered.length - visible.length;
+    if (remaining > 0) {
+      moreBox.classList.remove('hidden');
+      moreBtn.textContent = `載入更多星空胸章（還有 ${remaining} 枚）↓`;
+    } else {
+      moreBox.classList.add('hidden');
+    }
   }
 }
 
@@ -4215,6 +4369,34 @@ window.addEventListener('touchend', endPreCropDrag);
 
 $('f-assignment').addEventListener('change', syncAssignmentContext);
 $('btn-cancel-revision')?.addEventListener('click', cancelRevisionMode);
+
+// 成果星空篩選與整理事件
+$('gf-class')?.addEventListener('change', e => { state.galleryFilter.class = e.target.value; renderGalleryView(true); });
+$('gf-assign')?.addEventListener('change', e => { state.galleryFilter.assign = e.target.value; renderGalleryView(true); });
+$('gf-sort')?.addEventListener('change', e => { state.galleryFilter.sort = e.target.value; renderGalleryView(true); });
+$('gf-search')?.addEventListener('input', e => { state.galleryFilter.search = e.target.value.trim(); renderGalleryView(true); });
+document.querySelectorAll('#gf-kind-seg button[data-gkind]').forEach(b => {
+  b.addEventListener('click', () => {
+    state.galleryFilter.kind = b.dataset.gkind || '';
+    document.querySelectorAll('#gf-kind-seg button[data-gkind]').forEach(x => x.setAttribute('aria-pressed', x === b));
+    renderGalleryView(true);
+  });
+});
+$('btn-gf-reset')?.addEventListener('click', () => {
+  state.galleryFilter = { class: '', assign: '', kind: '', sort: 'time-desc', search: '', limit: 24 };
+  if ($('gf-class')) $('gf-class').value = '';
+  if ($('gf-assign')) $('gf-assign').value = '';
+  if ($('gf-sort')) $('gf-sort').value = 'time-desc';
+  if ($('gf-search')) $('gf-search').value = '';
+  document.querySelectorAll('#gf-kind-seg button[data-gkind]').forEach(b => b.setAttribute('aria-pressed', !b.dataset.gkind));
+  renderGalleryView(true);
+  toast('已重設所有星空篩選條件');
+});
+$('btn-gallery-more')?.addEventListener('click', () => {
+  state.galleryFilter.limit += 24;
+  renderGalleryView(false);
+});
+$('btn-batch-revoke')?.addEventListener('click', () => handleBatchAdminAction('revoke_badge'));
 
 // 影像增強工具列事件
 $('btn-img-rot')?.addEventListener('click', rotateActiveImage);
