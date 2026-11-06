@@ -35,6 +35,7 @@ function makeSheet(name) {
     getName: () => name,
     setName: () => {},
     appendRow: row => rows.push([...row]),
+    deleteRow: rowPos => { rows.splice(rowPos - 1, 1); },
     setFrozenRows: () => {},
     setColumnWidth: (col, w) => { colWidths[col] = w; },
     getLastRow: () => rows.length,
@@ -637,7 +638,7 @@ test('getGallery returns enriched fields: praise, tag, and assignment with maske
   s.ctx.uploadSubmission(s.sampleData);
   s.ctx.saveBadge({
     receipt: s.sampleData.requestId,
-    imageBase64: PNG,
+    imageBase64: 'data:image/png;base64,' + PNG,
     thumbBase64: JPEG
   });
 
@@ -648,4 +649,43 @@ test('getGallery returns enriched fields: praise, tag, and assignment with maske
   assert.equal(item.name, '李○花'); // 個資去識別化
   assert.equal(item.assignment, '自主學習探究');
   assert.ok(item.praise);
+});
+
+test('cleanAndRepairGallery purges unqualified rows and repairs missing thumbnails', () => {
+  const s = setup();
+  s.ctx.uploadSubmission(s.sampleData); // 88分探究筆記
+  s.ctx.saveBadge({
+    receipt: s.sampleData.requestId,
+    imageBase64: 'data:image/png;base64,' + PNG,
+    thumbBase64: JPEG
+  });
+
+  // 手動在星空藝廊寫入一筆 20分 無法辨識 的資料
+  const gs = s.sheets['星空藝廊'];
+  // 藝廊欄位：時間, 收據, 班級, 姓名, 類型, 主題, 分數, 縮圖, 狀態
+  gs.appendRow(['2026/11/06 00:00', 'bad-receipt', '701', '測試生', '無法辨識', '無效作品', 20, '', '已發放']);
+  // 同步在能量軌跡總表寫入
+  const ms = s.sheets['能量軌跡總表'];
+  const testBadRow = [
+    '2026/11/06 00:00', '701', '01', '測試生', '自主學習探究', '無法辨識',
+    'test.jpg', 'https://example.com/test.jpg', '無效作品', '', '', '',
+    '', '', 20, '', 'bad-receipt', '待教師審查',
+    '已發放', '', '', ''
+  ];
+  ms.appendRow(testBadRow);
+
+  // 執行 cleanAndRepairGallery
+  const cleanRes = s.ctx.cleanAndRepairGallery({ password: 'admin888' });
+  assert.equal(cleanRes.success, true);
+  assert.equal(cleanRes.removedCount, 1);
+
+  // 驗證 getGallery 不含 20分
+  const gal = s.ctx.getGallery();
+  const hasBad = gal.list.some(x => x.score < 80 || x.kind === '無法辨識');
+  assert.equal(hasBad, false);
+
+  // 驗證總表中 bad-receipt 的 badge 狀態被修正為「未達標」
+  const ov = s.ctx.getAdminOverview({ password: 'admin888' });
+  const badRow = ov.submissions.find(x => x.receipt === 'bad-receipt');
+  assert.equal(badRow.badge, '未達標');
 });

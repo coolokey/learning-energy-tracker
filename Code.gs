@@ -99,6 +99,7 @@ function doPost(e) {
       reviewSubmission: reviewSubmission,
       getSubmissionAsset: getSubmissionAsset,
       batchReviewSubmissions: batchReviewSubmissions,
+      cleanAndRepairGallery: cleanAndRepairGallery,
       updateAssignments: updateAssignments,
       updateSettings: updateSettings,
       changeAdminPassword: changeAdminPassword,
@@ -797,6 +798,7 @@ function rowToRecord_(r) {
     review: String(r[COL_.review] || '待教師審查'),
     badge: String(r[COL_.badge] || '未達標'),
     badgeUrl: String(r[COL_.badgeUrl] || ''),
+    badgeFileId: String(r[COL_.badgeFileId] || ''),
     teacherComment: String(r[COL_.teacherComment] || '')
   };
 }
@@ -1346,16 +1348,34 @@ function getGallery() {
   var list = [];
   for (var i = rows.length - 1; i >= 1 && list.length < 60; i--) {
     if (String(rows[i][8]) !== '已發放') continue;
+    var scoreNum = Number(rows[i][6] || 0);
+    var kindStr = String(rows[i][4] || '');
+    // 嚴格過濾：未達胸章門檻或無法辨識之作品，絕不出現在公開成果星空
+    if (kindStr === '無法辨識' || kindStr === 'invalid' || scoreNum < c.badgeThreshold) continue;
+
     var rcKey = String(rows[i][1] || '').trim().toLowerCase();
     var linked = rcKey ? byReceipt[rcKey] : null;
     var rawPraise = linked ? String(linked.teacherComment || linked.feedback || '').trim() : '';
     if (linked && linked.name && rawPraise) {
       rawPraise = rawPraise.split(linked.name).join(maskName_(linked.name));
     }
+
+    var thumb = String(rows[i][7] || '');
+    var driveThumbUrl = '';
+    if (linked) {
+      var fid = linked.badgeFileId;
+      if (!fid && linked.fileUrl) {
+        var mat = linked.fileUrl.match(/\/d\/([-\w]{25,})/) || linked.fileUrl.match(/[?&]id=([-\w]{25,})/);
+        if (mat) fid = mat[1];
+      }
+      if (fid) driveThumbUrl = 'https://lh3.googleusercontent.com/d/' + fid + '=s400';
+    }
+
     list.push({
       date: formatTime_(rows[i][0]), className: String(rows[i][2] || ''), name: String(rows[i][3] || ''),
-      kind: String(rows[i][4] || ''), title: String(rows[i][5] || ''), score: Number(rows[i][6] || 0),
-      thumb: String(rows[i][7] || ''),
+      kind: kindStr, title: String(rows[i][5] || ''), score: scoreNum,
+      thumb: thumb,
+      driveThumbUrl: driveThumbUrl,
       assignment: linked ? linked.assignment : '',
       tag: linked ? linked.tag : '',
       praise: rawPraise.slice(0, 160)
@@ -1429,6 +1449,7 @@ function reviewSubmission(data) {
       badge = '已發放';
       var recForGal = rowToRecord_(rows[idx]);
       recForGal.score = currentScore;
+      var thumbB64 = '';
       if (!rows[idx][COL_.badgeFileId]) {
         try {
           var root = DriveApp.getFolderById(c.folder);
@@ -1445,6 +1466,11 @@ function reviewSubmission(data) {
               var copied = badgeFolder.createFile(Utilities.newBlob(origBlob.getBytes(), origMime, bName));
               setCell_(sheet, idx, COL_.badgeUrl, copied.getUrl());
               setCell_(sheet, idx, COL_.badgeFileId, copied.getId());
+              recForGal.badgeFileId = copied.getId();
+              recForGal.badgeUrl = copied.getUrl();
+              if (origBlob.getBytes().length < 800000) {
+                thumbB64 = Utilities.base64Encode(origBlob.getBytes());
+              }
             } else if (rows[idx][COL_.fileUrl]) {
               setCell_(sheet, idx, COL_.badgeUrl, rows[idx][COL_.fileUrl]);
             }
@@ -1456,8 +1482,14 @@ function reviewSubmission(data) {
             setCell_(sheet, idx, COL_.badgeUrl, rows[idx][COL_.fileUrl]);
           }
         }
+      } else {
+        try {
+          var bf = DriveApp.getFileById(String(rows[idx][COL_.badgeFileId]));
+          var bfb = bf.getBlob();
+          if (bfb.getBytes().length < 800000) thumbB64 = Utilities.base64Encode(bfb.getBytes());
+        } catch (_) {}
       }
-      upsertGallery_(receipt, recForGal, '', '已發放');
+      upsertGallery_(receipt, recForGal, thumbB64, '已發放');
     } else if (decision === 'reject') {
       badge = '已駁回';
       setGalleryStatus_(receipt, badge);
@@ -1523,31 +1555,181 @@ function getSubmissionAsset(data) {
 function batchReviewSubmissions(data) {
   verifyAdmin(data);
   var rawList = Array.isArray(data && data.receipts) ? data.receipts : [];
-  var action = String((data && (data.batchAction || data.action)) || '').trim();
-  if (['approve_badge', 'mark_reviewed'].indexOf(action) < 0) throw new Error('批次操作指令不正確。');
+  var action = String((data && (data.batchAction || data.action)) || 'approve_review').trim();
+  var allowed = ['approve_review', 'approve_badge', 'mark_reviewed', 'request_revision'];
+  if (allowed.indexOf(action) < 0) throw new Error('批次操作指令不正確。');
   if (!rawList.length) throw new Error('請至少勾選一筆作品紀錄。');
 
+  var sheet = mainSheet_();
+  var rows = sheet.getDataRange().getValues();
+  var c = config_();
   var seen = {};
   var updatedCount = 0;
+  var badgeApprovedCount = 0;
+
   for (var i = 0; i < rawList.length && i < 100; i++) {
     var rc = String(rawList[i] || '').trim();
     if (!UUID_RE_.test(rc)) continue;
     var key = rc.toLowerCase();
     if (seen[key]) continue;
     seen[key] = true;
-    try {
-      reviewSubmission({
-        password: data.password,
-        receipt: rc,
-        review: '已審查核准',
-        badgeDecision: action === 'approve_badge' ? 'approve' : ''
-      });
+
+    var idx = findRowByReceipt_(rows, rc);
+    if (idx < 0) continue;
+
+    var currentScore = rows[idx][COL_.score];
+    var currentBadge = String(rows[idx][COL_.badge] || '').trim();
+    var currentKind = String(rows[idx][COL_.kind] || '').trim();
+    var isValidKind = currentKind !== '無法辨識' && currentKind !== 'invalid';
+    var isScoreEligible = typeof currentScore === 'number' && currentScore >= c.badgeThreshold;
+
+    if (action === 'request_revision') {
+      setCell_(sheet, idx, COL_.review, '請學生修正');
+      rows[idx][COL_.review] = '請學生修正';
       updatedCount++;
-    } catch (e) {
-      console.warn('batchReview skip ' + rc + ': ' + e.message);
+      continue;
+    }
+
+    // 審查通過 (approve_review / mark_reviewed / approve_badge)
+    setCell_(sheet, idx, COL_.review, '已審查核准');
+    rows[idx][COL_.review] = '已審查核准';
+
+    // 智慧核准胸章發放條件：
+    // 1. 若 action === 'approve_badge'：必須分數達標且非無法辨識
+    // 2. 若 action === 'approve_review' 或 'mark_reviewed'：若胸章為待審核或分數達標且未選擇不製作胸章且未駁回
+    var shouldApproveBadge = false;
+    if (action === 'approve_badge') {
+      shouldApproveBadge = isValidKind && isScoreEligible;
+    } else {
+      if (isValidKind && isScoreEligible && currentBadge !== '不製作胸章' && currentBadge !== '已駁回') {
+        shouldApproveBadge = true;
+      }
+    }
+
+    if (shouldApproveBadge && currentBadge !== '已發放') {
+      setCell_(sheet, idx, COL_.badge, '已發放');
+      rows[idx][COL_.badge] = '已發放';
+
+      var recForGal = rowToRecord_(rows[idx]);
+      recForGal.score = currentScore;
+      var thumbB64 = '';
+      try {
+        var root = DriveApp.getFolderById(c.folder);
+        var origFolder = childFolder_(childFolder_(root, recForGal.assignment), recForGal.className);
+        var origIt = origFolder.getFilesByName(String(rows[idx][COL_.fileName] || ''));
+        if (origIt.hasNext()) {
+          var origFile = origIt.next();
+          var badgeFolder = childFolder_(childFolder_(root, '胸章成果庫'), recForGal.assignment || '未分類');
+          var origBlob = origFile.getBlob();
+          var origMime = origBlob.getContentType() || 'image/jpeg';
+          if (origMime.indexOf('image/') === 0) {
+            var ext = origMime === 'image/png' ? '.png' : '.jpg';
+            var bName = recForGal.className + '_' + recForGal.seat + '_' + recForGal.name + '_' + currentScore + '分_' + rc.slice(0, 8) + ext;
+            var copied = badgeFolder.createFile(Utilities.newBlob(origBlob.getBytes(), origMime, bName));
+            setCell_(sheet, idx, COL_.badgeUrl, copied.getUrl());
+            setCell_(sheet, idx, COL_.badgeFileId, copied.getId());
+            rows[idx][COL_.badgeUrl] = copied.getUrl();
+            rows[idx][COL_.badgeFileId] = copied.getId();
+            recForGal.badgeFileId = copied.getId();
+            recForGal.badgeUrl = copied.getUrl();
+            if (origBlob.getBytes().length < 800000) {
+              thumbB64 = Utilities.base64Encode(origBlob.getBytes());
+            }
+          }
+        }
+      } catch (copyErr) {
+        console.warn('batchReview copy file error: ' + copyErr.message);
+      }
+      upsertGallery_(rc, recForGal, thumbB64, '已發放');
+      badgeApprovedCount++;
+    }
+    updatedCount++;
+  }
+  try { SpreadsheetApp.flush(); } catch (_) {}
+  return {
+    success: true,
+    updatedCount: updatedCount,
+    processedCount: updatedCount,
+    badgeApprovedCount: badgeApprovedCount,
+    batchAction: action
+  };
+}
+
+/** 教師後台：一鍵修復星空縮圖 ＆ 清理未達標胸章 */
+function cleanAndRepairGallery(data) {
+  verifyAdmin(data);
+  var c = config_();
+  var gs = gallerySheet_();
+  var gRows = gs.getDataRange().getValues();
+  var ms = mainSheet_();
+  var mRows = ms.getDataRange().getValues();
+
+  var byReceipt = {};
+  for (var m = 1; m < mRows.length; m++) {
+    var rc = String(mRows[m][COL_.receipt] || '').trim().toLowerCase();
+    if (rc) byReceipt[rc] = { rowIdx: m, rec: rowToRecord_(mRows[m]) };
+  }
+
+  var removedCount = 0;
+  var repairedCount = 0;
+
+  // 1. 整理成果星空工作表：從後往前刪除未達標或無法辨識之列，為缺少縮圖者補齊縮圖
+  for (var i = gRows.length - 1; i >= 1; i--) {
+    var rcKey = String(gRows[i][1] || '').trim().toLowerCase();
+    var score = Number(gRows[i][6] || 0);
+    var kind = String(gRows[i][4] || '').trim();
+    var isInvalid = kind === '無法辨識' || kind === 'invalid';
+    var isBelow = score < c.badgeThreshold;
+
+    if (isInvalid || isBelow) {
+      gs.deleteRow(i + 1);
+      removedCount++;
+      if (byReceipt[rcKey]) {
+        var mIdx = byReceipt[rcKey].rowIdx;
+        setCell_(ms, mIdx, COL_.badge, '未達標');
+      }
+      continue;
+    }
+
+    var currentThumb = String(gRows[i][7] || '').trim();
+    if (!currentThumb && byReceipt[rcKey]) {
+      var entry = byReceipt[rcKey].rec;
+      var fid = entry.badgeFileId;
+      if (!fid && entry.fileUrl) {
+        var mat = entry.fileUrl.match(/\/d\/([-\w]{25,})/) || entry.fileUrl.match(/[?&]id=([-\w]{25,})/);
+        if (mat) fid = mat[1];
+      }
+      if (fid) {
+        try {
+          var fBlob = DriveApp.getFileById(fid).getBlob();
+          var fMime = fBlob.getContentType() || '';
+          if (fMime.indexOf('image/') === 0 && fBlob.getBytes().length < 800000) {
+            var b64 = Utilities.base64Encode(fBlob.getBytes());
+            gs.getRange(i + 1, 8).setValue(b64);
+            repairedCount++;
+          }
+        } catch (_) {}
+      }
     }
   }
-  return { success: true, updatedCount: updatedCount, processedCount: updatedCount, batchAction: action };
+
+  // 2. 檢查能量軌跡總表：若有小於門檻卻標記為「已發放」者，修正為「未達標」
+  for (var k = 1; k < mRows.length; k++) {
+    var mScore = mRows[k][COL_.score];
+    var mBadge = String(mRows[k][COL_.badge] || '').trim();
+    var mKind = String(mRows[k][COL_.kind] || '').trim();
+    if (mBadge === '已發放' && (mKind === '無法辨識' || (typeof mScore === 'number' && mScore < c.badgeThreshold))) {
+      setCell_(ms, k, COL_.badge, '未達標');
+    }
+  }
+
+  try { SpreadsheetApp.flush(); } catch (_) {}
+  return {
+    success: true,
+    removedCount: removedCount,
+    repairedCount: repairedCount,
+    threshold: c.badgeThreshold
+  };
 }
 
 /** 評審展示：注入含「同一位學生多次成長」的示範資料 */

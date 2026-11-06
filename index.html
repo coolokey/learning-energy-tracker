@@ -771,6 +771,7 @@
           <select id="af-class" aria-label="班級"><option value="">全部班級</option></select>
           <select id="af-kind" aria-label="作品類型"><option value="">全部類型</option><option>探究筆記</option><option>藝術創作</option><option>無法辨識</option><option>未分析</option></select>
           <select id="af-badge" aria-label="胸章狀態"><option value="">全部胸章狀態</option><option>待審核</option><option>已發放</option><option>可製作</option><option>已駁回</option><option>未達標</option><option>不製作胸章</option></select>
+          <select id="af-review" aria-label="審查狀態"><option value="">全部審查狀態</option><option>待教師審查</option><option>已審查核准</option><option>請學生修正</option></select>
           <input id="af-search" type="text" placeholder="搜尋姓名或主題" aria-label="搜尋">
           <button type="button" class="btn btn-sm" id="btn-admin-refresh">重新整理</button>
         </div>
@@ -779,8 +780,9 @@
             <input type="checkbox" id="adm-check-all" style="accent-color:var(--forest)"> 全選目前列表
           </label>
           <span id="adm-sel-count" class="small muted">（已勾選 0 筆）</span>
-          <button type="button" class="btn btn-sm btn-gold" id="btn-batch-approve">🏅 批次核准所選胸章</button>
-          <button type="button" class="btn btn-sm btn-primary" id="btn-batch-review">✓ 批次標記已審查</button>
+          <button type="button" class="btn btn-sm btn-primary" id="btn-batch-review">✓ 批次審查通過（達標核發胸章）</button>
+          <button type="button" class="btn btn-sm btn-gold" id="btn-batch-approve">🏅 僅核准胸章發放</button>
+          <button type="button" class="btn btn-sm" id="btn-batch-revise" style="color:#b91c1c;border-color:#fca5a5">↩️ 批次請學生修正</button>
           <button type="button" class="btn btn-sm" id="btn-batch-clear">清除勾選</button>
           <button type="button" class="btn btn-sm" id="btn-admin-a4-badges" style="margin-left:auto">🖨️ 匯出胸章 A4 1:1 六宮格印刷單</button>
         </div>
@@ -848,6 +850,7 @@
               <a id="a-sheet-link" class="btn btn-sm" href="#" target="_blank" rel="noopener">開啟試算表</a>
               <a id="a-folder-link" class="btn btn-sm" href="#" target="_blank" rel="noopener">開啟雲端收件與胸章資料夾</a>
               <button type="button" class="btn btn-sm" id="btn-format-sheet">一鍵設定自動換列與最適欄寬</button>
+              <button type="button" class="btn btn-sm btn-secondary" id="btn-clean-gallery">🧹 一鍵修復星空縮圖 ＆ 清理未達標胸章</button>
             </div>
             <div id="sheet-msg" class="msg"></div>
           </div>
@@ -2772,6 +2775,17 @@ async function downloadFromTrajectory(receipt, type) {
 // ==============================================
 // 班級成果星空（3D 立體金屬胸章互動展示 ＋ 亮點讚賞）
 // ==============================================
+function resolveGalleryThumbSrc(item) {
+  if (item && item.thumb) {
+    if (item.thumb.startsWith('data:') || item.thumb.startsWith('http')) return item.thumb;
+    return `data:image/jpeg;base64,${item.thumb}`;
+  }
+  if (item && item.driveThumbUrl) {
+    return item.driveThumbUrl;
+  }
+  return makeEmblemDataUrl(item ? item.title : '', item ? item.score : 0, item ? item.kind : '', item ? item.name : '');
+}
+
 async function loadGallery() {
   const grid = $('gallery-grid');
   grid.innerHTML = '<div class="empty" style="grid-column:1/-1">正在載入成果星空…</div>';
@@ -2792,13 +2806,16 @@ async function loadGallery() {
       const card = document.createElement('div');
       card.className = 'panel g-card';
       card.dataset.gIdx = idx;
-      const src = item.thumb ? `data:image/jpeg;base64,${item.thumb}` : makeEmblemDataUrl(item.title, item.score, item.kind, item.name);
+      const src = resolveGalleryThumbSrc(item);
+      const safeTitle = esc(item.title || '');
+      const safeKind = esc(item.kind || '');
+      const safeName = esc(item.name || '');
       card.innerHTML = `
-        <div class="g-card-pin"><img src="${src}" alt="${esc(item.title)}"></div>
-        <b>${esc(item.title)}</b>
-        <div class="small muted">${esc(item.className)} ${esc(item.name)}</div>
+        <div class="g-card-pin"><img src="${src}" alt="${safeTitle}" loading="lazy" onerror="this.onerror=null;this.src=makeEmblemDataUrl('${safeTitle}', ${Number(item.score || 0)}, '${safeKind}', '${safeName}')"></div>
+        <b>${safeTitle}</b>
+        <div class="small muted">${esc(item.className)} ${safeName}</div>
         <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid var(--line);padding-top:6px">
-          <span>${esc(item.kind)}</span>
+          <span>${safeKind}</span>
           <span class="tech" style="color:var(--amber);font-weight:800">${Number(item.score)}分</span>
         </div>`;
       card.addEventListener('click', () => openGalleryModal(idx));
@@ -2820,8 +2837,15 @@ function openGalleryModal(idx) {
   const tagEl = $('gm-tag');
   if (item.tag) { tagEl.textContent = item.tag; tagEl.classList.remove('hidden'); }
   else tagEl.classList.add('hidden');
-  const src = item.thumb ? `data:image/jpeg;base64,${item.thumb}` : makeEmblemDataUrl(item.title, item.score, item.kind, item.name);
-  $('g-3d-img').src = src;
+  const src = resolveGalleryThumbSrc(item);
+  const g3dImg = $('g-3d-img');
+  if (g3dImg) {
+    g3dImg.onerror = () => {
+      g3dImg.onerror = null;
+      g3dImg.src = makeEmblemDataUrl(item.title, item.score, item.kind, item.name);
+    };
+    g3dImg.src = src;
+  }
   const praise = item.praise || `在「${item.assignment || '學習任務'}」中展現優異能量，獲得 ${item.score} 高分並成功鑄造實體能量胸章！`;
   $('gm-praise').textContent = praise;
   reset3DBadgeTilt();
@@ -2955,11 +2979,12 @@ async function loadAdminOverview() {
 
 function renderAdminSubmissions() {
   const list = (state.adminOverview && state.adminOverview.submissions) || [];
-  const fc = $('af-class').value, fk = $('af-kind').value, fb = $('af-badge').value, q = $('af-search').value.trim();
+  const fc = $('af-class').value, fk = $('af-kind').value, fb = $('af-badge').value, fr = $('af-review') ? $('af-review').value : '', q = $('af-search').value.trim();
   const filtered = list.filter(r => {
     if (fc && r.className !== fc) return false;
     if (fk && r.kind !== fk) return false;
     if (fb && r.badge !== fb) return false;
+    if (fr && (r.review || '待教師審查') !== fr) return false;
     if (q && !(r.name.includes(q) || r.topic.includes(q) || r.seat.includes(q))) return false;
     return true;
   });
@@ -2979,13 +3004,15 @@ function renderAdminSubmissions() {
   }
   box.innerHTML = '';
   filtered.forEach(r => {
+    const isPending = (r.review !== '已審查核准') || (r.badge === '待審核');
     const el = document.createElement('div');
-    el.className = 'adm-item' + (r.badge === '待審核' ? ' pending' : '');
+    el.className = 'adm-item' + (isPending ? ' pending' : '');
     const rc = esc(r.receipt);
     const isChecked = state.adminSelected.has(r.receipt);
     const growthTag = (typeof r.prevScore === 'number' && typeof r.score === 'number')
       ? `<span class="growth-pill" style="font-size:11px;padding:1px 7px;margin-left:4px">${esc(formatGrowthText(r.prevScore, r.score))}</span>`
       : '';
+    const revClass = r.review === '已審查核准' ? 'chip-note' : (r.review === '請學生修正' ? 'chip-invalid' : 'chip-gold');
     el.innerHTML = `
       <div class="adm-head">
         <label style="display:inline-flex;align-items:center;cursor:pointer">
@@ -2996,6 +3023,7 @@ function renderAdminSubmissions() {
         <span class="chip">${esc(r.kind)}</span>
         ${r.score !== null ? `<span class="chip tech" style="font-weight:800">${r.score} 分</span>` : ''}
         ${growthTag}
+        <span class="chip ${revClass}">審查：${esc(r.review || '待教師審查')}</span>
         <span class="chip ${r.badge === '待審核' ? 'chip-gold' : ''}">胸章：${esc(r.badge)}</span>
         <span class="small muted" style="margin-left:auto">${esc(r.time)}</span>
         <button type="button" class="btn btn-sm" data-preview-rc="${rc}">🔍 頁內預覽</button>
@@ -3160,17 +3188,32 @@ function applyLightboxTransform() {
 async function handleBatchAdminAction(action) {
   const receipts = Array.from(state.adminSelected || []);
   if (!receipts.length) return toast('請先在左側勾選至少一筆作品！');
-  const label = action === 'approve_badge' ? '批次核准所選胸章' : '批次標記已審查核准';
+  let label = '批次審查通過（達標者自動核發胸章）';
+  if (action === 'approve_badge') label = '僅核准所選胸章發放';
+  else if (action === 'request_revision') label = '批次標記請學生修正';
+  else if (action === 'mark_reviewed') label = '批次僅標記已審查';
+
   if (!confirm(`確定要將已選取的 ${receipts.length} 筆作品進行【${label}】嗎？`)) return;
 
-  toast(`正在執行 ${label}…`);
+  const btnReview = $('btn-batch-review'), btnApprove = $('btn-batch-approve'), btnRevise = $('btn-batch-revise');
+  [btnReview, btnApprove, btnRevise].forEach(b => { if (b) b.disabled = true; });
+  toast(`正在執行 ${label}，請稍候…`);
   try {
     const res = await rpc('batchReviewSubmissions', { password: state.adminPwd, receipts, batchAction: action });
-    toast(`✓ 已成功完成 ${res.updatedCount} 筆作品審查！`);
+    let msg = `✓ 已成功更新 ${res.updatedCount || 0} 筆作品審核狀態！`;
+    if (res.badgeApprovedCount > 0) {
+      msg += `（其中 ${res.badgeApprovedCount} 筆達標作品已完成胸章核發並同步收錄至成果星空）`;
+    }
+    toast(msg);
     state.adminSelected.clear();
     await loadAdminOverview();
+    if (!$('view-gallery').classList.contains('hidden')) {
+      await loadGallery();
+    }
   } catch (err) {
     toast(err.message || '批次操作失敗');
+  } finally {
+    [btnReview, btnApprove, btnRevise].forEach(b => { if (b) b.disabled = false; });
   }
 }
 
@@ -3770,7 +3813,7 @@ document.querySelectorAll('.tabs button[data-tab]').forEach(b => b.addEventListe
   document.querySelectorAll('.tabs button[data-tab]').forEach(x => x.setAttribute('aria-selected', x === b));
   document.querySelectorAll('#admin-body > [data-panel]').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== b.dataset.tab));
 }));
-['af-class', 'af-kind', 'af-badge', 'af-search'].forEach(id => $(id).addEventListener('input', renderAdminSubmissions));
+['af-class', 'af-kind', 'af-badge', 'af-review', 'af-search'].forEach(id => $(id)?.addEventListener('input', renderAdminSubmissions));
 $('btn-admin-refresh').addEventListener('click', loadAdminOverview);
 
 // 後台雷達圖切換向度視角
@@ -3786,8 +3829,9 @@ $('adm-check-all')?.addEventListener('change', e => {
   document.querySelectorAll('.adm-row-check').forEach(c => { c.checked = checked; });
   updateAdminBatchUI();
 });
+$('btn-batch-review')?.addEventListener('click', () => handleBatchAdminAction('approve_review'));
 $('btn-batch-approve')?.addEventListener('click', () => handleBatchAdminAction('approve_badge'));
-$('btn-batch-review')?.addEventListener('click', () => handleBatchAdminAction('mark_reviewed'));
+$('btn-batch-revise')?.addEventListener('click', () => handleBatchAdminAction('request_revision'));
 $('btn-batch-clear')?.addEventListener('click', () => {
   state.adminSelected.clear();
   document.querySelectorAll('.adm-row-check').forEach(c => { c.checked = false; });
@@ -3996,6 +4040,20 @@ $('btn-format-sheet').addEventListener('click', async () => {
   try {
     await rpc('formatAllSheets', { password: state.adminPwd });
     setMsg('sheet-msg', '✓ 已成功將三張工作表所有儲存格設定為「自動換列」與「最適欄寬」！');
+  } catch (err) { setMsg('sheet-msg', err.message, true); }
+});
+$('btn-clean-gallery')?.addEventListener('click', async () => {
+  if (!confirm('確定要執行【一鍵修復星空縮圖 ＆ 清理未達標胸章】嗎？\n\n系統將自動：\n1. 從公開成果星空中移除未達門檻或無法辨識之作品\n2. 檢查雲端硬碟，為星空中缺少照片的達標胸章自動補齊高清縮圖\n3. 同步校正總表之胸章狀態')) return;
+  setMsg('sheet-msg', '正在自動修復縮圖並清理未達標胸章，請稍候…');
+  try {
+    const res = await rpc('cleanAndRepairGallery', { password: state.adminPwd });
+    const msg = `✓ 星空整理完成！已清理未達標作品 ${res.removedCount} 筆，成功補齊縮圖 ${res.repairedCount} 筆！`;
+    setMsg('sheet-msg', msg);
+    toast(msg);
+    await loadAdminOverview();
+    if (!$('view-gallery').classList.contains('hidden')) {
+      await loadGallery();
+    }
   } catch (err) { setMsg('sheet-msg', err.message, true); }
 });
 
