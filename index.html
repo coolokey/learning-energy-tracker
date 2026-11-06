@@ -338,6 +338,34 @@
   .confetti { position: fixed; top: -10px; width: 9px; height: 9px; z-index: 80; pointer-events: none; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(105vh) rotate(720deg); opacity: 0; } }
 
+  .field-invalid {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3.5px rgba(220, 38, 38, 0.28) !important;
+    animation: fieldShake 0.45s ease-in-out !important;
+  }
+  @keyframes fieldShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+  #btn-submit-batch {
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(217, 119, 6, 0.32);
+    transition: transform .12s ease, filter .15s ease, opacity .15s ease, background-color .15s ease, box-shadow .15s ease;
+  }
+  #btn-submit-batch:hover:not(:disabled) {
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 20px rgba(217, 119, 6, 0.42);
+  }
+  #btn-submit-batch:active:not(:disabled) {
+    transform: translateY(1px) scale(0.985);
+  }
+  #btn-submit-batch:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    filter: grayscale(25%);
+  }
+
   @media (max-width: 880px) {
     .submit-layout, .result-grid, .traj-main, .badge-layout, .settings-grid { grid-template-columns: 1fr; }
     .hero { order: 2; }
@@ -1469,7 +1497,17 @@ function toast(msg) {
   el.textContent = msg;
   el.classList.remove('hidden');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.add('hidden'), 2600);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), 3200);
+}
+
+function highlightField(id) {
+  const el = $(id);
+  if (!el) return;
+  el.classList.add('field-invalid');
+  const clear = () => el.classList.remove('field-invalid');
+  el.addEventListener('input', clear, { once: true });
+  el.addEventListener('change', clear, { once: true });
+  setTimeout(clear, 3400);
 }
 
 function setStatus(msg, isErr = false) {
@@ -2257,12 +2295,75 @@ function validateFormCommon() {
   const seat = $('f-seat').value.trim();
   const name = $('f-name').value.trim();
   const assignment = $('f-assignment').value;
-  if (!className || !seat || !name) { setStatus('請填寫班級、座號與姓名。', true); return null; }
-  if (!/^\d{1,2}$/.test(seat) || Number(seat) < 1 || Number(seat) > 99) { setStatus('座號請填 1 到 99。', true); return null; }
-  if (!assignment) { setStatus('請選擇作業項目。', true); return null; }
-  if (!state.file) { setStatus('請先拍照或選擇作品檔案。', true); return null; }
-  if ($('chk-clear') && !$('chk-clear').checked) { setStatus('請先勾選「繳交前自我檢核：畫面清晰、沒有模糊或手震遮擋」。', true); return null; }
-  if ($('chk-complete') && !$('chk-complete').checked) { setStatus('請先勾選「繳交前自我檢核：確認已包含老師要求的完整內容」。', true); return null; }
+
+  if (!className) {
+    highlightField('f-class');
+    $('f-class')?.focus();
+    $('f-class')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('⚠️ 請填寫班級（例如 701）！');
+    setStatus('請填寫班級。', true);
+    return null;
+  }
+  if (!seat) {
+    highlightField('f-seat');
+    $('f-seat')?.focus();
+    $('f-seat')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('⚠️ 請填寫座號（1 ～ 99）！');
+    setStatus('請填寫座號。', true);
+    return null;
+  }
+  if (!/^\d{1,2}$/.test(seat) || Number(seat) < 1 || Number(seat) > 99) {
+    highlightField('f-seat');
+    $('f-seat')?.focus();
+    $('f-seat')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('⚠️ 座號請填 1 到 99！');
+    setStatus('座號請填 1 到 99。', true);
+    return null;
+  }
+  if (!name) {
+    highlightField('f-name');
+    $('f-name')?.focus();
+    $('f-name')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('⚠️ 請填寫學生姓名！');
+    setStatus('請填寫姓名。', true);
+    return null;
+  }
+  if (!assignment) {
+    highlightField('f-assignment');
+    $('f-assignment')?.focus();
+    $('f-assignment')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('⚠️ 請選擇本次作業項目！');
+    setStatus('請選擇作業項目。', true);
+    return null;
+  }
+
+  // 自動補齊 state.file（批次胸章模式容錯）
+  if (!state.file && state.badgeBatch && state.badgeBatch.length > 0) {
+    state.file = state.badgeBatch[state.activeBadgeIdx || 0];
+  }
+
+  if (!state.file) {
+    highlightField('drop');
+    $('drop')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('⚠️ 請先拍照或選擇作品圖片！');
+    setStatus('請先拍照或選擇作品檔案。', true);
+    return null;
+  }
+
+  if ($('chk-clear') && !$('chk-clear').checked) {
+    highlightField('chk-clear');
+    $('chk-clear')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('⚠️ 請勾選「自我檢核：畫面清晰」！');
+    setStatus('請先勾選「繳交前自我檢核：畫面清晰、沒有模糊或手震遮擋」。', true);
+    return null;
+  }
+  if ($('chk-complete') && !$('chk-complete').checked) {
+    highlightField('chk-complete');
+    $('chk-complete')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('⚠️ 請勾選「自我檢核：確認完整內容」！');
+    setStatus('請先勾選「繳交前自我檢核：確認已包含老師要求的完整內容」。', true);
+    return null;
+  }
 
   let artTheme = '', studentNote = '', subject = '', artMedium = '';
   if (state.submitMode === 'art') {
@@ -2281,6 +2382,12 @@ async function submitForm(e) {
   const v = validateFormCommon();
   if (!v) return;
   const { className, seat, name, assignment, artTheme, studentNote, subject, artMedium } = v;
+
+  const btnSubmit = $('btn-submit');
+  const btnBatch = $('btn-submit-batch');
+  const origText = btnSubmit ? btnSubmit.textContent : '';
+  if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.textContent = '⏳ 正在上傳與評分…'; }
+  if (btnBatch) btnBatch.disabled = true;
 
   let activeFile = state.file;
   if (state.file.mimeType !== 'application/pdf' && state.preCrop.active) {
@@ -2342,15 +2449,36 @@ async function submitForm(e) {
     clearInterval(timer);
     switchView('submit');
     setStatus(err.message || '送出失敗，請稍後再試。', true);
+    toast(err.message || '送出失敗，請稍後再試。');
+  } finally {
+    if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.textContent = origText; }
+    if (btnBatch) btnBatch.disabled = false;
   }
 }
 
 async function submitBadgeBatch() {
+  if (!state.badgeBatch || state.badgeBatch.length < 2) {
+    toast('⚠️ 批次送出需至少 2 枚胸章，目前僅有 1 枚，請按上方「開始 AI 評分」送出或點擊「➕ 再加胸章圖」！');
+    return;
+  }
   const v = validateFormCommon();
-  if (!v || state.badgeBatch.length < 2) return;
+  if (!v) return;
+
   saveCurrentBadgeCropThumb();
   const { className, seat, name, assignment, artTheme, studentNote, subject, artMedium } = v;
   const total = state.badgeBatch.length;
+
+  const btnBatch = $('btn-submit-batch');
+  const btnSubmit = $('btn-submit');
+  const origBatchText = btnBatch ? btnBatch.textContent : '';
+  const origSubmitText = btnSubmit ? btnSubmit.textContent : '';
+
+  if (btnBatch) {
+    btnBatch.disabled = true;
+    btnBatch.textContent = `⏳ 正在準備批次送出全部 ${total} 枚胸章…`;
+  }
+  if (btnSubmit) btnSubmit.disabled = true;
+
   $('scan-pdf').classList.add('hidden');
   $('scan-img').classList.remove('hidden');
   switchView('scan');
@@ -2359,10 +2487,12 @@ async function submitBadgeBatch() {
   try {
     for (let i = 0; i < total; i++) {
       const item = state.badgeBatch[i];
+      $('scan-stage').textContent = `正在準備第 ${i + 1} / ${total} 枚胸章…`;
+      $('scan-sub').textContent = `檔名：${item.name}（進行高解析圓形對位裁切…）`;
       const framed = await frameSingleBadgeItem(item);
       $('scan-img').src = framed.dataUrl;
       $('scan-stage').textContent = `正在批次掃描第 ${i + 1} / ${total} 枚胸章作品…`;
-      $('scan-sub').textContent = `檔名：${item.name}（完成後可一鍵輸出 A4 六宮格印刷單）`;
+      $('scan-sub').textContent = `檔名：${item.name}（AI 多模態五維美感分析中，完成後可一鍵輸出 A4 印刷單）`;
       const res = await rpc('uploadSubmission', {
         requestId: uuid(),
         className, seat, name, assignment,
@@ -2398,6 +2528,16 @@ async function submitBadgeBatch() {
     } else {
       switchView('submit');
       setStatus(err.message || '批次送出失敗，請稍後再試。', true);
+      toast(`❌ 批次送出中斷：${err.message || '請稍後再試'}`);
+    }
+  } finally {
+    if (btnBatch) {
+      btnBatch.disabled = false;
+      btnBatch.textContent = origBatchText || `🚀 批次送出全部 ${state.badgeBatch.length} 枚胸章進行 AI 評分`;
+    }
+    if (btnSubmit) {
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = origSubmitText || '開始 AI 胸章美感評分';
     }
   }
 }
@@ -2416,7 +2556,10 @@ function renderBatchResultTabs() {
     const sc = item.ai && typeof item.ai.score === 'number' ? `${item.ai.score}分` : '已收件';
     html += `<button type="button" class="batch-tab-btn" data-batch-idx="${i}" aria-selected="${i === state.activeBatchResIdx}">#${i + 1} ${esc((item.ai?.topic || '胸章').slice(0, 6))} (${sc})</button>`;
   });
-  html += `<button type="button" class="btn btn-sm btn-gold" id="btn-batch-res-a4" style="margin-left:auto">🖨️ 全部排入 A4 六宮格 1:1 印刷單</button>`;
+  html += `<div style="display:flex;gap:6px;margin-left:auto;flex-wrap:wrap">
+    <button type="button" class="btn btn-sm btn-gold" id="btn-batch-save-all">🏅 批次儲存全部胸章進星空</button>
+    <button type="button" class="btn btn-sm btn-gold" id="btn-batch-res-a4">🖨️ 全部排入 A4 六宮格印刷單</button>
+  </div>`;
   bar.innerHTML = html;
 }
 
@@ -3763,6 +3906,7 @@ function setSubmitMode(mode) {
   const isArt = state.submitMode === 'art';
   if ($('art-purpose-box')) $('art-purpose-box').classList.toggle('hidden', !isArt);
   updateArtPurposeUI();
+  syncBadgeBatchUI();
 
   // 自動對應作業項目下拉選單
   const assigns = state.cfg.assignments || [];
@@ -3779,7 +3923,17 @@ function setSubmitMode(mode) {
 function setArtPurpose(purpose) {
   state.artPurpose = purpose === 'badge' ? 'badge' : 'artwork';
   document.querySelectorAll('#art-purpose-box .mode-btn[data-art-purpose]').forEach(b => b.setAttribute('aria-pressed', b.dataset.artPurpose === state.artPurpose));
+  if (state.artPurpose === 'badge' && state.file && (!state.badgeBatch || state.badgeBatch.length === 0)) {
+    state.badgeBatch = [{
+      ...state.file,
+      id: uuid(),
+      savedCrop: state.preCrop?.active ? { ...state.preCrop } : null,
+      framedUrl: state.file.dataUrl
+    }];
+    renderBadgeBatchStrip();
+  }
   updateArtPurposeUI();
+  syncBadgeBatchUI();
 }
 
 function updateArtPurposeUI() {
@@ -4075,10 +4229,22 @@ $('f-badge-more')?.addEventListener('change', async e => {
   if (!files || !files.length) return;
   try {
     const more = await compressBadgeBatch(files);
+    if (!state.badgeBatch || state.badgeBatch.length === 0) {
+      if (state.file && state.file.mimeType !== 'application/pdf') {
+        state.badgeBatch = [{
+          ...state.file,
+          id: uuid(),
+          savedCrop: state.preCrop?.active ? { ...state.preCrop } : null,
+          framedUrl: state.file.dataUrl
+        }];
+      } else {
+        state.badgeBatch = [];
+      }
+    }
     state.badgeBatch = [...state.badgeBatch, ...more].slice(0, 6);
     renderBadgeBatchStrip();
     syncBadgeBatchUI();
-    toast(`已更新為 ${state.badgeBatch.length} 枚胸章（單次上限 6 枚）`);
+    toast(`✓ 已更新為 ${state.badgeBatch.length} 枚胸章（單次上限 6 枚）`);
   } catch (err) {
     toast(err.message || '加入圖片失敗');
   }
@@ -4099,11 +4265,14 @@ $('f-file').addEventListener('change', async e => {
       state.activeBadgeIdx = 0;
       showSelectedFile(batch[0]);
       syncBadgeBatchUI();
-      setStatus(batch.length > 1
+      const readyMsg = batch.length > 1
         ? `已就緒 ${batch.length} 枚胸章！點選縮圖可切換取景，或直接「🚀 批次送出全部評分」。`
-        : '胸章底圖已就緒，可調整圓形取景與使用上方工具修圖，完成後請按「送出作品」。');
+        : '胸章底圖已就緒，可調整圓形取景與使用上方工具修圖，完成後請按「送出作品」。';
+      setStatus(readyMsg);
+      toast(batch.length > 1 ? `✓ 已成功載入 ${batch.length} 枚胸章！下方可批次送審` : '✓ 胸章圖片已就緒！');
     } catch (err) {
       setStatus(err.message || '檔案處理失敗', true);
+      toast(err.message || '檔案處理失敗');
     }
     return;
   }
@@ -4144,8 +4313,57 @@ $('r-batch-tabs')?.addEventListener('click', e => {
   }
   if (e.target.closest('#btn-batch-res-a4')) {
     exportResultA4Badges('download');
+    return;
+  }
+  if (e.target.closest('#btn-batch-save-all')) {
+    batchSaveAllBadges();
+    return;
   }
 });
+
+async function batchSaveAllBadges() {
+  if (!state.batchResults || !state.batchResults.length) return;
+  const th = state.cfg.badgeThreshold || 80;
+  const eligible = state.batchResults.filter(item => (item.ai?.score || 0) >= th);
+  if (!eligible.length) {
+    toast(`⚠️ 目前這批胸章評分均未達 ${th} 分標準，尚無法發放胸章。`);
+    return;
+  }
+  const btn = $('btn-batch-save-all');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 正在批次生成並儲存胸章…'; }
+  toast(`正在將 ${eligible.length} 枚達標胸章儲存至雲端…`);
+
+  let okCount = 0;
+  for (let i = 0; i < eligible.length; i++) {
+    const item = eligible[i];
+    try {
+      const pngDataUrl = makeEmblemDataUrl(item.ai?.topic || '能量胸章', item.ai?.score || 90, item.ai?.kind || 'art', item.student?.name || '');
+      const thumbDataUrl = await makeThumbDataUrl(item.previewUrl || pngDataUrl);
+      const res = await rpc('saveBadge', {
+        receipt: item.receipt,
+        imageBase64: pngDataUrl,
+        thumbBase64: thumbDataUrl
+      });
+      item.badge = res.status;
+      item.badgePng = pngDataUrl;
+      okCount++;
+    } catch (e) {
+      console.warn('Batch save single badge failed:', e);
+    }
+  }
+
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = '✓ 已完成胸章批次儲存';
+  }
+  const isTeacherApproval = state.cfg.badgeApproval === 'teacher';
+  if (isTeacherApproval) {
+    toast(`✓ 已成功儲存 ${okCount} 枚胸章！目前設定為教師審核模式，待老師後台核准後即會呈現在成果星空！`);
+  } else {
+    toast(`✓ 已成功儲存 ${okCount} 枚胸章並發布至成果星空！可點擊上方導覽列「成果星空」查看！`);
+  }
+  showResult();
+}
 document.querySelectorAll('#r-overlay-modes button').forEach(b => b.addEventListener('click', () => {
   state.overlayMode = b.dataset.overlay;
   document.querySelectorAll('#r-overlay-modes button').forEach(x => x.setAttribute('aria-pressed', x === b));
