@@ -487,15 +487,37 @@
   .tm-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
   .tm-nav {
-    display: flex; gap: 6px; flex-wrap: nowrap; margin-bottom: 22px;
-    background: #f8faf6; padding: 6px; border-radius: 12px; border: 1px solid #e3ebe1;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-bottom: 22px;
+    background: #f8faf6;
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid #e3ebe1;
+    box-sizing: border-box;
+    width: 100%;
   }
   .tm-tab-btn {
-    flex: 1 1 auto;
-    text-align: center; justify-content: center; display: inline-flex; align-items: center;
-    border: 1px solid transparent; background: transparent; padding: 8px 10px;
-    border-radius: 8px; font-size: 13px; font-weight: 700; color: #496357;
-    white-space: nowrap; transition: all .15s; cursor: pointer;
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 8px 4px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #496357;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all .15s;
+    cursor: pointer;
+    box-sizing: border-box;
   }
   .tm-tab-btn:hover { background: #eef3eb; color: var(--ink); }
   .tm-tab-btn[aria-selected="true"] {
@@ -606,13 +628,14 @@
     #btn-admin-a4-badges { margin-left: 0 !important; width: 100%; }
   }
 
-  /* 教師手冊導覽鈕全螢幕與響應式排版 */
-  @media (max-width: 1060px) {
-    .tm-nav { flex-wrap: wrap !important; gap: 6px; }
-    .tm-tab-btn { flex: 1 1 calc(33.333% - 6px); min-width: 140px; }
+  /* 教師手冊響應式導覽（桌面 6 欄整齊並排 1~6 全部完整呈現、平板 3 欄、手機 2 欄） */
+  @media (max-width: 960px) {
+    .tm-nav { grid-template-columns: repeat(3, 1fr); }
+    .tm-tab-btn { padding: 9px 6px; }
   }
-  @media (max-width: 640px) {
-    .tm-tab-btn { flex: 1 1 calc(50% - 6px); min-width: 125px; padding: 8px 6px; font-size: 12px; }
+  @media (max-width: 540px) {
+    .tm-nav { grid-template-columns: repeat(2, 1fr); }
+    .tm-tab-btn { font-size: 12px; padding: 8px 4px; }
   }
 
   .tm-faq-item {
@@ -862,12 +885,12 @@
       </div>
 
       <nav class="tm-nav" aria-label="手冊章節切換">
-        <button type="button" class="tm-tab-btn" data-tm-tab="phil" aria-selected="true">🎓 一、理念與五維指標</button>
-        <button type="button" class="tm-tab-btn" data-tm-tab="workflow" aria-selected="false">🚀 二、課堂實施三步走</button>
-        <button type="button" class="tm-tab-btn" data-tm-tab="rubric" aria-selected="false">📝 三、作業項目與評分規準</button>
-        <button type="button" class="tm-tab-btn" data-tm-tab="review" aria-selected="false">🔍 四、作業審核、調分與批次</button>
-        <button type="button" class="tm-tab-btn" data-tm-tab="badge" aria-selected="false">🖨️ 五、胸章印刷與成果冊匯出</button>
-        <button type="button" class="tm-tab-btn" data-tm-tab="faq" aria-selected="false">❓ 六、常見問題 FAQ</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="phil" aria-selected="true" title="第一章：核心理念與五維評量指標">🎓 一、理念與指標</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="workflow" aria-selected="false" title="第二章：課堂實施三步走（學生端指引）">🚀 二、實施三步走</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="rubric" aria-selected="false" title="第三章：作業項目與評分規準（教師指引）">📝 三、作業與規準</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="review" aria-selected="false" title="第四章：作業審核、調分與智慧批次">🔍 四、審核與調分</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="badge" aria-selected="false" title="第五章：胸章印刷與成果冊匯出">🖨️ 五、胸章成果冊</button>
+        <button type="button" class="tm-tab-btn" data-tm-tab="faq" aria-selected="false" title="第六章：常見問題與疑難排解 FAQ">❓ 六、常見 FAQ</button>
       </nav>
 
       <!-- 第一章：核心理念與五維評析指標 -->
