@@ -96,11 +96,33 @@
   .lg-art { background: var(--amber); transform: rotate(45deg); }
   .lg-badge { border-radius: 50%; border: 2px solid var(--amber); background: #fff7e6; }
   .traj-svg { width: 100%; height: auto; display: block; overflow: visible; }
-  .traj-path { fill: none; stroke: var(--forest); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-  .traj-path.draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: drawPath 1.6s ease-out forwards; }
+  .traj-path { fill: none; stroke: var(--forest); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+  .traj-path.draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: drawPath 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   .traj-node { opacity: 0; animation: nodeIn .35s ease-out forwards; }
   @keyframes drawPath { to { stroke-dashoffset: 0; } }
   @keyframes nodeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .traj-halo { animation: haloPulse 2.4s ease-out infinite; transform-origin: center center; }
+  @keyframes haloPulse {
+    0% { r: 8; opacity: 0.85; stroke-width: 2.2; }
+    65% { r: 20; opacity: 0; stroke-width: 0.5; }
+    100% { r: 20; opacity: 0; }
+  }
+  .badge-unlocked-banner {
+    display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #f59e0b; border-radius: 12px; margin-bottom: 16px;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.14);
+    animation: bannerPop 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes bannerPop {
+    from { transform: scale(0.95) translateY(4px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .badge-unlocked-banner .medal-icon {
+    font-size: 30px; line-height: 1;
+    animation: medalFloat 2s ease-in-out infinite alternate;
+  }
+  @keyframes medalFloat { from { transform: translateY(0); } to { transform: translateY(-4px); } }
   .how { display: grid; gap: 10px; margin-top: 18px; }
   .how > div { display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: 13px; color: #33524a; }
   .how > div > b { font-family: var(--tech); color: var(--amber); font-size: 13px; padding-top: 1px; }
@@ -249,12 +271,43 @@
   .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
 
   /* ---------- 星空藝廊 ---------- */
-  .gallery-hero { padding: 26px 22px; background: radial-gradient(circle at 20% 20%, #24654d, #173e35 55%, #0c211b); color: #fff; border-radius: var(--radius); margin-bottom: 18px; }
-  .gallery-hero h2 { font-size: 24px; }
-  .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
-  .g-card { padding: 14px 10px; text-align: center; }
-  .g-card img { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 3px solid var(--amber); display: block; margin: 0 auto 8px; }
-  .g-card b { display: block; font-family: var(--serif); font-size: 13.5px; }
+  .gallery-hero {
+    position: relative; overflow: hidden;
+    padding: 32px 26px;
+    background: radial-gradient(circle at 20% 25%, #2a7256 0%, #153c31 45%, #081a15 85%, #040d0a 100%);
+    color: #fff; border-radius: var(--radius); margin-bottom: 18px;
+    box-shadow: 0 10px 30px rgba(8, 26, 21, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  .gallery-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 35px 25px, #ffffff 100%, transparent),
+      radial-gradient(2px 2px at 140px 65px, #fde68a 100%, transparent),
+      radial-gradient(1px 1px at 280px 30px, #a7f3d0 100%, transparent),
+      radial-gradient(2px 2px at 450px 75px, #ffffff 100%, transparent),
+      radial-gradient(1.2px 1.2px at 620px 20px, #fde68a 100%, transparent),
+      radial-gradient(2.2px 2.2px at 780px 60px, #6ee7b7 100%, transparent),
+      radial-gradient(1.5px 1.5px at 940px 35px, #ffffff 100%, transparent),
+      radial-gradient(1px 1px at 1080px 80px, #fde68a 100%, transparent);
+    background-size: 1160px 100px; opacity: 0.65; pointer-events: none;
+    animation: starTwinkle 4s ease-in-out infinite alternate;
+  }
+  @keyframes starTwinkle {
+    0% { opacity: 0.45; transform: scale(1); }
+    100% { opacity: 0.9; transform: scale(1.02); }
+  }
+  .gallery-hero h2 { font-size: 26px; font-weight: 900; margin: 4px 0 6px; letter-spacing: .02em; }
+  .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(154px, 1fr)); gap: 16px; }
+  .g-card {
+    padding: 16px 12px 14px; text-align: center;
+    background: #ffffff; border: 1px solid rgba(220, 230, 215, 0.85); border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(23,62,53,.04);
+  }
+  .g-card b { display: block; font-family: var(--serif); font-size: 13.5px; margin-top: 2px; }
+  .g-card-score {
+    background: #fff8eb; color: #b45309; font-weight: 800; padding: 2px 8px;
+    border-radius: 999px; border: 1px solid #fde68a; font-size: 11.5px;
+  }
 
   /* ---------- 教師後台 ---------- */
   .modal { position: fixed; inset: 0; z-index: 60; background: rgba(12, 28, 23, .55); display: flex; align-items: flex-start; justify-content: center; padding: 30px 14px; overflow-y: auto; }
@@ -320,9 +373,25 @@
   .lb-stage { position: relative; height: 62vh; min-height: 300px; background: #10201b; border-radius: 12px; overflow: auto; display: grid; place-items: center; padding: 16px; }
   .lb-stage img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform .18s ease-out; transform-origin: center center; border-radius: 6px; box-shadow: 0 8px 28px rgba(0,0,0,.45); }
 
-  .g-card { cursor: pointer; transition: transform .2s, box-shadow .2s, border-color .2s; position: relative; }
-  .g-card:hover { transform: translateY(-4px); border-color: var(--amber); box-shadow: 0 12px 26px rgba(23, 62, 53, .12); }
-  .g-card-pin { position: relative; width: 100px; height: 100px; margin: 0 auto 8px; border-radius: 50%; overflow: hidden; border: 3px solid var(--amber); box-shadow: 0 6px 14px rgba(23,62,53,.22), inset 0 -4px 8px rgba(0,0,0,.22); }
+  .g-card {
+    cursor: pointer; position: relative;
+    transition: transform .22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .22s cubic-bezier(0.16, 1, 0.3, 1), border-color .22s;
+  }
+  .g-card:hover {
+    transform: translateY(-6px);
+    border-color: #f59e0b;
+    box-shadow: 0 16px 32px rgba(23, 62, 53, .13), 0 0 20px rgba(245, 158, 11, .18);
+  }
+  .g-card-pin {
+    position: relative; width: 104px; height: 104px; margin: 0 auto 10px;
+    border-radius: 50%; overflow: hidden; border: 3.5px solid #f59e0b;
+    box-shadow: 0 6px 16px rgba(23,62,53,.24), inset 0 -4px 8px rgba(0,0,0,.25);
+    transition: transform .25s ease-out, box-shadow .25s ease-out;
+  }
+  .g-card:hover .g-card-pin {
+    transform: scale(1.06);
+    box-shadow: 0 8px 24px rgba(245, 158, 11, .45), inset 0 -4px 8px rgba(0,0,0,.25);
+  }
   .g-card-pin img { width: 100%; height: 100%; object-fit: cover; border: 0; margin: 0; border-radius: 0; }
   .g-card-pin::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 30% 24%, rgba(255,255,255,.58) 0%, rgba(255,255,255,0) 52%); pointer-events: none; }
   .g-3d-stage { perspective: 750px; width: 250px; height: 250px; margin: 8px auto 14px; display: grid; place-items: center; touch-action: none; }
@@ -335,8 +404,18 @@
   }
 
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 14px; z-index: 90; box-shadow: 0 10px 24px rgba(0, 0, 0, .2); }
-  .confetti { position: fixed; top: -10px; width: 9px; height: 9px; z-index: 80; pointer-events: none; animation: fall linear forwards; }
-  @keyframes fall { to { transform: translateY(105vh) rotate(720deg); opacity: 0; } }
+  .confetti {
+    position: fixed; top: -14px; width: 10px; height: 10px; z-index: 100; pointer-events: none;
+    animation: fall linear forwards;
+  }
+  .confetti-circle { border-radius: 50%; }
+  .confetti-ribbon { width: 5px; height: 16px; border-radius: 2px; }
+  .confetti-star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+  @keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    80% { opacity: 0.95; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+  }
 
   .field-invalid {
     border-color: #dc2626 !important;
@@ -1076,6 +1155,13 @@
 
     <!-- 胸章 -->
     <div id="badge-panel" class="panel badge-panel hidden">
+      <div class="badge-unlocked-banner">
+        <span class="medal-icon">🏅</span>
+        <div>
+          <strong style="color:#78350f;font-size:15px;display:block">恭喜榮獲自主學習能量胸章製作資格！</strong>
+          <span style="font-size:12.5px;color:#92400e;line-height:1.4;display:block;margin-top:2px">你的創作能量優異達標，已獲發官方 58mm 實體胸章鑄造榮譽！快調整圓形取景並儲存進成果星空！</span>
+        </div>
+      </div>
       <div class="eyebrow">MAKER BADGE</div>
       <h2 style="font-size:22px;margin:4px 0 2px">你解鎖了 58mm 能量胸章</h2>
       <p class="small muted" style="margin:0 0 14px" id="badge-lead">調整胸章畫面後按「儲存胸章」，就能下載印刷檔與證書（也可換一張自己畫的胸章圖）。</p>
@@ -1664,9 +1750,31 @@ function renderTrajectorySvg(svg, items) {
   if (pts.length > 1) {
     const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
     const area = `${d} L${pts.at(-1)[0].toFixed(1)},${(padT + plotH).toFixed(1)} L${pts[0][0].toFixed(1)},${(padT + plotH).toFixed(1)} Z`;
-    html += `<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#24654d" stop-opacity=".22"/><stop offset="100%" stop-color="#24654d" stop-opacity="0"/></linearGradient></defs>`;
+    html += `<defs>
+      <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#10b981" stop-opacity=".32"/>
+        <stop offset="60%" stop-color="#24654d" stop-opacity=".12"/>
+        <stop offset="100%" stop-color="#24654d" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="trajStrokeGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#24654d"/>
+        <stop offset="55%" stop-color="#059669"/>
+        <stop offset="100%" stop-color="#f59e0b"/>
+      </linearGradient>
+    </defs>`;
     html += `<path d="${area}" fill="url(#tg)"/>`;
-    html += `<path class="traj-path draw" style="--len:900" d="${d}"/>`;
+    html += `<path class="traj-path draw" stroke="url(#trajStrokeGrad)" style="--len:900" d="${d}"/>`;
+
+    // 成長躍升激勵標籤
+    const firstScore = Number(pts[0][2].score || 0);
+    const lastScore = Number(pts.at(-1)[2].score || 0);
+    const growthDelta = lastScore - firstScore;
+    if (growthDelta > 0) {
+      html += `<g class="traj-leap-badge" style="animation:nodeIn .5s ease-out forwards">
+        <rect x="${W - padR - 114}" y="${padT - 18}" width="116" height="22" rx="11" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.2"/>
+        <text x="${W - padR - 56}" y="${padT - 3}" text-anchor="middle" font-size="11" font-weight="800" fill="#b45309">🚀 累計躍升 +${growthDelta}分</text>
+      </g>`;
+    }
   }
 
   pts.forEach(([x, y, r], i) => {
@@ -1677,6 +1785,7 @@ function renderTrajectorySvg(svg, items) {
     const dateStr = (r.time || '').slice(5, 10);
     html += `<g class="traj-node" style="animation-delay:${delay}s">`;
     if (hasBadge) {
+      html += `<circle cx="${x}" cy="${y}" class="traj-halo" fill="none" stroke="#f59e0b" stroke-width="1.5"/>`;
       html += `<circle cx="${x}" cy="${y}" r="12" fill="#fff7e6" stroke="#d97706" stroke-width="2"/>`;
     }
     if (isArt) {
@@ -1684,7 +1793,9 @@ function renderTrajectorySvg(svg, items) {
     } else {
       html += `<circle cx="${x}" cy="${y}" r="6.5" fill="#24654d" stroke="#fff" stroke-width="1.8"/>`;
     }
-    html += `<text x="${x}" y="${y - 15}" text-anchor="middle" font-family="Orbitron,monospace" font-weight="800" font-size="11" fill="${r.score >= th ? '#b45309' : '#173e35'}">${r.score}</text>`;
+    // 質感分數數值標籤膠囊
+    html += `<rect x="${x - 17}" y="${y - 25}" width="34" height="16" rx="5" fill="#ffffff" stroke="${r.score >= th ? '#f59e0b' : '#cad8c3'}" stroke-width="1.2"/>`;
+    html += `<text x="${x}" y="${y - 13}" text-anchor="middle" font-family="Orbitron,monospace" font-weight="900" font-size="10.5" fill="${r.score >= th ? '#b45309' : '#173e35'}">${r.score}</text>`;
     html += `<text x="${x}" y="${padT + plotH + 16}" text-anchor="middle" font-size="11" font-weight="700" fill="#173e35">${esc(shortTopic)}</text>`;
     html += `<text x="${x}" y="${padT + plotH + 30}" text-anchor="middle" font-size="10" fill="#5d7068">${esc(dateStr)}</text>`;
     html += `</g>`;
@@ -3493,7 +3604,13 @@ function renderGalleryView(resetLimit = false) {
   // 7. 渲染卡片
   grid.innerHTML = '';
   if (!filtered.length) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1">沒有符合目前篩選條件的星空胸章，請調整篩選項目或重設。</div>';
+    grid.innerHTML = `
+      <div class="empty gallery-empty" style="grid-column:1/-1;padding:48px 20px;text-align:center">
+        <div style="font-size:42px;margin-bottom:12px">🔭</div>
+        <div style="font-weight:800;font-size:16px;color:var(--forest);margin-bottom:6px">成果星空中尚未發現符合條件的胸章</div>
+        <div class="small muted" style="margin-bottom:16px">可能是目前篩選條件較嚴格，建議放寬搜尋關鍵字或切換班級與作品類型</div>
+        <button type="button" class="btn btn-sm btn-gold" onclick="document.getElementById('btn-gf-reset')?.click()">↩️ 重設所有星空篩選</button>
+      </div>`;
     if ($('gallery-more-box')) $('gallery-more-box').classList.add('hidden');
     return;
   }
@@ -3517,7 +3634,7 @@ function renderGalleryView(resetLimit = false) {
       ${safeAssign ? `<div class="small" style="font-size:10px;color:var(--amber-deep);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${safeAssign}</div>` : ''}
       <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center;font-size:11px;border-top:1px solid var(--line);padding-top:6px">
         <span>${safeKind}</span>
-        <span class="tech" style="color:var(--amber);font-weight:800">${Number(item.score)}分</span>
+        <span class="tech g-card-score">${Number(item.score)}分</span>
       </div>
       <div class="g-card-hint small" style="font-size:10.5px;color:var(--forest);font-weight:700;margin-top:4px">🔍 點擊 3D 鑑賞</div>`;
     card.addEventListener('click', () => openGalleryModal(origIdx >= 0 ? origIdx : 0));
@@ -4219,15 +4336,19 @@ function renderPromptChips() {
 
 function fireConfetti() {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const cols = ['#24654d', '#173e35', '#d97706', '#84cc16'];
-  for (let i = 0; i < 32; i++) {
+  const cols = ['#f59e0b', '#d97706', '#10b981', '#24654d', '#fbbf24', '#3b82f6'];
+  const shapes = ['circle', 'ribbon', 'star', 'square'];
+  for (let i = 0; i < 56; i++) {
     const d = document.createElement('div');
-    d.className = 'confetti';
-    d.style.left = Math.random() * 100 + 'vw';
+    const shape = shapes[i % shapes.length];
+    d.className = `confetti confetti-${shape}`;
+    d.style.left = (Math.random() * 96 + 2) + 'vw';
     d.style.background = cols[i % cols.length];
-    d.style.animationDuration = (1.8 + Math.random() * 1.6) + 's';
+    d.style.animationDuration = (1.6 + Math.random() * 1.8) + 's';
+    d.style.animationDelay = (Math.random() * 0.35) + 's';
+    d.style.transform = `scale(${0.7 + Math.random() * 0.6})`;
     document.body.appendChild(d);
-    setTimeout(() => d.remove(), 3500);
+    setTimeout(() => d.remove(), 4200);
   }
 }
 
